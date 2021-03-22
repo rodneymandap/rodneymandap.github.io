@@ -1,5 +1,9 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Head from 'next/head';
+import styles from '../styles/Home.module.css';
+import GitHubIcon from '@material-ui/icons/GitHub';
+import LinkedInIcon from '@material-ui/icons/LinkedIn';
+import { IconButton } from '@material-ui/core';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -15,8 +19,22 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          DevOps Engineer / Self-taught Full Stack Developer
+          DevOps Engineer | Self-taught Full Stack Developer
         </p>
+
+       <div >
+         <IconButton color="primary">
+           <Link href="https://github.com/rodneymandap/">
+            <GitHubIcon/>
+           </Link>
+         </IconButton>
+         <IconButton color="primary">
+           <Link href="https://www.linkedin.com/in/rjmandap">
+            <LinkedInIcon/>
+           </Link>
+         </IconButton>
+       </div>
+
 
       </main>
 
