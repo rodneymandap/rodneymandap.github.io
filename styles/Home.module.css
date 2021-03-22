@@ -114,6 +114,12 @@
   height: 1em;
 }
 
+.icon {
+  /* padding: 10px; */
+  width: 60;
+  height: 60;
+}
+
 @media (max-width: 600px) {
   .grid {
     width: 100%;
