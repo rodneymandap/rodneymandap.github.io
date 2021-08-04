@@ -19,7 +19,7 @@ export default function Home() {
         </h1>
 
         <p className={styles.description}>
-          DevOps Engineer | Self-taught Full Stack Developer
+          Sr. Software Engineer | DevOps Practicioner
         </p>
 
        <div >
