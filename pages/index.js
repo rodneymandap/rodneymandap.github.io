@@ -1,11 +1,10 @@
-import Head from "next/head";
-import styles from "../styles/Home.module.css";
-import GitHubIcon from "@material-ui/icons/GitHub";
-import LinkedInIcon from "@material-ui/icons/LinkedIn";
-import { IconButton } from "@material-ui/core";
-import Link from "next/link";
+// import Head from "next/head";
+// import GitHubIcon from "@material-ui/icons/GitHub";
+// import LinkedInIcon from "@material-ui/icons/LinkedIn";
+// import { IconButton } from "@material-ui/core";
 import Image from "next/image";
 import myPic from "../public/myPic.jpg";
+import myLogo from "../public/logo-white.png";
 
 export default function Home() {
   return (
@@ -13,7 +12,13 @@ export default function Home() {
       <nav className="bg-transparent absolute left-0 top-0 w-full z-50 md:py-[20px]">
         <div className="mx-16">
           <div className="flex items-center justify-between">
-            <div className="text-white">Rodney Mandap</div>
+            <Image
+              className="fill-blue-500"
+              src={myLogo}
+              alt="Rodney"
+              width="100"
+              height="100"
+            />
             <ul className="">
               {/* <li className="relative inline-block">
                 <a className="relative group text-[16px] text-white px-10">
