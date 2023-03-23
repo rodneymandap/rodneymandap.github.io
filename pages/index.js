@@ -1,7 +1,3 @@
-// import Head from "next/head";
-// import GitHubIcon from "@material-ui/icons/GitHub";
-// import LinkedInIcon from "@material-ui/icons/LinkedIn";
-// import { IconButton } from "@material-ui/core";
 import Image from "next/image";
 import myPic from "../public/myPic.jpg";
 import myLogo from "../public/logo-white.png";
@@ -9,8 +5,8 @@ import myLogo from "../public/logo-white.png";
 export default function Home() {
   return (
     <div>
-      <nav className="bg-transparent absolute left-0 top-0 w-full z-50 md:py-[20px]">
-        <div className="mx-16">
+      <nav className="absolute left-0 top-0 z-50 w-full bg-transparent md:py-[20px]">
+        <div className="mx-auto md:max-w-screen-xl">
           <div className="flex items-center justify-between">
             <Image
               className="fill-blue-500"
@@ -36,22 +32,22 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="bg-[#131313] h-[900px] relative z-40 overflow-hidden">
-        <div className="w-full h-full bg-cover bg-center text-left z-50">
-          <div className="mx-16">
+      <section className="relative z-40 h-[900px] overflow-hidden bg-[#131313]">
+        <div className="z-50 h-full w-full bg-cover bg-center text-left">
+          <div className="mx-auto px-1 md:max-w-screen-xl">
             <div className="flex-1">
-              <div className="w-[660px] mt-[210px]">
-                <h2 className="text-[90px] text-white capitalize font-bold leading-[100px] mb-[10px]">
-                  <span className="block text-[#47c3eb] text-[60px]">
+              <div className="mt-[150px] text-center md:mt-[100px] md:w-full md:text-left lg:mt-[210px] lg:w-[660px]">
+                <h2 className="mb-[10px] text-[35px] font-bold capitalize leading-[35px] text-white md:text-[80px] md:leading-[100px]">
+                  <span className="block text-[30px] text-[#47c3eb] md:text-[60px]">
                     Hello,
                   </span>
                   I am Rodney.
                 </h2>
-                <h5 className="text-[#59C378] text-[25px] capitalize font-semibold leading-[39px] mb-[20px]">
+                <h5 className="mb-[10px] text-[20px] font-semibold capitalize leading-[39px] text-[#59C378] md:mb-[20px] md:text-[25px]">
                   Software Engineer | DevOps Practicioner
                 </h5>
 
-                <p className="text-white text-[19px] capitalize font-normal">
+                <p className="text-[15px] font-normal capitalize leading-normal text-white md:text-[19px]">
                   With 7 years of experience in the field, I have developed a
                   deep understanding of Software Development & DevOps and am
                   committed to delivering high-quality work that meets the needs
@@ -61,14 +57,8 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="absolute top-[20%] rounded-[50%] right-[150px] z-10">
-          <Image
-            className="rounded-[50%]"
-            src={myPic}
-            width="500"
-            height="500"
-            alt=""
-          />
+        <div className="absolute top-[50%] z-10 h-[300px] translate-x-14 w-[300px] rounded-[50%] md:max-h-[500px] md:max-w-[500px] lg:top-[20%] lg:h-[500px] lg:w-[500px] md:right-[200px]">
+          <Image className="rounded-[50%]" src={myPic} alt="Rodney's Picture" />
         </div>
       </section>
     </div>
