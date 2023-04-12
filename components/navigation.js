@@ -1,8 +1,5 @@
 import styles from "../styles/Navigation.module.css";
 
-// function NavigationItem() {
-//   return <li className={styles.navItem}>{props}</li>;
-// }
 
 function Navigation() {
   return (
