@@ -40,7 +40,7 @@ export default function Home() {
         </div>
       </nav>
 
-      <section className="relative z-40 h-[900px] overflow-hidden bg-[#131313]">
+      <section className="relative z-40 h-auto min-h-screen overflow-hidden bg-[#131313]">
         <div className="z-50 h-full w-full bg-cover bg-center text-left">
           <div className="mx-auto px-1 md:max-w-screen-xl">
             <div className="flex-1">
