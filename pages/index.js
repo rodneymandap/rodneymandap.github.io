@@ -144,7 +144,7 @@ export default function Home() {
                   Rodney Jan Mandap
                 </h1>
                 <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-                  <span className="gradient-text">Freelance Django Developer</span>
+                  <span className="gradient-text">Python Developer | DevNetOps Engineer</span>
                 </h2>
                 <p className="text-xl text-dark-300 mb-6 max-w-lg">
                   With {yearsOfExperience}+ years of experience crafting robust web applications,
