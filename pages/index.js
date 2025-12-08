@@ -9,39 +9,39 @@ function calculateYearsOfExperience() {
 }
 
 const skills = [
-  { name: "Python", level: 95, color: "bg-accent-python", icon: "🐍" },
-  { name: "Docker", level: 90, color: "bg-accent-docker", icon: "🐳" },
+  { name: "Django", level: 95, color: "bg-[#092e20]", icon: "🎯" },
+  { name: "Python", level: 92, color: "bg-accent-python", icon: "🐍" },
+  { name: "Docker", level: 88, color: "bg-accent-docker", icon: "🐳" },
   { name: "Azure", level: 85, color: "bg-accent-azure", icon: "☁️" },
-  { name: "Django", level: 88, color: "bg-[#092e20]", icon: "🎯" },
-  { name: "Ansible", level: 82, color: "bg-accent-ansible", icon: "⚙️" },
-  { name: "Kubernetes", level: 80, color: "bg-blue-500", icon: "☸️" },
-  { name: "CI/CD", level: 88, color: "bg-green-500", icon: "🔄" },
-  { name: "Linux", level: 92, color: "bg-orange-500", icon: "🐧" },
+  { name: "PostgreSQL", level: 90, color: "bg-blue-600", icon: "🐘" },
+  { name: "REST APIs", level: 92, color: "bg-green-500", icon: "🔗" },
+  { name: "Linux", level: 88, color: "bg-orange-500", icon: "🐧" },
+  { name: "CI/CD", level: 85, color: "bg-purple-500", icon: "🔄" },
 ];
 
 const projects = [
   {
-    title: "Cloud Infrastructure Automation",
-    description: "Automated cloud infrastructure provisioning using Terraform and Ansible, reducing deployment time by 70%.",
-    tags: ["Python", "Ansible", "Azure", "Terraform"],
+    title: "E-Commerce Platform",
+    description: "Built a full-featured Django e-commerce platform with payment integration, inventory management, and customer portal for a retail client.",
+    tags: ["Django", "Python", "PostgreSQL", "Stripe"],
     link: "#",
   },
   {
-    title: "Microservices Platform",
-    description: "Designed and deployed a containerized microservices architecture using Docker and Kubernetes on Azure.",
-    tags: ["Docker", "Kubernetes", "Azure", "Python"],
+    title: "SaaS Dashboard Application",
+    description: "Developed a multi-tenant SaaS dashboard with Django REST Framework, featuring real-time analytics and role-based access control.",
+    tags: ["Django", "DRF", "React", "Docker"],
     link: "#",
   },
   {
-    title: "Django REST API",
-    description: "Built a scalable REST API with Django REST Framework, handling 10k+ requests per minute.",
-    tags: ["Django", "Python", "PostgreSQL", "Docker"],
+    title: "API Integration Platform",
+    description: "Created a Django-based API gateway that connects multiple third-party services, handling 50k+ daily requests for enterprise clients.",
+    tags: ["Django", "REST APIs", "Celery", "Redis"],
     link: "#",
   },
   {
-    title: "CI/CD Pipeline",
-    description: "Implemented end-to-end CI/CD pipelines with automated testing, security scanning, and deployments.",
-    tags: ["Azure DevOps", "Docker", "Python", "Ansible"],
+    title: "Content Management System",
+    description: "Custom CMS built with Django for a media company, featuring workflow automation, SEO optimization, and multi-language support.",
+    tags: ["Django", "Python", "PostgreSQL", "AWS"],
     link: "#",
   },
 ];
@@ -60,8 +60,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>DevOps Engineer & Python Developer | Portfolio</title>
-        <meta name="description" content="Professional portfolio of a DevOps Engineer and Python Developer specializing in cloud infrastructure, automation, and scalable solutions." />
+        <title>Rodney Jan Mandap | Freelance Django Developer</title>
+        <meta name="description" content="Rodney Jan Mandap - Freelance Django Developer specializing in web applications, REST APIs, and scalable Python solutions." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -69,8 +69,23 @@ export default function Home() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-dark-950/80 backdrop-blur-md border-b border-dark-800/50">
         <div className="section-container">
           <div className="flex items-center justify-between h-16">
-            <a href="#" className="text-xl font-bold gradient-text">
-              {"<DevOps />"}
+            <a href="#" className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
+                <Image 
+                  src="/logo.png" 
+                  alt="RJM Logo" 
+                  width={40} 
+                  height={40}
+                  className="object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<span class="text-white font-bold text-lg">RJM</span>';
+                  }}
+                />
+              </div>
+              <span className="text-xl font-bold text-white hidden sm:block">
+                Rodney<span className="gradient-text">Mandap</span>
+              </span>
             </a>
             
             <div className="hidden md:flex items-center gap-8">
@@ -80,7 +95,7 @@ export default function Home() {
                 </a>
               ))}
               <a href="#contact" className="btn-primary text-sm">
-                Get In Touch
+                Hire Me
               </a>
             </div>
 
@@ -124,14 +139,16 @@ export default function Home() {
           <div className="section-container relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="animate-fade-in">
-                <p className="text-primary-400 font-mono text-sm mb-4">Hello, I am</p>
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4">
-                  A DevOps
-                  <span className="block gradient-text">Engineer</span>
+                <p className="text-primary-400 font-mono text-sm mb-4">Hello, I&apos;m</p>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
+                  Rodney Jan Mandap
                 </h1>
+                <h2 className="text-2xl md:text-3xl font-semibold mb-6">
+                  <span className="gradient-text">Freelance Django Developer</span>
+                </h2>
                 <p className="text-xl text-dark-300 mb-6 max-w-lg">
-                  With {yearsOfExperience}+ years of experience building scalable infrastructure, 
-                  automating deployments, and developing Python applications.
+                  With {yearsOfExperience}+ years of experience crafting robust web applications, 
+                  REST APIs, and scalable Python solutions for clients worldwide.
                 </p>
                 <div className="flex flex-wrap gap-4">
                   <a href="#projects" className="btn-primary">
@@ -141,7 +158,7 @@ export default function Home() {
                     </svg>
                   </a>
                   <a href="#contact" className="btn-secondary">
-                    Contact Me
+                    Hire Me
                   </a>
                 </div>
 
@@ -153,12 +170,12 @@ export default function Home() {
                   <div className="w-px h-12 bg-dark-700"></div>
                   <div>
                     <p className="text-3xl font-bold text-white">50+</p>
-                    <p className="text-dark-400 text-sm">Projects Delivered</p>
+                    <p className="text-dark-400 text-sm">Projects Completed</p>
                   </div>
                   <div className="w-px h-12 bg-dark-700"></div>
                   <div>
-                    <p className="text-3xl font-bold text-white">99.9%</p>
-                    <p className="text-dark-400 text-sm">Uptime Achieved</p>
+                    <p className="text-3xl font-bold text-white">30+</p>
+                    <p className="text-dark-400 text-sm">Happy Clients</p>
                   </div>
                 </div>
               </div>
@@ -171,16 +188,16 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '1s'}}>
+                    <span className="text-2xl">🎯</span>
+                    <p className="text-xs text-dark-300 mt-1">Django</p>
+                  </div>
+                  <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '2s'}}>
                     <span className="text-2xl">🐍</span>
                     <p className="text-xs text-dark-300 mt-1">Python</p>
                   </div>
-                  <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '2s'}}>
-                    <span className="text-2xl">🐳</span>
-                    <p className="text-xs text-dark-300 mt-1">Docker</p>
-                  </div>
                   <div className="absolute -bottom-4 right-1/4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '0.5s'}}>
-                    <span className="text-2xl">☁️</span>
-                    <p className="text-xs text-dark-300 mt-1">Azure</p>
+                    <span className="text-2xl">🔗</span>
+                    <p className="text-xs text-dark-300 mt-1">REST API</p>
                   </div>
                 </div>
               </div>
@@ -194,30 +211,28 @@ export default function Home() {
               <div>
                 <p className="text-primary-400 font-mono text-sm mb-2">About Me</p>
                 <h2 className="section-title">
-                  Passionate About Building
-                  <span className="gradient-text"> Reliable Systems</span>
+                  Freelance Developer
+                  <span className="gradient-text"> Dedicated to Your Success</span>
                 </h2>
                 <p className="text-dark-300 mb-6 leading-relaxed">
-                  I am a DevOps Engineer and Python Developer with a passion for automation, 
-                  cloud infrastructure, and building scalable systems. My expertise lies in 
-                  creating robust CI/CD pipelines, containerizing applications, and managing 
-                  cloud environments.
+                  I&apos;m Rodney Jan Mandap, a freelance Django web developer with a passion for 
+                  building elegant, efficient, and scalable web applications. I work directly 
+                  with clients to transform their ideas into powerful digital solutions.
                 </p>
                 <p className="text-dark-300 mb-8 leading-relaxed">
-                  I specialize in Python development with Django, infrastructure as code with 
-                  Ansible and Terraform, and container orchestration with Docker and Kubernetes. 
-                  My goal is to bridge the gap between development and operations, ensuring 
-                  smooth and efficient software delivery.
+                  My expertise centers on Django and Python development, creating everything from 
+                  simple websites to complex enterprise applications. I pride myself on clean code, 
+                  clear communication, and delivering projects on time and within budget.
                 </p>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="card">
-                    <p className="text-2xl font-bold text-primary-400">Python</p>
-                    <p className="text-dark-400 text-sm">Primary Language</p>
+                    <p className="text-2xl font-bold text-[#092e20]">Django</p>
+                    <p className="text-dark-400 text-sm">Primary Framework</p>
                   </div>
                   <div className="card">
-                    <p className="text-2xl font-bold text-accent-azure">Azure</p>
-                    <p className="text-dark-400 text-sm">Cloud Platform</p>
+                    <p className="text-2xl font-bold text-accent-python">Python</p>
+                    <p className="text-dark-400 text-sm">Core Language</p>
                   </div>
                 </div>
               </div>
@@ -226,12 +241,12 @@ export default function Home() {
                 <div className="card">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-lg bg-primary-500/20 flex items-center justify-center text-2xl">
-                      🚀
+                      💼
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Automation First</h3>
+                      <h3 className="text-lg font-semibold text-white mb-2">Freelance Flexibility</h3>
                       <p className="text-dark-400 text-sm">
-                        I believe in automating everything possible to reduce errors and increase efficiency.
+                        Direct collaboration with clients, flexible schedules, and personalized attention to every project.
                       </p>
                     </div>
                   </div>
@@ -239,13 +254,13 @@ export default function Home() {
 
                 <div className="card">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-accent-docker/20 flex items-center justify-center text-2xl">
-                      📦
+                    <div className="w-12 h-12 rounded-lg bg-[#092e20]/30 flex items-center justify-center text-2xl">
+                      🎯
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Container Expert</h3>
+                      <h3 className="text-lg font-semibold text-white mb-2">Django Specialist</h3>
                       <p className="text-dark-400 text-sm">
-                        Experienced in containerizing applications and orchestrating with Kubernetes.
+                        Deep expertise in Django, DRF, and the Python ecosystem for robust web development.
                       </p>
                     </div>
                   </div>
@@ -254,12 +269,12 @@ export default function Home() {
                 <div className="card">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-2xl">
-                      🔒
+                      🚀
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Security Minded</h3>
+                      <h3 className="text-lg font-semibold text-white mb-2">End-to-End Delivery</h3>
                       <p className="text-dark-400 text-sm">
-                        Security is integrated into every step of the development lifecycle.
+                        From concept to deployment, I handle the full development lifecycle for your project.
                       </p>
                     </div>
                   </div>
@@ -275,7 +290,7 @@ export default function Home() {
               <p className="text-primary-400 font-mono text-sm mb-2">My Expertise</p>
               <h2 className="section-title">Skills & Technologies</h2>
               <p className="section-subtitle mx-auto">
-                A comprehensive toolkit for building and managing modern infrastructure
+                A focused toolkit for building modern Django web applications
               </p>
             </div>
 
@@ -302,7 +317,7 @@ export default function Home() {
             <div className="text-center">
               <p className="text-dark-400 mb-6">Other technologies I work with</p>
               <div className="flex flex-wrap justify-center gap-3">
-                {["Git", "GitHub Actions", "Terraform", "PostgreSQL", "Redis", "Nginx", "Prometheus", "Grafana", "Jenkins", "AWS", "REST APIs", "GraphQL"].map((tech) => (
+                {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "AWS", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible"].map((tech) => (
                   <span key={tech} className="skill-tag">{tech}</span>
                 ))}
               </div>
@@ -316,7 +331,7 @@ export default function Home() {
               <p className="text-primary-400 font-mono text-sm mb-2">My Work</p>
               <h2 className="section-title">Featured Projects</h2>
               <p className="section-subtitle mx-auto">
-                A selection of projects showcasing my expertise in DevOps and Python development
+                A selection of freelance projects showcasing my Django development expertise
               </p>
             </div>
 
@@ -351,8 +366,8 @@ export default function Home() {
             </div>
 
             <div className="text-center mt-12">
-              <a href="#" className="btn-secondary">
-                View All Projects
+              <a href="#contact" className="btn-secondary">
+                Discuss Your Project
                 <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -366,9 +381,9 @@ export default function Home() {
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-12">
                 <p className="text-primary-400 font-mono text-sm mb-2">Get In Touch</p>
-                <h2 className="section-title">Let&apos;s Work Together</h2>
+                <h2 className="section-title">Let&apos;s Build Something Great</h2>
                 <p className="section-subtitle mx-auto">
-                  Have a project in mind? I&apos;d love to hear about it. Let&apos;s discuss how I can help.
+                  Have a project in mind? I&apos;d love to hear about it. Let&apos;s discuss how I can help bring your vision to life.
                 </p>
               </div>
 
@@ -378,7 +393,7 @@ export default function Home() {
                     <label className="block text-dark-300 text-sm mb-2">Name</label>
                     <input 
                       type="text" 
-                      placeholder="John Doe"
+                      placeholder="Your Name"
                       className="input-field"
                     />
                   </div>
@@ -386,24 +401,24 @@ export default function Home() {
                     <label className="block text-dark-300 text-sm mb-2">Email</label>
                     <input 
                       type="email" 
-                      placeholder="john@example.com"
+                      placeholder="your@email.com"
                       className="input-field"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-dark-300 text-sm mb-2">Subject</label>
+                  <label className="block text-dark-300 text-sm mb-2">Project Type</label>
                   <input 
                     type="text" 
-                    placeholder="Project Inquiry"
+                    placeholder="e.g., Web Application, API Development, Consulting"
                     className="input-field"
                   />
                 </div>
                 <div>
-                  <label className="block text-dark-300 text-sm mb-2">Message</label>
+                  <label className="block text-dark-300 text-sm mb-2">Project Details</label>
                   <textarea 
                     rows={5}
-                    placeholder="Tell me about your project..."
+                    placeholder="Tell me about your project, timeline, and budget..."
                     className="input-field resize-none"
                   ></textarea>
                 </div>
@@ -429,7 +444,7 @@ export default function Home() {
                     </svg>
                     LinkedIn
                   </a>
-                  <a href="mailto:hello@example.com" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
+                  <a href="mailto:rodney@example.com" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -445,11 +460,26 @@ export default function Home() {
       <footer className="py-8 border-t border-dark-800">
         <div className="section-container">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
+                <Image 
+                  src="/logo.png" 
+                  alt="RJM Logo" 
+                  width={32} 
+                  height={32}
+                  className="object-contain"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<span class="text-white font-bold text-sm">RJM</span>';
+                  }}
+                />
+              </div>
+              <p className="text-dark-400 text-sm">
+                &copy; {new Date().getFullYear()} Rodney Jan Mandap. All rights reserved.
+              </p>
+            </div>
             <p className="text-dark-500 text-sm">
-              &copy; {new Date().getFullYear()} DevOps Portfolio. All rights reserved.
-            </p>
-            <p className="text-dark-500 text-sm">
-              Built with Next.js & Tailwind CSS
+              Freelance Django Developer
             </p>
           </div>
         </div>
