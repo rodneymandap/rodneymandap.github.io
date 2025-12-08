@@ -49,7 +49,7 @@ const projects = [
 const navLinks = [
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
-  { name: "Projects", href: "#projects" },
+  // { name: "Projects", href: "#projects" },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -71,10 +71,10 @@ export default function Home() {
           <div className="flex items-center justify-between h-16">
             <a href="#" className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
-                <Image 
-                  src="/logo.png" 
-                  alt="RJM Logo" 
-                  width={40} 
+                <Image
+                  src="/logo-white-no-label.png"
+                  alt="RJM Logo"
+                  width={40}
                   height={40}
                   className="object-contain"
                   onError={(e) => {
@@ -87,7 +87,7 @@ export default function Home() {
                 Rodney<span className="gradient-text">Mandap</span>
               </span>
             </a>
-            
+
             <div className="hidden md:flex items-center gap-8">
               {navLinks.map((link) => (
                 <a key={link.name} href={link.href} className="nav-link">
@@ -99,7 +99,7 @@ export default function Home() {
               </a>
             </div>
 
-            <button 
+            <button
               className="md:hidden text-white p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
@@ -116,9 +116,9 @@ export default function Home() {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-dark-800">
               {navLinks.map((link) => (
-                <a 
-                  key={link.name} 
-                  href={link.href} 
+                <a
+                  key={link.name}
+                  href={link.href}
                   className="block py-2 nav-link"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -135,7 +135,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-br from-primary-900/20 via-dark-950 to-dark-950"></div>
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl"></div>
           <div className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-accent-azure/10 rounded-full blur-3xl"></div>
-          
+
           <div className="section-container relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="animate-fade-in">
@@ -147,16 +147,16 @@ export default function Home() {
                   <span className="gradient-text">Freelance Django Developer</span>
                 </h2>
                 <p className="text-xl text-dark-300 mb-6 max-w-lg">
-                  With {yearsOfExperience}+ years of experience crafting robust web applications, 
+                  With {yearsOfExperience}+ years of experience crafting robust web applications,
                   REST APIs, and scalable Python solutions for clients worldwide.
                 </p>
                 <div className="flex flex-wrap gap-4">
-                  <a href="#projects" className="btn-primary">
+                  {/* <a href="#projects" className="btn-primary">
                     View My Work
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
-                  </a>
+                  </a> */}
                   <a href="#contact" className="btn-secondary">
                     Hire Me
                   </a>
@@ -168,7 +168,7 @@ export default function Home() {
                     <p className="text-dark-400 text-sm">Years Experience</p>
                   </div>
                   <div className="w-px h-12 bg-dark-700"></div>
-                  <div>
+                  {/* <div>
                     <p className="text-3xl font-bold text-white">50+</p>
                     <p className="text-dark-400 text-sm">Projects Completed</p>
                   </div>
@@ -176,7 +176,7 @@ export default function Home() {
                   <div>
                     <p className="text-3xl font-bold text-white">30+</p>
                     <p className="text-dark-400 text-sm">Happy Clients</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
 
@@ -184,18 +184,24 @@ export default function Home() {
                 <div className="relative">
                   <div className="w-80 h-80 rounded-full bg-gradient-to-br from-primary-500/20 to-accent-azure/20 flex items-center justify-center animate-float">
                     <div className="w-64 h-64 rounded-full bg-dark-900 border border-dark-700 flex items-center justify-center text-8xl">
-                      👨‍💻
+                      <Image
+                        src="/myPic.jpeg"
+                        alt="Rodney Jan Mandap"
+                        width={512}
+                        height={512}
+                        className="object-cover rounded-full"
+                      />
                     </div>
                   </div>
-                  <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '1s'}}>
+                  <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '1s' }}>
                     <span className="text-2xl">🎯</span>
                     <p className="text-xs text-dark-300 mt-1">Django</p>
                   </div>
-                  <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '2s'}}>
+                  <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '2s' }}>
                     <span className="text-2xl">🐍</span>
                     <p className="text-xs text-dark-300 mt-1">Python</p>
                   </div>
-                  <div className="absolute -bottom-4 right-1/4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{animationDelay: '0.5s'}}>
+                  <div className="absolute -bottom-4 right-1/4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '0.5s' }}>
                     <span className="text-2xl">🔗</span>
                     <p className="text-xs text-dark-300 mt-1">REST API</p>
                   </div>
@@ -215,16 +221,16 @@ export default function Home() {
                   <span className="gradient-text"> Dedicated to Your Success</span>
                 </h2>
                 <p className="text-dark-300 mb-6 leading-relaxed">
-                  I&apos;m Rodney Jan Mandap, a freelance Django web developer with a passion for 
-                  building elegant, efficient, and scalable web applications. I work directly 
+                  I&apos;m Rodney Jan Mandap, a freelance Django web developer with a passion for
+                  building elegant, efficient, and scalable web applications. I work directly
                   with clients to transform their ideas into powerful digital solutions.
                 </p>
                 <p className="text-dark-300 mb-8 leading-relaxed">
-                  My expertise centers on Django and Python development, creating everything from 
-                  simple websites to complex enterprise applications. I pride myself on clean code, 
+                  My expertise centers on Django and Python development, creating everything from
+                  simple websites to complex enterprise applications. I pride myself on clean code,
                   clear communication, and delivering projects on time and within budget.
                 </p>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="card">
                     <p className="text-2xl font-bold text-[#092e20]">Django</p>
@@ -305,7 +311,7 @@ export default function Home() {
                     <span className="text-primary-400 font-mono text-sm">{skill.level}%</span>
                   </div>
                   <div className="w-full bg-dark-800 rounded-full h-2">
-                    <div 
+                    <div
                       className={`h-2 rounded-full ${skill.color} transition-all duration-1000`}
                       style={{ width: `${skill.level}%` }}
                     ></div>
@@ -325,7 +331,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="projects" className="py-24">
+        {/* <section id="projects" className="py-24">
           <div className="section-container">
             <div className="text-center mb-16">
               <p className="text-primary-400 font-mono text-sm mb-2">My Work</p>
@@ -374,9 +380,9 @@ export default function Home() {
               </a>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        <section id="contact" className="py-24 bg-dark-900/30">
+        <section id="contact" className="py-24">
           <div className="section-container">
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-12">
@@ -391,16 +397,16 @@ export default function Home() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-dark-300 text-sm mb-2">Name</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="Your Name"
                       className="input-field"
                     />
                   </div>
                   <div>
                     <label className="block text-dark-300 text-sm mb-2">Email</label>
-                    <input 
-                      type="email" 
+                    <input
+                      type="email"
                       placeholder="your@email.com"
                       className="input-field"
                     />
@@ -408,15 +414,15 @@ export default function Home() {
                 </div>
                 <div>
                   <label className="block text-dark-300 text-sm mb-2">Project Type</label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     placeholder="e.g., Web Application, API Development, Consulting"
                     className="input-field"
                   />
                 </div>
                 <div>
                   <label className="block text-dark-300 text-sm mb-2">Project Details</label>
-                  <textarea 
+                  <textarea
                     rows={5}
                     placeholder="Tell me about your project, timeline, and budget..."
                     className="input-field resize-none"
@@ -432,19 +438,19 @@ export default function Home() {
 
               <div className="mt-12 pt-12 border-t border-dark-800">
                 <div className="flex flex-wrap justify-center gap-6">
-                  <a href="#" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
+                  <a href="https://github.com/rodneymandap" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                      <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                     </svg>
                     GitHub
                   </a>
-                  <a href="#" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
+                  <a href="https://www.linkedin.com/in/rjmandap/" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     LinkedIn
                   </a>
-                  <a href="mailto:rodney@example.com" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
+                  <a href="mailto:hello@rodneymandap.dev" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
@@ -462,10 +468,10 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center overflow-hidden">
-                <Image 
-                  src="/logo.png" 
-                  alt="RJM Logo" 
-                  width={32} 
+                <Image
+                  src="/logo-white-no-label.png"
+                  alt="RJM Logo"
+                  width={32}
                   height={32}
                   className="object-contain"
                   onError={(e) => {
