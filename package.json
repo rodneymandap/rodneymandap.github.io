@@ -7,7 +7,9 @@
     "build": "next build && next export",
     "start": "next start -H 0.0.0.0 -p 5000",
     "lint": "next lint",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "test:ci": "jest --coverage --watchAll=false",
+    "test:coverage": "jest --coverage --watchAll=false"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.3",

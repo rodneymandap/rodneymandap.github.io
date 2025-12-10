@@ -338,6 +338,19 @@ export default function Home(): JSX.Element {
           <div className="section-container relative z-10">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="animate-fade-in">
+                {/* Availability Badge */}
+                <div 
+                  className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-green-500/20 border border-green-500/30"
+                  role="status"
+                  aria-label="Current availability status"
+                >
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  <span className="text-green-400 text-sm font-medium">Available for Projects</span>
+                </div>
+
                 <p className="text-primary-400 font-mono text-sm mb-4">Hello, I&apos;m</p>
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
                   Rodney Jan Mandap
