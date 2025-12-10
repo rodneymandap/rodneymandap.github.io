@@ -104,9 +104,45 @@ const navLinks: NavLink[] = [
 export default function Home(): JSX.Element {
   const yearsOfExperience: number = calculateYearsOfExperience();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<boolean>(false);
+
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setShowToast(true);
+    setTimeout(() => {
+      setShowToast(false);
+    }, 4000);
+  };
 
   return (
     <>
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="fixed top-20 right-4 z-50 animate-slide-up">
+          <div className="bg-dark-800 border border-dark-700 rounded-lg shadow-lg p-4 flex items-start gap-3 max-w-md">
+            <div className="flex-shrink-0">
+              <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-white font-semibold mb-1">Feature Coming Soon</h3>
+              <p className="text-dark-300 text-sm">
+                The contact form is not yet functional. Please reach out via GitHub or LinkedIn for now.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowToast(false)}
+              className="flex-shrink-0 text-dark-500 hover:text-white transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
       <Head>
         <title>Rodney Jan Mandap | Freelance Django Developer</title>
         <meta name="description" content="Rodney Jan Mandap - Freelance Django Developer specializing in web applications, REST APIs, and scalable Python solutions." />
@@ -279,12 +315,12 @@ export default function Home(): JSX.Element {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="card">
-                    <p className="text-2xl font-bold text-[#092e20]">Django</p>
-                    <p className="text-dark-400 text-sm">Primary Framework</p>
-                  </div>
-                  <div className="card">
                     <p className="text-2xl font-bold text-accent-python">Python</p>
                     <p className="text-dark-400 text-sm">Core Language</p>
+                  </div>
+                  <div className="card">
+                    <p className="text-2xl font-bold text-[#092e20]">Django</p>
+                    <p className="text-dark-400 text-sm">Primary Framework</p>
                   </div>
                 </div>
               </div>
@@ -498,7 +534,7 @@ export default function Home(): JSX.Element {
                 </p>
               </div>
 
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <form className="space-y-6" onSubmit={handleFormSubmit}>
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-dark-300 text-sm mb-2">Name</label>
