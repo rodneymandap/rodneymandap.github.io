@@ -101,17 +101,113 @@ const navLinks: NavLink[] = [
   { name: "Contact", href: "#contact" },
 ];
 
+type ToastType = "info" | "success" | "error";
+
+type FormData = {
+  name: string;
+  email: string;
+  projectType: string;
+  message: string;
+};
+
 export default function Home(): JSX.Element {
   const yearsOfExperience: number = calculateYearsOfExperience();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastType, setToastType] = useState<ToastType>("info");
+  const [toastMessage, setToastMessage] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    projectType: "",
+    message: "",
+  });
+  const [honeypot, setHoneypot] = useState<string>("");
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const showToastNotification = (type: ToastType, message: string) => {
+    setToastType(type);
+    setToastMessage(message);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
-    }, 4000);
+    }, 5000);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    // Client-side validation
+    if (!formData.name.trim()) {
+      showToastNotification("error", "Please enter your name");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      showToastNotification("error", "Please enter your email");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      showToastNotification(
+        "error",
+        "Please enter a message (at least 10 characters)"
+      );
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          honeypot,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToastNotification(
+          "success",
+          "Message sent successfully! I'll get back to you soon."
+        );
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          projectType: "",
+          message: "",
+        });
+      } else {
+        showToastNotification(
+          "error",
+          data.details || data.error || "Failed to send message. Please try again."
+        );
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      showToastNotification(
+        "error",
+        "An error occurred. Please try again later."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -121,14 +217,30 @@ export default function Home(): JSX.Element {
         <div className="fixed top-20 right-4 z-50 animate-slide-up">
           <div className="bg-dark-800 border border-dark-700 rounded-lg shadow-lg p-4 flex items-start gap-3 max-w-md">
             <div className="flex-shrink-0">
-              <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              {toastType === "success" && (
+                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              {toastType === "error" && (
+                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              {toastType === "info" && (
+                <svg className="w-6 h-6 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
             </div>
             <div className="flex-1">
-              <h3 className="text-white font-semibold mb-1">Feature Coming Soon</h3>
+              <h3 className="text-white font-semibold mb-1">
+                {toastType === "success" && "Success"}
+                {toastType === "error" && "Error"}
+                {toastType === "info" && "Information"}
+              </h3>
               <p className="text-dark-300 text-sm">
-                The contact form is not yet functional. Please reach out via GitHub or LinkedIn for now.
+                {toastMessage}
               </p>
             </div>
             <button 
@@ -551,45 +663,106 @@ export default function Home(): JSX.Element {
               </div>
 
               <form className="space-y-6" onSubmit={handleFormSubmit}>
+                {/* Honeypot field - hidden from users but visible to bots */}
+                <div style={{ position: "absolute", left: "-9999px" }}>
+                  <label htmlFor="website">Website</label>
+                  <input
+                    type="text"
+                    id="website"
+                    name="website"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-dark-300 text-sm mb-2">Name</label>
+                    <label htmlFor="name" className="block text-dark-300 text-sm mb-2">
+                      Name <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="text"
+                      id="name"
+                      name="name"
                       placeholder="Your Name"
                       className="input-field"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div>
-                    <label className="block text-dark-300 text-sm mb-2">Email</label>
+                    <label htmlFor="email" className="block text-dark-300 text-sm mb-2">
+                      Email <span className="text-red-400">*</span>
+                    </label>
                     <input
                       type="email"
+                      id="email"
+                      name="email"
                       placeholder="your@email.com"
                       className="input-field"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-dark-300 text-sm mb-2">Project Type</label>
+                  <label htmlFor="projectType" className="block text-dark-300 text-sm mb-2">
+                    Project Type
+                  </label>
                   <input
                     type="text"
+                    id="projectType"
+                    name="projectType"
                     placeholder="e.g., Web Application, API Development, Consulting"
                     className="input-field"
+                    value={formData.projectType}
+                    onChange={handleInputChange}
+                    disabled={isSubmitting}
                   />
                 </div>
                 <div>
-                  <label className="block text-dark-300 text-sm mb-2">Project Details</label>
+                  <label htmlFor="message" className="block text-dark-300 text-sm mb-2">
+                    Project Details <span className="text-red-400">*</span>
+                  </label>
                   <textarea
+                    id="message"
+                    name="message"
                     rows={5}
                     placeholder="Tell me about your project, timeline, and budget..."
                     className="input-field resize-none"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
                   ></textarea>
                 </div>
-                <button type="submit" className="btn-primary w-full">
-                  Send Message
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
+                <button
+                  type="submit"
+                  className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send Message
+                      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                      </svg>
+                    </>
+                  )}
                 </button>
               </form>
 
