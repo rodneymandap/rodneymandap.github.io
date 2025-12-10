@@ -22,19 +22,36 @@ describe("/api/contact", () => {
     process.env.RESEND_API_KEY = "test-api-key";
     process.env.CONTACT_EMAIL = "test@example.com";
     process.env.FROM_EMAIL = "sender@example.com";
-    
+
     // Reset rate limit store before each test
     __test__.resetRateLimitStore();
   });
+
+  // Helper to create mocked request/response with sensible defaults
+  const makeRequest = (
+    overrides: Record<string, unknown> = {},
+    method = "POST"
+  ) => {
+    const defaultBody = {
+      name: "John Doe",
+      email: "john@example.com",
+      message: "This is a valid test message",
+    };
+
+    const body = { ...(defaultBody as Record<string, unknown>), ...(overrides || {}) };
+
+    return createMocks<NextApiRequest, NextApiResponse>({
+      method,
+      body,
+    });
+  };
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it("should reject non-POST requests", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "GET",
-    });
+    const { req, res } = makeRequest({}, "GET");
 
     await handler(req, res);
 
@@ -45,14 +62,7 @@ describe("/api/contact", () => {
   });
 
   it("should validate required fields", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "",
-        email: "",
-        message: "",
-      },
-    });
+    const { req, res } = makeRequest({ name: "", email: "", message: "" });
 
     await handler(req, res);
 
@@ -65,14 +75,7 @@ describe("/api/contact", () => {
   });
 
   it("should validate email format", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "invalid-email",
-        message: "This is a test message",
-      },
-    });
+    const { req, res } = makeRequest({ email: "invalid-email", message: "This is a test message" });
 
     await handler(req, res);
 
@@ -83,14 +86,7 @@ describe("/api/contact", () => {
   });
 
   it("should validate message length", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "john@example.com",
-        message: "Short",
-      },
-    });
+    const { req, res } = makeRequest({ message: "Short" });
 
     await handler(req, res);
 
@@ -101,15 +97,7 @@ describe("/api/contact", () => {
   });
 
   it("should reject submissions with honeypot filled", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "john@example.com",
-        message: "This is a test message from a bot",
-        honeypot: "spam content",
-      },
-    });
+    const { req, res } = makeRequest({ message: "This is a test message from a bot", honeypot: "spam content" });
 
     await handler(req, res);
 
@@ -120,15 +108,7 @@ describe("/api/contact", () => {
   });
 
   it("should accept valid submission", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "john@example.com",
-        projectType: "Web Development",
-        message: "This is a valid test message that is long enough",
-      },
-    });
+    const { req, res } = makeRequest({ projectType: "Web Development", message: "This is a valid test message that is long enough" });
 
     await handler(req, res);
 
@@ -139,14 +119,7 @@ describe("/api/contact", () => {
   });
 
   it("should sanitize HTML from inputs", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John <script>alert('xss')</script> Doe",
-        email: "john@example.com",
-        message: "This is a test <b>message</b> with HTML tags",
-      },
-    });
+    const { req, res } = makeRequest({ name: "John <script>alert('xss')</script> Doe", message: "This is a test <b>message</b> with HTML tags" });
 
     await handler(req, res);
 
@@ -157,15 +130,7 @@ describe("/api/contact", () => {
 
   it("should return error when RESEND_API_KEY is not set", async () => {
     delete process.env.RESEND_API_KEY;
-
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "john@example.com",
-        message: "This is a valid test message",
-      },
-    });
+    const { req, res } = makeRequest();
 
     await handler(req, res);
 
@@ -175,14 +140,7 @@ describe("/api/contact", () => {
   });
 
   it("should validate name length constraints", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "A",
-        email: "john@example.com",
-        message: "This is a valid test message",
-      },
-    });
+    const { req, res } = makeRequest({ name: "A" });
 
     await handler(req, res);
 
@@ -192,14 +150,7 @@ describe("/api/contact", () => {
   });
 
   it("should set rate limit headers", async () => {
-    const { req, res } = createMocks<NextApiRequest, NextApiResponse>({
-      method: "POST",
-      body: {
-        name: "John Doe",
-        email: "john@example.com",
-        message: "This is a valid test message",
-      },
-    });
+    const { req, res } = makeRequest();
 
     await handler(req, res);
 
