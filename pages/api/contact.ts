@@ -82,7 +82,14 @@ function validateEmail(email: string): boolean {
 
 function sanitizeInput(input: string): string {
   // Remove any HTML tags and trim whitespace
-  return input.replace(/<[^>]*>/g, "").trim();
+  // First, replace any opening angle brackets to prevent malformed HTML
+  let sanitized = input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // Then decode back any legitimate content and remove HTML entities
+  sanitized = sanitized
+    .replace(/&lt;[^&]*&gt;/g, "")
+    .replace(/&lt;/g, "")
+    .replace(/&gt;/g, "");
+  return sanitized.trim();
 }
 
 function validateFormData(
