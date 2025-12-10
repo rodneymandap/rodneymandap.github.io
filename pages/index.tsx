@@ -16,14 +16,14 @@ type Skill = {
   iconType?: 'svg' | 'emoji';
 };
 const skills: Skill[] = [
-  { name: "Django", level: 95, color: "bg-[#092e20]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", iconType: 'svg' },
-  { name: "Python", level: 92, color: "bg-accent-python", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", iconType: 'svg' },
-  { name: "Docker", level: 88, color: "bg-accent-docker", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", iconType: 'svg' },
-  { name: "Azure", level: 85, color: "bg-accent-azure", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", iconType: 'svg' },
-  { name: "PostgreSQL", level: 90, color: "bg-blue-600", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", iconType: 'svg' },
-  { name: "REST APIs", level: 92, color: "bg-green-500", icon: "🔗", iconType: 'emoji' },
-  { name: "Linux", level: 88, color: "bg-orange-500", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg", iconType: 'svg' },
-  { name: "CI/CD", level: 85, color: "bg-purple-500", icon: "🔄", iconType: 'emoji' },
+  { name: "Python", level: 94, color: "bg-[#3776ab]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", iconType: 'svg' },
+  { name: "Django", level: 88, color: "bg-[#0c4b33]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", iconType: 'svg' },
+  { name: "Docker", level: 85, color: "bg-[#2496ed]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", iconType: 'svg' },
+  { name: "Azure", level: 80, color: "bg-[#0078d4]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", iconType: 'svg' },
+  { name: "PostgreSQL", level: 80, color: "bg-[#336791]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", iconType: 'svg' },
+  { name: "REST APIs", level: 90, color: "bg-[#10b981]", icon: "🔗", iconType: 'emoji' },
+  { name: "Linux", level: 88, color: "bg-[#fcc624]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg", iconType: 'svg' },
+  { name: "CI/CD", level: 87, color: "bg-[#a855f7]", icon: "🔄", iconType: 'emoji' },
 ];
 
 type Certification = {
@@ -192,7 +192,7 @@ export default function Home(): JSX.Element {
                   Rodney Jan Mandap
                 </h1>
                 <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-                  <span className="gradient-text">Python Developer</span>
+                  <span className="gradient-text">Software Engineer</span>
                 </h2>
                 <p className="text-xl text-dark-300 mb-6 max-w-lg">
                   With {yearsOfExperience}+ years of experience crafting robust web applications,
@@ -242,7 +242,9 @@ export default function Home(): JSX.Element {
                     </div>
                   </div>
                   <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '1s' }}>
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django" className="w-8 h-8" />
+                    <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center p-1">
+                      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django" className="w-full h-full" />
+                    </div>
                     <p className="text-xs text-dark-300 mt-1">Django</p>
                   </div>
                   <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '2s' }}>
@@ -265,18 +267,14 @@ export default function Home(): JSX.Element {
               <div>
                 <p className="text-primary-400 font-mono text-sm mb-2">About Me</p>
                 <h2 className="section-title">
-                  Freelance Developer
-                  <span className="gradient-text"> Dedicated to Your Success</span>
+                  Software Engineer
+                  <span className="gradient-text"> Building Scalable Solutions</span>
                 </h2>
                 <p className="text-dark-300 mb-6 leading-relaxed">
-                  I&apos;m Rodney, a freelance python developer with a passion for
-                  building elegant, efficient, and scalable web applications. I work directly
-                  with clients to transform their ideas into powerful digital solutions.
+                  I&apos;m Rodney, a software engineer specializing in Python and Django. I build reliable, efficient, and scalable web applications, helping clients turn ideas into practical digital solutions. My background in automation and backend engineering allows me to create systems that are both high-performing and easy to maintain.
                 </p>
                 <p className="text-dark-300 mb-8 leading-relaxed">
-                  My expertise centers on Django and Python development, creating everything from
-                  simple websites to complex enterprise applications. I pride myself on clean code,
-                  clear communication, and delivering projects on time and within budget.
+                  I take pride in writing clean, well-structured code and communicating clearly throughout every project. Whether it&apos;s a simple site or a complex application, I focus on delivering quality work on time, within budget, and built to support long-term growth.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -354,7 +352,9 @@ export default function Home(): JSX.Element {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {skill.iconType === 'svg' ? (
-                        <img src={skill.icon} alt={skill.name} className="w-8 h-8" />
+                        <div className={`w-8 h-8 ${skill.name === 'Django' ? 'bg-white rounded p-1' : ''} flex items-center justify-center`}>
+                          <img src={skill.icon} alt={skill.name} className="w-full h-full" />
+                        </div>
                       ) : (
                         <span className="text-2xl">{skill.icon}</span>
                       )}
