@@ -162,8 +162,11 @@ export default function Home(): JSX.Element {
                   height={40}
                   className="object-contain"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<span class="text-white font-bold text-lg">RJM</span>';
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      target.parentElement.innerHTML = '<span class="text-white font-bold text-lg">RJM</span>';
+                    }
                   }}
                 />
               </div>
@@ -610,8 +613,11 @@ export default function Home(): JSX.Element {
                   height={32}
                   className="object-contain"
                   onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = '<span class="text-white font-bold text-sm">RJM</span>';
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    if (target.parentElement) {
+                      target.parentElement.innerHTML = '<span class="text-white font-bold text-sm">RJM</span>';
+                    }
                   }}
                 />
               </div>
