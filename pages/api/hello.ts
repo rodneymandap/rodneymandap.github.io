@@ -6,6 +6,6 @@ export default function handler(
 	req: NextApiRequest,
 	res: NextApiResponse
 ) {
-  logger.info("/api/hello called", { method: req.method });
-  res.status(200).json({ name: "John Doe" });
+	logger.info("/api/hello called", { method: req.method });
+	res.status(200).json({ name: "John Doe" });
 }
