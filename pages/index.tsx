@@ -2,24 +2,67 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 
-function calculateYearsOfExperience() {
-  const startYear = 2016;
-  const currentYear = new Date().getFullYear();
+function calculateYearsOfExperience(): number {
+  const startYear: number = 2016;
+  const currentYear: number = new Date().getFullYear();
   return currentYear - startYear;
 }
 
-const skills = [
-  { name: "Django", level: 95, color: "bg-[#092e20]", icon: "🎯" },
-  { name: "Python", level: 92, color: "bg-accent-python", icon: "🐍" },
-  { name: "Docker", level: 88, color: "bg-accent-docker", icon: "🐳" },
-  { name: "Azure", level: 85, color: "bg-accent-azure", icon: "☁️" },
-  { name: "PostgreSQL", level: 90, color: "bg-blue-600", icon: "🐘" },
-  { name: "REST APIs", level: 92, color: "bg-green-500", icon: "🔗" },
-  { name: "Linux", level: 88, color: "bg-orange-500", icon: "🐧" },
-  { name: "CI/CD", level: 85, color: "bg-purple-500", icon: "🔄" },
+type Skill = {
+  name: string;
+  level: number;
+  color: string;
+  icon: string;
+  iconType?: 'svg' | 'emoji';
+};
+const skills: Skill[] = [
+  { name: "Django", level: 95, color: "bg-[#092e20]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", iconType: 'svg' },
+  { name: "Python", level: 92, color: "bg-accent-python", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", iconType: 'svg' },
+  { name: "Docker", level: 88, color: "bg-accent-docker", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", iconType: 'svg' },
+  { name: "Azure", level: 85, color: "bg-accent-azure", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", iconType: 'svg' },
+  { name: "PostgreSQL", level: 90, color: "bg-blue-600", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", iconType: 'svg' },
+  { name: "REST APIs", level: 92, color: "bg-green-500", icon: "🔗", iconType: 'emoji' },
+  { name: "Linux", level: 88, color: "bg-orange-500", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg", iconType: 'svg' },
+  { name: "CI/CD", level: 85, color: "bg-purple-500", icon: "🔄", iconType: 'emoji' },
 ];
 
-const projects = [
+type Certification = {
+  title: string;
+  issuer: string;
+  date: string;
+  credentialId?: string;
+  link?: string;
+  icon: string;
+  iconType?: 'svg' | 'emoji';
+};
+const certifications: Certification[] = [
+  {
+    title: "Azure Fundamentals",
+    issuer: "Microsoft",
+    date: "2021",
+    credentialId: "AZ-900",
+    link: "https://www.credly.com/badges/0173669e-f050-424d-999a-f661555905a2/public_url",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg",
+    iconType: 'svg',
+  },
+  {
+    title: "Azure Administrator Associate",
+    issuer: "Microsoft",
+    date: "2023",
+    credentialId: "AZ-104",
+    link: "https://www.credly.com/badges/22073f0e-4bf8-41ef-beb3-9ac6c30dc1d8/public_url",
+    icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg",
+    iconType: 'svg',
+  },
+];
+
+type Project = {
+  title: string;
+  description: string;
+  tags: string[];
+  link: string;
+};
+const projects: Project[] = [
   {
     title: "E-Commerce Platform",
     description: "Built a full-featured Django e-commerce platform with payment integration, inventory management, and customer portal for a retail client.",
@@ -46,16 +89,21 @@ const projects = [
   },
 ];
 
-const navLinks = [
+type NavLink = {
+  name: string;
+  href: string;
+};
+const navLinks: NavLink[] = [
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
+  { name: "Certifications", href: "#certifications" },
   // { name: "Projects", href: "#projects" },
   { name: "Contact", href: "#contact" },
 ];
 
-export default function Home() {
-  const yearsOfExperience = calculateYearsOfExperience();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Home(): JSX.Element {
+  const yearsOfExperience: number = calculateYearsOfExperience();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   return (
     <>
@@ -144,7 +192,7 @@ export default function Home() {
                   Rodney Jan Mandap
                 </h1>
                 <h2 className="text-2xl md:text-3xl font-semibold mb-6">
-                  <span className="gradient-text">Python Developer | DevNetOps Engineer</span>
+                  <span className="gradient-text">Python Developer</span>
                 </h2>
                 <p className="text-xl text-dark-300 mb-6 max-w-lg">
                   With {yearsOfExperience}+ years of experience crafting robust web applications,
@@ -194,11 +242,11 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '1s' }}>
-                    <span className="text-2xl">🎯</span>
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django" className="w-8 h-8" />
                     <p className="text-xs text-dark-300 mt-1">Django</p>
                   </div>
                   <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '2s' }}>
-                    <span className="text-2xl">🐍</span>
+                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-8 h-8" />
                     <p className="text-xs text-dark-300 mt-1">Python</p>
                   </div>
                   <div className="absolute -bottom-4 right-1/4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '0.5s' }}>
@@ -221,7 +269,7 @@ export default function Home() {
                   <span className="gradient-text"> Dedicated to Your Success</span>
                 </h2>
                 <p className="text-dark-300 mb-6 leading-relaxed">
-                  I&apos;m Rodney Jan Mandap, a freelance Django web developer with a passion for
+                  I&apos;m Rodney, a freelance python developer with a passion for
                   building elegant, efficient, and scalable web applications. I work directly
                   with clients to transform their ideas into powerful digital solutions.
                 </p>
@@ -305,7 +353,11 @@ export default function Home() {
                 <div key={skill.name} className="card">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{skill.icon}</span>
+                      {skill.iconType === 'svg' ? (
+                        <img src={skill.icon} alt={skill.name} className="w-8 h-8" />
+                      ) : (
+                        <span className="text-2xl">{skill.icon}</span>
+                      )}
                       <span className="font-semibold text-white">{skill.name}</span>
                     </div>
                     <span className="text-primary-400 font-mono text-sm">{skill.level}%</span>
@@ -323,7 +375,7 @@ export default function Home() {
             <div className="text-center">
               <p className="text-dark-400 mb-6">Other technologies I work with</p>
               <div className="flex flex-wrap justify-center gap-3">
-                {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "AWS", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible"].map((tech) => (
+                {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "AWS", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible", "Github Copilot", "Github Actions"].map((tech) => (
                   <span key={tech} className="skill-tag">{tech}</span>
                 ))}
               </div>
@@ -382,7 +434,60 @@ export default function Home() {
           </div>
         </section> */}
 
-        <section id="contact" className="py-24">
+        <section id="certifications" className="py-24">
+          <div className="section-container">
+            <div className="text-center mb-16">
+              <p className="text-primary-400 font-mono text-sm mb-2">Credentials</p>
+              <h2 className="section-title">Certifications</h2>
+              <p className="section-subtitle mx-auto">
+                Professional certifications demonstrating expertise and commitment to continuous learning
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {certifications.map((cert, index) => (
+                <div key={index} className="card group cursor-pointer hover:border-primary-500/50 transition-all">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-primary-500/20 flex items-center justify-center flex-shrink-0">
+                      {cert.iconType === 'svg' ? (
+                        <img src={cert.icon} alt={cert.issuer} className="w-10 h-10" />
+                      ) : (
+                        <span className="text-3xl">{cert.icon}</span>
+                      )}
+                    </div>
+                    <div className="flex-grow">
+                      <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-primary-400 transition-colors">
+                        {cert.title}
+                      </h3>
+                      <p className="text-primary-400 font-medium mb-1">{cert.issuer}</p>
+                      <p className="text-dark-400 text-sm mb-2">{cert.date}</p>
+                      {cert.credentialId && (
+                        <p className="text-dark-500 text-xs font-mono mb-3">
+                          ID: {cert.credentialId}
+                        </p>
+                      )}
+                      {cert.link && (
+                        <a
+                          href={cert.link}
+                          className="inline-flex items-center gap-2 text-sm text-primary-400 hover:text-primary-300 transition-colors"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View Certificate
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="py-24 bg-dark-900/30">
           <div className="section-container">
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-12">
@@ -449,12 +554,6 @@ export default function Home() {
                       <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                     LinkedIn
-                  </a>
-                  <a href="mailto:hello@rodneymandap.dev" className="flex items-center gap-2 text-dark-400 hover:text-primary-400 transition-colors">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    Email
                   </a>
                 </div>
               </div>
