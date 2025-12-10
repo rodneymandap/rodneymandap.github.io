@@ -142,7 +142,7 @@ Check out the [Next.js deployment documentation](https://nextjs.org/docs/deploym
 | Variable | Description | Required |
 |----------|-------------|----------|
 | `RESEND_API_KEY` | Your Resend API key from [resend.com/api-keys](https://resend.com/api-keys) | Yes |
-| `CONTACT_EMAIL` | Email address to receive contact form submissions | No (defaults to rodneymandap@gmail.com) |
+| `CONTACT_EMAIL` | Email address to receive contact form submissions | Yes |
 | `FROM_EMAIL` | Sender email address (must be verified in Resend) | No (defaults to onboarding@resend.dev) |
 | `SEND_AUTO_REPLY` | Set to `true` to send auto-reply to submitters | No (defaults to false) |
 

@@ -185,9 +185,16 @@ export default async function handler(
     }
 
     const resend = new Resend(resendApiKey);
-    const recipientEmail =
-      process.env.CONTACT_EMAIL || "rodneymandap@gmail.com";
+    const recipientEmail = process.env.CONTACT_EMAIL;
     const fromEmail = process.env.FROM_EMAIL || "onboarding@resend.dev";
+
+    if (!recipientEmail) {
+      console.error("CONTACT_EMAIL is not configured");
+      return res.status(500).json({
+        error: "Email service not configured",
+        details: "Please contact the administrator",
+      });
+    }
 
     // Send email notification to site owner
     const emailResult = await resend.emails.send({
