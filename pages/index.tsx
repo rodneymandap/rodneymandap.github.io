@@ -144,8 +144,8 @@ export default function Home(): JSX.Element {
       )}
 
       <Head>
-        <title>Rodney Jan Mandap | Freelance Django Developer</title>
-        <meta name="description" content="Rodney Jan Mandap - Freelance Django Developer specializing in web applications, REST APIs, and scalable Python solutions." />
+        <title>Rodney Jan Mandap | Freelance Software Engineer</title>
+        <meta name="description" content="Rodney Jan Mandap - Freelance Software Engineer specializing in web applications, REST APIs, and scalable Python solutions." />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -626,7 +626,7 @@ export default function Home(): JSX.Element {
               </p>
             </div>
             <p className="text-dark-500 text-sm">
-              Freelance Django Developer
+              Freelance Software Engineer 
             </p>
           </div>
         </div>
