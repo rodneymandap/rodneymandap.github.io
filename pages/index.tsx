@@ -243,7 +243,7 @@ export default function Home(): JSX.Element {
                 {toastMessage}
               </p>
             </div>
-            <button 
+            <button
               onClick={() => setShowToast(false)}
               className="flex-shrink-0 text-dark-500 hover:text-white transition-colors"
             >
@@ -339,7 +339,7 @@ export default function Home(): JSX.Element {
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="animate-fade-in">
                 {/* Availability Badge */}
-                <div 
+                <div
                   className="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full bg-green-500/20 border border-green-500/30"
                   role="status"
                   aria-label="Current availability status"
@@ -407,18 +407,24 @@ export default function Home(): JSX.Element {
                   </div>
                   <div className="absolute -top-4 -right-4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '1s' }}>
                     <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center p-1">
-                      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django" className="w-full h-full" />
+                      <Image src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" alt="Django" width={32} height={32} className="w-full h-full" />
                     </div>
                     <p className="text-xs text-dark-300 mt-1">Django</p>
                   </div>
                   <div className="absolute top-1/2 -left-8 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '2s' }}>
-                    <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" className="w-8 h-8" />
+                    <Image src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" alt="Python" width={32} height={32} className="w-8 h-8" />
                     <p className="text-xs text-dark-300 mt-1">Python</p>
                   </div>
                   <div className="absolute -bottom-4 right-1/4 bg-dark-800 border border-dark-700 rounded-xl p-3 animate-float" style={{ animationDelay: '0.5s' }}>
                     <span className="text-2xl">🔗</span>
                     <p className="text-xs text-dark-300 mt-1">REST API</p>
                   </div>
+                  {/* <div className="absolute -top-3 -left-3 bg-dark-800 border border-dark-700 rounded-xl p-2 animate-float flex flex-col items-center" style={{ animationDelay: '1.5s' }}>
+                    <div className="w-8 h-8 bg-transparent rounded-md flex items-center justify-center">
+                      <Image src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" alt="DevOps" width={28} height={28} className="object-contain" />
+                    </div>
+                    <p className="text-xs text-dark-300 mt-1">DevOps</p>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -447,7 +453,7 @@ export default function Home(): JSX.Element {
                     <p className="text-dark-400 text-sm">Core Language</p>
                   </div>
                   <div className="card">
-                    <p className="text-2xl font-bold text-[#092e20]">Django</p>
+                    <p className="text-2xl font-bold text-[#12533b]">Django</p>
                     <p className="text-dark-400 text-sm">Primary Framework</p>
                   </div>
                 </div>
@@ -517,7 +523,7 @@ export default function Home(): JSX.Element {
                     <div className="flex items-center gap-3">
                       {skill.iconType === 'svg' ? (
                         <div className={`w-8 h-8 ${skill.name === 'Django' ? 'bg-white rounded p-1' : ''} flex items-center justify-center`}>
-                          <img src={skill.icon} alt={skill.name} className="w-full h-full" />
+                          <Image src={skill.icon} alt={skill.name} width={32} height={32} className="w-full h-full" />
                         </div>
                       ) : (
                         <span className="text-2xl">{skill.icon}</span>
@@ -614,7 +620,7 @@ export default function Home(): JSX.Element {
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 rounded-lg bg-primary-500/20 flex items-center justify-center flex-shrink-0">
                       {cert.iconType === 'svg' ? (
-                        <img src={cert.icon} alt={cert.issuer} className="w-10 h-10" />
+                        <Image src={cert.icon} alt={cert.issuer} width={40} height={40} className="w-10 h-10" />
                       ) : (
                         <span className="text-3xl">{cert.icon}</span>
                       )}
@@ -812,7 +818,7 @@ export default function Home(): JSX.Element {
               </p>
             </div>
             <p className="text-dark-500 text-sm">
-              Freelance Software Engineer 
+              Freelance Software Engineer
             </p>
           </div>
         </div>

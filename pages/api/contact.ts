@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import logger from "../../lib/logger";
 import { Resend } from "resend";
 
 // In-memory rate limiting store
@@ -184,7 +185,7 @@ export default async function handler(
     // Initialize Resend
     const resendApiKey = process.env.RESEND_API_KEY;
     if (!resendApiKey) {
-      console.error("RESEND_API_KEY is not configured");
+      logger.error("RESEND_API_KEY is not configured", { clientIP });
       return res.status(500).json({
         error: "Email service not configured",
         details: "Please contact the administrator",
@@ -196,7 +197,7 @@ export default async function handler(
     const fromEmail = process.env.FROM_EMAIL || "onboarding@resend.dev";
 
     if (!recipientEmail) {
-      console.error("CONTACT_EMAIL is not configured");
+      logger.error("CONTACT_EMAIL is not configured", { clientIP });
       return res.status(500).json({
         error: "Email service not configured",
         details: "Please contact the administrator",
@@ -222,7 +223,7 @@ export default async function handler(
     });
 
     if (emailResult.error) {
-      console.error("Failed to send email:", emailResult.error);
+      logger.error("Failed to send email", { error: emailResult.error });
       return res.status(500).json({
         error: "Failed to send message",
         details: "Please try again later",
@@ -249,7 +250,7 @@ export default async function handler(
       message: "Message sent successfully",
     });
   } catch (error) {
-    console.error("Contact form error:", error);
+    logger.error("Contact form error", { error });
     return res.status(500).json({
       error: "Internal server error",
       details: "Please try again later",
