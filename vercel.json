@@ -1,0 +1,9 @@
+{
+  "functions": {
+    "pages/api/contact.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  },
+"regions": ["hkg1"]
+}

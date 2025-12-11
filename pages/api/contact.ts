@@ -140,9 +140,29 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SuccessResponse | ErrorResponse>
 ) {
+  // Log deployment environment for debugging
+  const isVercel = process.env.VERCEL === "1";
+  const deploymentEnv = process.env.VERCEL_ENV || "development";
+  
+  logger.info("Contact API request received", {
+    method: req.method,
+    isVercel,
+    deploymentEnv,
+    hasBody: !!req.body,
+    contentType: req.headers["content-type"],
+  });
+
   // Only allow POST requests
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    logger.warn("Method not allowed", { 
+      method: req.method,
+      allowedMethods: ["POST"],
+      isVercel,
+    });
+    return res.status(405).json({ 
+      error: "Method not allowed",
+      details: "This endpoint only accepts POST requests",
+    });
   }
 
   try {
@@ -151,9 +171,10 @@ export default async function handler(
     const rateLimit = checkRateLimit(clientIP);
 
     if (!rateLimit.allowed) {
+      logger.warn("Rate limit exceeded", { clientIP });
       return res.status(429).json({
         error: "Too many requests",
-        details: "Please try again later",
+        details: "Maximum 3 submissions per hour. Please try again later.",
       });
     }
 
@@ -223,12 +244,22 @@ export default async function handler(
     });
 
     if (emailResult.error) {
-      logger.error("Failed to send email", { error: emailResult.error });
+      logger.error("Failed to send email via Resend", { 
+        error: emailResult.error,
+        clientIP,
+        isVercel: process.env.VERCEL === "1",
+      });
       return res.status(500).json({
         error: "Failed to send message",
-        details: "Please try again later",
+        details: "Email service error. Please try again later.",
       });
     }
+
+    logger.info("Contact form submission successful", {
+      emailId: emailResult.data?.id,
+      clientIP,
+      senderEmail: sanitizedData.email,
+    });
 
     // Optionally send auto-reply to submitter
     if (process.env.SEND_AUTO_REPLY === "true") {
@@ -250,10 +281,19 @@ export default async function handler(
       message: "Message sent successfully",
     });
   } catch (error) {
-    logger.error("Contact form error", { error });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    logger.error("Contact form unexpected error", { 
+      error: errorMessage,
+      stack: errorStack,
+      clientIP: getClientIP(req),
+      isVercel: process.env.VERCEL === "1",
+    });
+    
     return res.status(500).json({
       error: "Internal server error",
-      details: "Please try again later",
+      details: "An unexpected error occurred. Please try again later.",
     });
   }
 }

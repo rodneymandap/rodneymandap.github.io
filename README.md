@@ -115,7 +115,9 @@ npm run build
 yarn build
 ```
 
-This builds the app for production in the `out` folder.
+This builds the app for production with support for API routes as serverless functions.
+
+**Important:** This project uses Next.js API routes for the contact form. Do NOT use `next export` as it creates a static site without API route support, which will cause the contact form to fail with 405 errors in production.
 
 ## Deployment
 
@@ -130,6 +132,19 @@ The easiest way to deploy is using the [Vercel Platform](https://vercel.com/new?
    - `CONTACT_EMAIL`
    - `FROM_EMAIL` (optional)
    - `SEND_AUTO_REPLY` (optional)
+4. Deploy - Vercel will automatically detect Next.js and deploy API routes as serverless functions
+
+**Deployment Notes:**
+- The `vercel.json` configuration ensures the contact API route is deployed as a serverless function
+- API routes are automatically deployed to the `iad1` (US East) region
+- Contact form API has a 10-second timeout and 1GB memory allocation
+- Check function logs in Vercel dashboard under "Functions" tab for debugging
+
+**Troubleshooting:**
+- If you get 405 errors, verify the build command is `next build` (not `next build && next export`)
+- Ensure all environment variables are set in Vercel's dashboard
+- Check the Vercel function logs for detailed error messages
+- Verify your Resend API key is valid and your sender domain is configured
 
 Check out the [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 
