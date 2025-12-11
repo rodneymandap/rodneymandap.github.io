@@ -56,9 +56,9 @@ describe("/api/contact", () => {
     await handler(req, res);
 
     expect(res._getStatusCode()).toBe(405);
-    expect(JSON.parse(res._getData())).toEqual({
-      error: "Method not allowed",
-    });
+    const data = JSON.parse(res._getData());
+    expect(data.error).toBe("Method not allowed");
+    expect(data.details).toBe("This endpoint only accepts POST requests");
   });
 
   it("should validate required fields", async () => {
@@ -157,5 +157,70 @@ describe("/api/contact", () => {
     expect(res._getStatusCode()).toBe(200);
     expect(res._getHeaders()["x-ratelimit-limit"]).toBeDefined();
     expect(res._getHeaders()["x-ratelimit-remaining"]).toBeDefined();
+  });
+
+  it("should enforce rate limiting after max requests", async () => {
+    // Make 3 successful requests
+    for (let i = 0; i < 3; i++) {
+      const { req, res } = makeRequest();
+      await handler(req, res);
+      expect(res._getStatusCode()).toBe(200);
+    }
+
+    // 4th request should be rate limited
+    const { req, res } = makeRequest();
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(429);
+    const data = JSON.parse(res._getData());
+    expect(data.error).toBe("Too many requests");
+    expect(data.details).toContain("Maximum 3 submissions per hour");
+  });
+
+  it("should return error when CONTACT_EMAIL is not set", async () => {
+    delete process.env.CONTACT_EMAIL;
+    const { req, res } = makeRequest();
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(500);
+    const data = JSON.parse(res._getData());
+    expect(data.error).toBe("Email service not configured");
+  });
+
+  it("should validate name maximum length", async () => {
+    const longName = "a".repeat(101);
+    const { req, res } = makeRequest({ name: longName });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(400);
+    const data = JSON.parse(res._getData());
+    expect(data.details).toContain("Name must be less than 100 characters");
+  });
+
+  it("should validate message maximum length", async () => {
+    const longMessage = "a".repeat(5001);
+    const { req, res } = makeRequest({ message: longMessage });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(400);
+    const data = JSON.parse(res._getData());
+    expect(data.details).toContain("Message must be less than 5000 characters");
+  });
+
+  it("should validate project type maximum length", async () => {
+    const longProjectType = "a".repeat(201);
+    const { req, res } = makeRequest({ 
+      projectType: longProjectType,
+      message: "This is a valid test message" 
+    });
+
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(400);
+    const data = JSON.parse(res._getData());
+    expect(data.details).toContain("Project type must be less than 200 characters");
   });
 });
