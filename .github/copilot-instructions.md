@@ -15,6 +15,7 @@
 - Use Tailwind utility classes for all styling; avoid inline styles and CSS modules unless necessary.
 
 ## Developer Workflows
+- Use yarn for package management.
 - **Development:** `npm run dev` (or `yarn dev`) starts the local server at `localhost:3000`.
 - **Build:** `npm run build` (or `yarn build`) for production builds.
 - **Test:** Run `npm test` (Jest, see `__tests__/`).

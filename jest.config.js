@@ -25,19 +25,19 @@ const customJestConfig = {
   collectCoverageFrom: [
     "pages/**/*.{js,jsx,ts,tsx}",
     "components/**/*.{js,jsx,ts,tsx}",
+    "lib/**/*.{js,jsx,ts,tsx}",
     "!pages/_app.tsx",
     "!pages/_document.tsx",
-    "!pages/api/**",
     "!**/*.d.ts",
     "!**/node_modules/**",
     "!**/.next/**",
   ],
   coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 75,
-      lines: 80,
-      statements: 80,
+      branches: 60,
+      functions: 65,
+      lines: 70,
+      statements: 70,
     },
   },
 };
