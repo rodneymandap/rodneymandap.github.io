@@ -239,7 +239,6 @@ export default async function handler(
         <p><strong>Message:</strong></p>
         <p>${sanitizedData.message.replace(/\n/g, "<br>")}</p>
         <hr>
-        <p><small>Submitted from: ${clientIP}</small></p>
       `,
     });
 
