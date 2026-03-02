@@ -53,7 +53,7 @@ describe('Home Page', () => {
     it('displays call-to-action buttons', () => {
       render(<Home />);
 
-      const hireButtons = screen.getAllByText('Hire Me');
+      const hireButtons = screen.getAllByText('Talk to Me');
       expect(hireButtons.length).toBeGreaterThan(0);
     });
 
@@ -116,7 +116,7 @@ describe('Home Page', () => {
 
       expect(screen.getByText('About Me')).toBeInTheDocument();
       expect(screen.getAllByText(/Software Engineer/).length).toBeGreaterThan(0);
-      expect(screen.getByText(/Building Scalable Solutions/)).toBeInTheDocument();
+      expect(screen.getByText(/Building Internal Tools/)).toBeInTheDocument();
     });
 
     it('displays core technologies', () => {
