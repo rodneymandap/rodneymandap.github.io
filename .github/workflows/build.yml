@@ -7,9 +7,11 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  ci:
-    name: CI
+  sonarcloud:
+    name: SonarCloud
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -23,3 +25,8 @@ jobs:
 
       - name: Test and coverage
         run: yarn jest --coverage
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
