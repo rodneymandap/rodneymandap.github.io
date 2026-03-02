@@ -15,15 +15,38 @@ type Skill = {
   icon: string;
   iconType?: 'svg' | 'emoji';
 };
-const skills: Skill[] = [
-  { name: "Python", level: 94, color: "bg-[#3776ab]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", iconType: 'svg' },
-  { name: "Django", level: 88, color: "bg-[#0c4b33]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", iconType: 'svg' },
-  { name: "Docker", level: 85, color: "bg-[#2496ed]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", iconType: 'svg' },
-  { name: "Azure", level: 80, color: "bg-[#0078d4]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", iconType: 'svg' },
-  { name: "PostgreSQL", level: 80, color: "bg-[#336791]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", iconType: 'svg' },
-  { name: "REST APIs", level: 90, color: "bg-[#10b981]", icon: "🔗", iconType: 'emoji' },
-  { name: "Linux", level: 88, color: "bg-[#fcc624]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg", iconType: 'svg' },
-  { name: "CI/CD", level: 87, color: "bg-[#a855f7]", icon: "🔄", iconType: 'emoji' },
+type SkillCategory = {
+  category: string;
+  description: string;
+  skills: Skill[];
+};
+const skillCategories: SkillCategory[] = [
+  {
+    category: "Automation & Scripting",
+    description: "async, scripting, automation frameworks",
+    skills: [
+      { name: "Python", level: 94, color: "bg-[#3776ab]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", iconType: 'svg' },
+    ],
+  },
+  {
+    category: "Backend Development",
+    description: "robust APIs and data-driven web applications",
+    skills: [
+      { name: "Django", level: 88, color: "bg-[#0c4b33]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg", iconType: 'svg' },
+      { name: "REST APIs", level: 90, color: "bg-[#10b981]", icon: "🔗", iconType: 'emoji' },
+      { name: "PostgreSQL", level: 80, color: "bg-[#336791]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", iconType: 'svg' },
+    ],
+  },
+  {
+    category: "Infrastructure & Operations",
+    description: "containerization, cloud deployment, and CI/CD pipelines",
+    skills: [
+      { name: "Docker", level: 85, color: "bg-[#2496ed]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", iconType: 'svg' },
+      { name: "Azure", level: 80, color: "bg-[#0078d4]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", iconType: 'svg' },
+      { name: "Linux", level: 88, color: "bg-[#fcc624]", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg", iconType: 'svg' },
+      { name: "CI/CD", level: 87, color: "bg-[#a855f7]", icon: "🔄", iconType: 'emoji' },
+    ],
+  },
 ];
 
 type Certification = {
@@ -293,9 +316,6 @@ export default function Home(): JSX.Element {
                   {link.name}
                 </a>
               ))}
-              <a href="#contact" className="btn-primary text-sm">
-                Hire Me
-              </a>
             </div>
 
             <button
@@ -355,22 +375,54 @@ export default function Home(): JSX.Element {
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-2">
                   Rodney Jan Mandap
                 </h1>
-                <h2 className="text-2xl md:text-3xl font-semibold mb-6">
+                <h2 className="text-2xl md:text-3xl font-semibold mb-3">
                   <span className="gradient-text">Software Engineer</span>
                 </h2>
-                <p className="text-xl text-dark-300 mb-6 max-w-lg">
-                  With {yearsOfExperience}+ years of experience crafting robust web applications,
-                  REST APIs, and scalable Python solutions for clients worldwide.
+                <p className="text-base md:text-lg text-dark-300 mb-5 max-w-lg leading-relaxed">
+                  <span className="text-white font-semibold">Python &amp; Django Engineer</span>{' '}building automation platforms and internal tools for operational teams.
                 </p>
+                <div className="flex flex-wrap gap-2 mb-6" role="list" aria-label="Areas of focus">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-violet-500/10 border border-violet-500/30 text-violet-300"
+                    role="listitem"
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Internal tools &amp; automation dashboards
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-500/10 border border-blue-500/30 text-blue-300"
+                    role="listitem"
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Python automation services
+                  </span>
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-cyan-500/10 border border-cyan-500/30 text-cyan-300"
+                    role="listitem"
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                    </svg>
+                    Web interfaces for infrastructure workflows
+                  </span>
+                </div>
                 <div className="flex flex-wrap gap-4">
                   {/* <a href="#projects" className="btn-primary">
-                    View My Work
+                    View Case Studies
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>
                   </a> */}
                   <a href="#contact" className="btn-secondary">
-                    Hire Me
+                    Talk to Me
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
                   </a>
                 </div>
 
@@ -419,15 +471,23 @@ export default function Home(): JSX.Element {
                     <span className="text-2xl">🔗</span>
                     <p className="text-xs text-dark-300 mt-1">REST API</p>
                   </div>
-                  {/* <div className="absolute -top-3 -left-3 bg-dark-800 border border-dark-700 rounded-xl p-2 animate-float flex flex-col items-center" style={{ animationDelay: '1.5s' }}>
+                  <div className="absolute -top-3 -left-3 bg-dark-800 border border-dark-700 rounded-xl p-2 animate-float flex flex-col items-center" style={{ animationDelay: '1.5s' }}>
                     <div className="w-8 h-8 bg-transparent rounded-md flex items-center justify-center">
                       <Image src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg" alt="DevOps" width={28} height={28} className="object-contain" />
                     </div>
                     <p className="text-xs text-dark-300 mt-1">DevOps</p>
-                  </div> */}
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10 animate-bounce">
+            <span className="text-dark-600 text-xs font-mono tracking-widest uppercase">scroll</span>
+            <svg className="w-5 h-5 text-dark-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
+            </svg>
           </div>
         </section>
 
@@ -437,14 +497,17 @@ export default function Home(): JSX.Element {
               <div>
                 <p className="text-primary-400 font-mono text-sm mb-2">About Me</p>
                 <h2 className="section-title">
-                  Software Engineer
-                  <span className="gradient-text"> Building Scalable Solutions</span>
+                  Automation Engineer
+                  <span className="gradient-text"> Building Internal Tools</span>
                 </h2>
                 <p className="text-dark-300 mb-6 leading-relaxed">
-                  I&apos;m Rodney, a software engineer specializing in Python and Django. I build reliable, efficient, and scalable web applications, helping clients turn ideas into practical digital solutions. My background in automation and backend engineering allows me to create systems that are both high-performing and easy to maintain.
+                  I&apos;m Rodney, a Python and Django engineer specializing in automation platforms and workflow-driven tools for both internal teams and customer-facing applications.
+                </p>
+                <p className="text-dark-300 mb-6 leading-relaxed">
+                  I build backend-heavy systems that support complex operations, from internal automation portals to customer dashboards that integrate with infrastructure and automated processes. My background in automation and backend engineering allows me to design systems that are reliable, maintainable, and safe to operate in production.
                 </p>
                 <p className="text-dark-300 mb-8 leading-relaxed">
-                  I take pride in writing clean, well-structured code and communicating clearly throughout every project. Whether it&apos;s a simple site or a complex application, I focus on delivering quality work on time, within budget, and built to support long-term growth.
+                  I focus on clarity in code and communication, and I design tools with validation, visibility, and long-term ownership in mind.
                 </p>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -506,9 +569,9 @@ export default function Home(): JSX.Element {
           </div>
         </section>
 
-        <section id="skills" className="py-24 bg-dark-900/30">
+        <section id="skills" className="py-16 bg-dark-900/30">
           <div className="section-container">
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <p className="text-primary-400 font-mono text-sm mb-2">My Expertise</p>
               <h2 className="section-title">Skills & Technologies</h2>
               <p className="section-subtitle mx-auto">
@@ -516,35 +579,45 @@ export default function Home(): JSX.Element {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-16">
-              {skills.map((skill, index) => (
-                <div key={skill.name} className="card">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      {skill.iconType === 'svg' ? (
-                        <div className={`w-8 h-8 ${skill.name === 'Django' ? 'bg-white rounded p-1' : ''} flex items-center justify-center`}>
-                          <Image src={skill.icon} alt={skill.name} width={32} height={32} className="w-full h-full" />
-                        </div>
-                      ) : (
-                        <span className="text-2xl">{skill.icon}</span>
-                      )}
-                      <span className="font-semibold text-white">{skill.name}</span>
-                    </div>
-                    <span className="text-primary-400 font-mono text-sm">{skill.level}%</span>
+            <div className="space-y-7 mb-12">
+              {skillCategories.map((group) => (
+                <div key={group.category}>
+                  <div className="flex items-center gap-3 mb-3 pl-3 border-l-2 border-primary-500">
+                    <h3 className="text-sm font-semibold text-white tracking-wide uppercase">{group.category}</h3>
+                    <span className="text-dark-500 text-xs font-mono hidden sm:inline">{group.description}</span>
                   </div>
-                  <div className="w-full bg-dark-800 rounded-full h-2">
-                    <div
-                      className={`h-2 rounded-full ${skill.color} transition-all duration-1000`}
-                      style={{ width: `${skill.level}%` }}
-                    ></div>
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    {group.skills.map((skill) => (
+                      <div key={skill.name} className="flex items-center gap-3 bg-dark-900/60 border border-dark-800 rounded-lg px-3.5 py-2.5 hover:border-primary-500/40 transition-all duration-200">
+                        {skill.iconType === 'svg' ? (
+                          <div className={`w-5 h-5 flex-shrink-0 ${skill.name === 'Django' ? 'bg-white rounded p-0.5' : ''} flex items-center justify-center`}>
+                            <Image src={skill.icon} alt={skill.name} width={20} height={20} className="w-full h-full" />
+                          </div>
+                        ) : (
+                          <span className="text-base flex-shrink-0 leading-none">{skill.icon}</span>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-medium text-white truncate">{skill.name}</span>
+                            <span className="text-primary-400 font-mono text-xs ml-2 flex-shrink-0">{skill.level}%</span>
+                          </div>
+                          <div className="w-full bg-dark-800 rounded-full h-1">
+                            <div
+                              className={`h-1 rounded-full ${skill.color} transition-all duration-1000`}
+                              style={{ width: `${skill.level}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
 
             <div className="text-center">
-              <p className="text-dark-400 mb-6">Other technologies I work with</p>
-              <div className="flex flex-wrap justify-center gap-3">
+              <p className="text-dark-400 text-sm mb-4">Other technologies I work with</p>
+              <div className="flex flex-wrap justify-center gap-2">
                 {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "AWS", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible", "Github Copilot", "Github Actions"].map((tech) => (
                   <span key={tech} className="skill-tag">{tech}</span>
                 ))}
