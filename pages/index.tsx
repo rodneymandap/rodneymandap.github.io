@@ -2,6 +2,36 @@ import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://rodneymandap.github.io";
+const siteTitle = "Rodney Jan Mandap | Freelance Software Engineer";
+const siteDescription =
+  "Rodney Jan Mandap is a freelance Python and Django software engineer building automation platforms, internal tools, REST APIs, and scalable web applications.";
+const socialImageUrl = `${siteUrl}/myPic.jpeg`;
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Rodney Jan Mandap",
+  url: siteUrl,
+  image: socialImageUrl,
+  jobTitle: "Freelance Software Engineer",
+  description: siteDescription,
+  sameAs: [
+    "https://github.com/rodneymandap",
+    "https://www.linkedin.com/in/rjmandap/",
+  ],
+  knowsAbout: [
+    "Python",
+    "Django",
+    "Django REST Framework",
+    "REST APIs",
+    "Automation",
+    "Internal tools",
+    "Azure",
+    "Docker",
+  ],
+};
+
 function calculateYearsOfExperience(): number {
   const startYear: number = 2016;
   const currentYear: number = new Date().getFullYear();
@@ -269,6 +299,7 @@ export default function Home(): JSX.Element {
             <button
               onClick={() => setShowToast(false)}
               className="flex-shrink-0 text-dark-500 hover:text-white transition-colors"
+              aria-label="Dismiss notification"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -279,10 +310,34 @@ export default function Home(): JSX.Element {
       )}
 
       <Head>
-        <title>Rodney Jan Mandap | Freelance Software Engineer</title>
-        <meta name="description" content="Rodney Jan Mandap - Freelance Software Engineer specializing in web applications, REST APIs, and scalable Python solutions." />
+        <title>{siteTitle}</title>
+        <meta name="description" content={siteDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="keywords"
+          content="Rodney Jan Mandap, freelance software engineer, Python developer, Django developer, REST API developer, automation engineer, internal tools"
+        />
+        <meta name="author" content="Rodney Jan Mandap" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href={siteUrl} />
         <link rel="icon" href="/favicon.ico" />
+        <meta property="og:type" content="profile" />
+        <meta property="og:title" content={siteTitle} />
+        <meta property="og:description" content={siteDescription} />
+        <meta property="og:url" content={siteUrl} />
+        <meta property="og:site_name" content="Rodney Jan Mandap" />
+        <meta property="og:image" content={socialImageUrl} />
+        <meta property="og:image:alt" content="Rodney Jan Mandap" />
+        <meta property="profile:first_name" content="Rodney Jan" />
+        <meta property="profile:last_name" content="Mandap" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={siteTitle} />
+        <meta name="twitter:description" content={siteDescription} />
+        <meta name="twitter:image" content={socialImageUrl} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
       </Head>
 
       <nav className="fixed top-0 left-0 right-0 z-50 bg-dark-950/80 backdrop-blur-md border-b border-dark-800/50">
@@ -321,6 +376,9 @@ export default function Home(): JSX.Element {
             <button
               className="md:hidden text-white p-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {mobileMenuOpen ? (
@@ -333,7 +391,7 @@ export default function Home(): JSX.Element {
           </div>
 
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-dark-800">
+            <div id="mobile-navigation" className="md:hidden py-4 border-t border-dark-800">
               {navLinks.map((link) => (
                 <a
                   key={link.name}

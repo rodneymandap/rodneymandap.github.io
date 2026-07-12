@@ -22,6 +22,9 @@ describe("/api/contact", () => {
     process.env.RESEND_API_KEY = "test-api-key";
     process.env.CONTACT_EMAIL = "test@example.com";
     process.env.FROM_EMAIL = "sender@example.com";
+    delete process.env.SEND_AUTO_REPLY;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
 
     // Reset rate limit store before each test
     __test__.resetRateLimitStore();
@@ -48,6 +51,9 @@ describe("/api/contact", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    delete process.env.SEND_AUTO_REPLY;
+    delete process.env.UPSTASH_REDIS_REST_URL;
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
   });
 
   it("should reject non-POST requests", async () => {
@@ -157,6 +163,7 @@ describe("/api/contact", () => {
     expect(res._getStatusCode()).toBe(200);
     expect(res._getHeaders()["x-ratelimit-limit"]).toBeDefined();
     expect(res._getHeaders()["x-ratelimit-remaining"]).toBeDefined();
+    expect(res._getHeaders()["x-ratelimit-reset"]).toBeDefined();
   });
 
   it("should enforce rate limiting after max requests", async () => {
@@ -175,6 +182,80 @@ describe("/api/contact", () => {
     const data = JSON.parse(res._getData());
     expect(data.error).toBe("Too many requests");
     expect(data.details).toContain("Maximum 3 submissions per hour");
+    expect(res._getHeaders()["x-ratelimit-remaining"]).toBe("0");
+  });
+
+  it("should use Redis rate limiting when Upstash is configured", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+
+    const originalFetch = global.fetch;
+    const mockFetch = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: 1 }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: 1 }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: 3600 }),
+      });
+    global.fetch = mockFetch as unknown as typeof fetch;
+
+    const { req, res } = makeRequest();
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(200);
+    expect(res._getHeaders()["x-ratelimit-remaining"]).toBe("2");
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://example.upstash.io/INCR/contact%3Arate-limit%3Aunknown",
+      expect.objectContaining({
+        headers: {
+          Authorization: "Bearer test-token",
+        },
+      })
+    );
+
+    global.fetch = originalFetch;
+  });
+
+  it("should rate limit requests from Redis when the limit is exceeded", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: 4 }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ result: 1200 }),
+      }) as unknown as typeof fetch;
+
+    const { req, res } = makeRequest();
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(429);
+    expect(res._getHeaders()["x-ratelimit-remaining"]).toBe("0");
+
+    global.fetch = originalFetch;
+  });
+
+  it("should fail closed when Redis rate limiting is partially configured", async () => {
+    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
+    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+
+    const { req, res } = makeRequest();
+    await handler(req, res);
+
+    expect(res._getStatusCode()).toBe(500);
+    const data = JSON.parse(res._getData());
+    expect(data.error).toBe("Internal server error");
   });
 
   it("should return error when CONTACT_EMAIL is not set", async () => {
