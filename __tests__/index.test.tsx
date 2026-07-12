@@ -77,7 +77,8 @@ describe('Home Page', () => {
     it('toggles mobile menu when hamburger is clicked', () => {
       render(<Home />);
 
-      const hamburgerButton = screen.getByRole('button', { name: '' });
+      const hamburgerButton = screen.getByRole('button', { name: 'Open navigation menu' });
+      expect(hamburgerButton).toHaveAttribute('aria-expanded', 'false');
 
       // Mobile menu should not be visible initially
       const mobileLinks = screen.queryAllByText('About');
@@ -85,6 +86,7 @@ describe('Home Page', () => {
 
       // Click to open
       fireEvent.click(hamburgerButton);
+      expect(screen.getByRole('button', { name: 'Close navigation menu' })).toHaveAttribute('aria-expanded', 'true');
 
       // Check that menu items are present
       const openLinks = screen.queryAllByText('About');
@@ -94,7 +96,7 @@ describe('Home Page', () => {
     it('closes mobile menu when a link is clicked', () => {
       render(<Home />);
 
-      const hamburgerButton = screen.getByRole('button', { name: '' });
+      const hamburgerButton = screen.getByRole('button', { name: 'Open navigation menu' });
 
       // Open mobile menu
       fireEvent.click(hamburgerButton);
@@ -289,6 +291,24 @@ describe('Home Page', () => {
       // The title is set in the Head component
       expect(screen.getByText('Rodney Jan Mandap | Freelance Software Engineer')).toBeInTheDocument();
     });
+
+    it('sets social sharing and structured metadata', () => {
+      render(<Home />);
+
+      expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        'https://rodneymandap.github.io'
+      );
+      expect(document.querySelector('meta[property="og:title"]')).toHaveAttribute(
+        'content',
+        'Rodney Jan Mandap | Freelance Software Engineer'
+      );
+      expect(document.querySelector('meta[name="twitter:card"]')).toHaveAttribute(
+        'content',
+        'summary_large_image'
+      );
+      expect(document.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
+    });
   });
 
   describe('Responsive Design', () => {
@@ -334,6 +354,12 @@ describe('Home Page', () => {
   });
 
   describe('Interactive Elements', () => {
+    it('labels icon-only buttons for assistive technology', () => {
+      render(<Home />);
+
+      expect(screen.getByRole('button', { name: 'Open navigation menu' })).toBeInTheDocument();
+    });
+
     it('has working navigation anchors', () => {
       render(<Home />);
 

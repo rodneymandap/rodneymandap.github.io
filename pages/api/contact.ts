@@ -10,6 +10,7 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT_WINDOW_SECONDS = RATE_LIMIT_WINDOW / 1000;
 const MAX_REQUESTS_PER_WINDOW = 3; // Maximum 3 submissions per hour per IP
 
 // Export for testing purposes
@@ -55,7 +56,14 @@ function getClientIP(req: NextApiRequest): string {
   return ip;
 }
 
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+type RateLimitResult = {
+  allowed: boolean;
+  remaining: number;
+  resetSeconds?: number;
+  source: "memory" | "redis";
+};
+
+function checkInMemoryRateLimit(ip: string): RateLimitResult {
   const now = Date.now();
   const entry = rateLimitStore.get(ip);
 
@@ -65,15 +73,98 @@ function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
       count: 1,
       resetTime: now + RATE_LIMIT_WINDOW,
     });
-    return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - 1 };
+    return {
+      allowed: true,
+      remaining: MAX_REQUESTS_PER_WINDOW - 1,
+      resetSeconds: RATE_LIMIT_WINDOW_SECONDS,
+      source: "memory",
+    };
   }
 
   if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
-    return { allowed: false, remaining: 0 };
+    return {
+      allowed: false,
+      remaining: 0,
+      resetSeconds: Math.ceil((entry.resetTime - now) / 1000),
+      source: "memory",
+    };
   }
 
   entry.count++;
-  return { allowed: true, remaining: MAX_REQUESTS_PER_WINDOW - entry.count };
+  return {
+    allowed: true,
+    remaining: MAX_REQUESTS_PER_WINDOW - entry.count,
+    resetSeconds: Math.ceil((entry.resetTime - now) / 1000),
+    source: "memory",
+  };
+}
+
+async function upstashCommand<T>(
+  redisUrl: string,
+  token: string,
+  command: Array<string | number>
+): Promise<T> {
+  const endpoint = `${redisUrl}/${command
+    .map((part) => encodeURIComponent(String(part)))
+    .join("/")}`;
+  const response = await fetch(endpoint, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Rate limit store returned ${response.status}`);
+  }
+
+  const payload = (await response.json()) as { result?: T; error?: string };
+  if (payload.error) {
+    throw new Error(payload.error);
+  }
+
+  return payload.result as T;
+}
+
+async function checkRedisRateLimit(ip: string): Promise<RateLimitResult | null> {
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL?.replace(/\/$/, "");
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!redisUrl && !redisToken) {
+    return null;
+  }
+
+  if (!redisUrl || !redisToken) {
+    throw new Error("Redis rate limit store is partially configured");
+  }
+
+  const key = `contact:rate-limit:${ip}`;
+  const count = await upstashCommand<number>(redisUrl, redisToken, [
+    "INCR",
+    key,
+  ]);
+
+  if (count === 1) {
+    await upstashCommand<number>(redisUrl, redisToken, [
+      "EXPIRE",
+      key,
+      RATE_LIMIT_WINDOW_SECONDS,
+    ]);
+  }
+
+  const ttl = await upstashCommand<number>(redisUrl, redisToken, ["TTL", key]);
+  const remaining = Math.max(MAX_REQUESTS_PER_WINDOW - count, 0);
+
+  return {
+    allowed: count <= MAX_REQUESTS_PER_WINDOW,
+    remaining,
+    resetSeconds: ttl > 0 ? ttl : RATE_LIMIT_WINDOW_SECONDS,
+    source: "redis",
+  };
+}
+
+async function checkRateLimit(ip: string): Promise<RateLimitResult> {
+  const redisRateLimit = await checkRedisRateLimit(ip);
+  return redisRateLimit || checkInMemoryRateLimit(ip);
 }
 
 function validateEmail(email: string): boolean {
@@ -168,19 +259,25 @@ export default async function handler(
   try {
     // Check rate limit
     const clientIP = getClientIP(req);
-    const rateLimit = checkRateLimit(clientIP);
+    const rateLimit = await checkRateLimit(clientIP);
+
+    // Set rate limit headers
+    res.setHeader("X-RateLimit-Limit", MAX_REQUESTS_PER_WINDOW.toString());
+    res.setHeader("X-RateLimit-Remaining", rateLimit.remaining.toString());
+    if (rateLimit.resetSeconds) {
+      res.setHeader("X-RateLimit-Reset", rateLimit.resetSeconds.toString());
+    }
 
     if (!rateLimit.allowed) {
-      logger.warn("Rate limit exceeded", { clientIP });
+      logger.warn("Rate limit exceeded", {
+        clientIP,
+        source: rateLimit.source,
+      });
       return res.status(429).json({
         error: "Too many requests",
         details: "Maximum 3 submissions per hour. Please try again later.",
       });
     }
-
-    // Set rate limit headers
-    res.setHeader("X-RateLimit-Limit", MAX_REQUESTS_PER_WINDOW.toString());
-    res.setHeader("X-RateLimit-Remaining", rateLimit.remaining.toString());
 
     // Parse and validate request body
     const formData: ContactFormData = req.body;
