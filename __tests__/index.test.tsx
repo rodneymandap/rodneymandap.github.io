@@ -44,7 +44,7 @@ describe('Home Page', () => {
       render(<Home />);
 
       const currentYear = new Date().getFullYear();
-      const expectedYears = currentYear - 2016;
+      const expectedYears = currentYear - 2017;
 
       expect(screen.getByText(`${expectedYears}+`)).toBeInTheDocument();
       expect(screen.getByText('Years Experience')).toBeInTheDocument();

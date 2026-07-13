@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 function calculateYearsOfExperience(): number {
-  const startYear: number = 2016;
+  const startYear: number = 2017;
   const currentYear: number = new Date().getFullYear();
   return currentYear - startYear;
 }
