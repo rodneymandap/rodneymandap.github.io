@@ -33,7 +33,7 @@ const structuredData = {
 };
 
 function calculateYearsOfExperience(): number {
-  const startYear: number = 2016;
+  const startYear: number = 2017;
   const currentYear: number = new Date().getFullYear();
   return currentYear - startYear;
 }
