@@ -25,6 +25,14 @@ const SERVER_INFO = {
 };
 
 const DEFAULT_PLAN_ID = "last-used";
+const OAUTH_CONNECT_PATH = "/api/ynab/oauth/connect";
+
+class McpAuthRequiredError extends Error {
+  constructor() {
+    super("Connect a YNAB account with OAuth to use this MCP tool.");
+    this.name = "McpAuthRequiredError";
+  }
+}
 
 const tools: McpTool[] = [
   {
@@ -159,6 +167,35 @@ function getBearerToken(req: NextApiRequest): string | null {
   return typeof apiKey === "string" ? apiKey : null;
 }
 
+function getRequestOrigin(req: NextApiRequest): string {
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const proto = typeof forwardedProto === "string" ? forwardedProto : "https";
+  const host = req.headers.host;
+
+  return host ? `${proto}://${host}` : "";
+}
+
+function getConnectUrl(req: NextApiRequest): string {
+  const origin = getRequestOrigin(req);
+
+  return origin ? `${origin}${OAUTH_CONNECT_PATH}` : OAUTH_CONNECT_PATH;
+}
+
+function quoteHeaderValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function oauthChallengeHeader(req: NextApiRequest): string {
+  const connectUrl = getConnectUrl(req);
+
+  return [
+    'Bearer realm="rodney-ynab-mcp"',
+    'error="invalid_token"',
+    'error_description="Connect a YNAB account with OAuth."',
+    `authorization_uri="${quoteHeaderValue(connectUrl)}"`,
+  ].join(", ");
+}
+
 function jsonRpcResult(id: JsonRpcRequest["id"], result: unknown) {
   return {
     jsonrpc: "2.0",
@@ -202,14 +239,18 @@ async function resolveYnabAccessToken(req: NextApiRequest): Promise<string | und
   }
 
   if (bearerToken?.startsWith("ynab_")) {
-    return getYnabAccessTokenForSession(bearerToken);
+    try {
+      return await getYnabAccessTokenForSession(bearerToken);
+    } catch {
+      throw new McpAuthRequiredError();
+    }
   }
 
   if (!process.env.MCP_API_KEY) {
     return process.env.YNAB_ACCESS_TOKEN;
   }
 
-  return undefined;
+  throw new McpAuthRequiredError();
 }
 
 async function callTool(name: string, args: Record<string, unknown>, accessToken?: string) {
@@ -362,6 +403,11 @@ async function handleMcpRequest(request: JsonRpcRequest, req: NextApiRequest) {
 
     const args = request.params?.arguments || {};
     const accessToken = await resolveYnabAccessToken(req);
+
+    if (!accessToken && !process.env.YNAB_ACCESS_TOKEN) {
+      throw new McpAuthRequiredError();
+    }
+
     const result = await callTool(name, args, accessToken);
     return jsonRpcResult(id, result);
   }
@@ -379,7 +425,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ok: true,
       server: SERVER_INFO,
       endpoint: "/api/ynab-mcp",
-      connect: "/api/ynab/oauth/connect",
+      connect: OAUTH_CONNECT_PATH,
       auth: "Use the OAuth connection token as Authorization: Bearer <token>.",
       tools: tools.map((tool) => tool.name),
     });
@@ -406,6 +452,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     return res.status(200).json(response);
   } catch (error) {
+    if (error instanceof McpAuthRequiredError) {
+      const connect = getConnectUrl(req);
+
+      res.setHeader("WWW-Authenticate", oauthChallengeHeader(req));
+      return res.status(401).json({
+        error: "authorization_required",
+        error_description: error.message,
+        connect,
+      });
+    }
+
     const message = error instanceof Error ? error.message : "Unexpected server error";
     const status = error instanceof SyntaxError ? 400 : 200;
     return res.status(status).json(jsonRpcError(null, -32603, message));

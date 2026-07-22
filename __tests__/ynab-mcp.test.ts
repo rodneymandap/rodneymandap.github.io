@@ -101,24 +101,38 @@ describe("/api/ynab-mcp", () => {
     );
   });
 
-  it("requires a valid owner token for tool calls when MCP_API_KEY is configured", async () => {
+  it("returns an OAuth challenge for unauthenticated tool calls when MCP_API_KEY is configured", async () => {
     process.env.MCP_API_KEY = "secret";
     delete process.env.YNAB_ACCESS_TOKEN;
-    const req = createMockRequest("POST", {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "tools/call",
-      params: {
-        name: "ynab_list_plans",
-        arguments: {},
+    const req = createMockRequest(
+      "POST",
+      {
+        jsonrpc: "2.0",
+        id: 1,
+        method: "tools/call",
+        params: {
+          name: "ynab_list_plans",
+          arguments: {},
+        },
       },
-    });
+      { host: "mcp.example.com", "x-forwarded-proto": "https" }
+    );
     const res = createMockResponse();
 
     await handler(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json.mock.calls[0][0].error.message).toContain("No YNAB access token");
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.setHeader).toHaveBeenCalledWith(
+      "WWW-Authenticate",
+      expect.stringContaining(
+        'authorization_uri="https://mcp.example.com/api/ynab/oauth/connect"'
+      )
+    );
+    expect(res.json).toHaveBeenCalledWith({
+      error: "authorization_required",
+      error_description: "Connect a YNAB account with OAuth to use this MCP tool.",
+      connect: "https://mcp.example.com/api/ynab/oauth/connect",
+    });
   });
 
   it("calls YNAB when a tool is invoked", async () => {
@@ -361,7 +375,7 @@ describe("/api/ynab-mcp", () => {
     expect(unknownToolRes.json.mock.calls[0][0].error.code).toBe(-32603);
   });
 
-  it("handles YNAB configuration and API errors as tool errors", async () => {
+  it("returns an OAuth challenge when no YNAB token is available", async () => {
     delete process.env.YNAB_ACCESS_TOKEN;
     const missingTokenReq = createMockRequest("POST", {
       jsonrpc: "2.0",
@@ -372,10 +386,20 @@ describe("/api/ynab-mcp", () => {
     const missingTokenRes = createMockResponse();
     await handler(missingTokenReq, missingTokenRes);
 
-    expect(missingTokenRes.json.mock.calls[0][0].error.message).toContain(
-      "No YNAB access token"
+    expect(missingTokenRes.status).toHaveBeenCalledWith(401);
+    expect(missingTokenRes.setHeader).toHaveBeenCalledWith(
+      "WWW-Authenticate",
+      expect.stringContaining('authorization_uri="/api/ynab/oauth/connect"')
     );
+    expect(missingTokenRes.json.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        error: "authorization_required",
+        connect: "/api/ynab/oauth/connect",
+      })
+    );
+  });
 
+  it("handles YNAB API errors as tool errors", async () => {
     process.env.YNAB_ACCESS_TOKEN = "ynab-test-token";
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: false,
@@ -392,6 +416,44 @@ describe("/api/ynab-mcp", () => {
     await handler(apiErrorReq, apiErrorRes);
 
     expect(apiErrorRes.json.mock.calls[0][0].error.message).toBe("Rate limited");
+  });
+
+  it("returns an OAuth challenge for expired OAuth session bearer tokens", async () => {
+    delete process.env.YNAB_ACCESS_TOKEN;
+    process.env.YNAB_CLIENT_ID = "client-id";
+    process.env.YNAB_CLIENT_SECRET = "client-secret";
+    process.env.UPSTASH_REDIS_REST_URL = "https://redis.example.com";
+    process.env.UPSTASH_REDIS_REST_TOKEN = "redis-token";
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ result: null }),
+    });
+    const req = createMockRequest(
+      "POST",
+      {
+        jsonrpc: "2.0",
+        id: 13,
+        method: "tools/call",
+        params: { name: "ynab_list_plans", arguments: {} },
+      },
+      { authorization: "Bearer ynab_expired", host: "mcp.example.com" }
+    );
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.setHeader).toHaveBeenCalledWith(
+      "WWW-Authenticate",
+      expect.stringContaining(
+        'authorization_uri="https://mcp.example.com/api/ynab/oauth/connect"'
+      )
+    );
+    expect(res.json.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        error: "authorization_required",
+      })
+    );
   });
 
   it("handles batches, invalid JSON, and unsupported methods", async () => {
