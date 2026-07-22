@@ -3,7 +3,19 @@
     "pages/api/contact.ts": {
       "maxDuration": 10,
       "memory": 1024
+    },
+    "pages/api/ynab-mcp.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "pages/api/ynab/oauth/connect.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "pages/api/ynab/oauth/callback.ts": {
+      "maxDuration": 10,
+      "memory": 1024
     }
   },
-"regions": ["hkg1"]
+  "regions": ["hkg1"]
 }
