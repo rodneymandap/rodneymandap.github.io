@@ -1,6 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { completeYnabOAuth } from "../../../../lib/ynab-oauth";
 
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function html(body: string) {
   return `<!doctype html>
 <html lang="en">
@@ -35,11 +44,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).send(
       html(`<h1>YNAB connected</h1>
 <p>Use this token as the bearer token for the MCP server:</p>
-<code>${sessionId}</code>
+<code>${escapeHtml(sessionId)}</code>
 <p>The YNAB access and refresh tokens are stored server-side. You can close this tab.</p>`)
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to finish YNAB OAuth.";
-    return res.status(500).send(html(`<h1>Connection failed</h1><p>${message}</p>`));
+    return res.status(500).send(html(`<h1>Connection failed</h1><p>${escapeHtml(message)}</p>`));
   }
 }
