@@ -6,6 +6,13 @@ on:
   push:
     branches-ignore:
       - main
+  workflow_run:
+    workflows: [Build]
+    types:
+      - completed
+      
+    
+    
 
 jobs:
   Deploy-Preview:
