@@ -95,8 +95,20 @@ describe("/api/ynab-mcp", () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json.mock.calls[0][0].result.tools).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ name: "ynab_list_plans" }),
-        expect.objectContaining({ name: "ynab_list_transactions" }),
+        expect.objectContaining({
+          name: "ynab_list_plans",
+          outputSchema: expect.objectContaining({
+            type: "object",
+            required: ["data"],
+          }),
+        }),
+        expect.objectContaining({
+          name: "ynab_list_transactions",
+          outputSchema: expect.objectContaining({
+            type: "object",
+            required: ["data"],
+          }),
+        }),
       ])
     );
   });
@@ -162,6 +174,9 @@ describe("/api/ynab-mcp", () => {
       })
     );
     expect(res.json.mock.calls[0][0].result.content[0].text).toContain("Main");
+    expect(res.json.mock.calls[0][0].result.structuredContent).toEqual({
+      data: { plans: [{ id: "plan-1", name: "Main" }] },
+    });
   });
 
   it("filters closed accounts by default", async () => {
@@ -271,6 +286,14 @@ describe("/api/ynab-mcp", () => {
     const text = res.json.mock.calls[0][0].result.content[0].text;
     expect(text).toContain('"returned": 2');
     expect(text).toContain('"total_available": 3');
+    expect(res.json.mock.calls[0][0].result.structuredContent.data).toEqual(
+      expect.objectContaining({
+        transactions: [{ id: "1" }, { id: "2" }],
+        limit: 2,
+        returned: 2,
+        total_available: 3,
+      })
+    );
   });
 
   it("gets the current month summary when no month is passed", async () => {

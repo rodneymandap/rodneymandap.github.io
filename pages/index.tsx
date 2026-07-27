@@ -676,7 +676,7 @@ export default function Home(): JSX.Element {
             <div className="text-center">
               <p className="text-dark-400 text-sm mb-4">Other technologies I work with</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "AWS", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible", "Github Copilot", "Github Actions"].map((tech) => (
+                {["Django REST Framework", "Celery", "Redis", "Git", "Nginx", "Gunicorn", "HTML/CSS", "JavaScript", "Tailwind CSS", "GraphQL", "Ansible", "Github Copilot", "Github Actions"].map((tech) => (
                   <span key={tech} className="skill-tag">{tech}</span>
                 ))}
               </div>

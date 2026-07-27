@@ -17,6 +17,7 @@ type McpTool = {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  outputSchema: Record<string, unknown>;
 };
 
 const SERVER_INFO = {
@@ -34,6 +35,85 @@ class McpAuthRequiredError extends Error {
   }
 }
 
+const ynabApiResponseOutputSchema = {
+  type: "object",
+  properties: {
+    data: {
+      type: "object",
+      description: "Raw YNAB API response data for the requested resource.",
+      additionalProperties: true,
+    },
+  },
+  required: ["data"],
+  additionalProperties: true,
+};
+
+const ynabTransactionsOutputSchema = {
+  type: "object",
+  properties: {
+    data: {
+      type: "object",
+      properties: {
+        transactions: {
+          type: "array",
+          description: "Transactions returned by YNAB after applying filters and limit.",
+          items: {
+            type: "object",
+            additionalProperties: true,
+          },
+        },
+        limit: {
+          type: "number",
+          description: "Maximum number of transactions requested.",
+        },
+        returned: {
+          type: "number",
+          description: "Number of transactions returned in this response.",
+        },
+        total_available: {
+          type: "number",
+          description: "Number of transactions available before the MCP limit was applied.",
+        },
+      },
+      required: ["transactions", "limit", "returned", "total_available"],
+      additionalProperties: true,
+    },
+  },
+  required: ["data"],
+  additionalProperties: true,
+};
+
+const ynabPlanOverviewOutputSchema = {
+  type: "object",
+  properties: {
+    plan_id: {
+      type: "string",
+      description: "YNAB plan id used for the overview.",
+    },
+    selected_month: {
+      type: "string",
+      description: "Month used for the overview in YYYY-MM-01 format.",
+    },
+    accounts: {
+      type: "object",
+      description: "Raw YNAB accounts response.",
+      additionalProperties: true,
+    },
+    categories: {
+      type: "object",
+      description: "Raw YNAB categories response.",
+      additionalProperties: true,
+    },
+    month_summary: {
+      type: "object",
+      description: "Raw YNAB month summary response.",
+      additionalProperties: true,
+    },
+  },
+  required: ["plan_id", "selected_month", "accounts", "categories", "month_summary"],
+  additionalProperties: true,
+};
+
 const tools: McpTool[] = [
   {
     name: "ynab_list_plans",
@@ -43,6 +123,7 @@ const tools: McpTool[] = [
       properties: {},
       additionalProperties: false,
     },
+    outputSchema: ynabApiResponseOutputSchema,
   },
   {
     name: "ynab_list_accounts",
@@ -61,6 +142,7 @@ const tools: McpTool[] = [
       },
       additionalProperties: false,
     },
+    outputSchema: ynabApiResponseOutputSchema,
   },
   {
     name: "ynab_list_categories",
@@ -79,6 +161,7 @@ const tools: McpTool[] = [
       },
       additionalProperties: false,
     },
+    outputSchema: ynabApiResponseOutputSchema,
   },
   {
     name: "ynab_get_month",
@@ -97,6 +180,7 @@ const tools: McpTool[] = [
       },
       additionalProperties: false,
     },
+    outputSchema: ynabApiResponseOutputSchema,
   },
   {
     name: "ynab_list_transactions",
@@ -135,6 +219,7 @@ const tools: McpTool[] = [
       },
       additionalProperties: false,
     },
+    outputSchema: ynabTransactionsOutputSchema,
   },
   {
     name: "ynab_get_plan_overview",
@@ -153,6 +238,7 @@ const tools: McpTool[] = [
       },
       additionalProperties: false,
     },
+    outputSchema: ynabPlanOverviewOutputSchema,
   },
 ];
 
@@ -216,8 +302,9 @@ function jsonRpcError(id: JsonRpcRequest["id"], code: number, message: string, d
   };
 }
 
-function toolText(payload: unknown) {
+function toolText(payload: Record<string, unknown>) {
   return {
+    structuredContent: payload,
     content: [
       {
         type: "text",
@@ -256,7 +343,7 @@ async function resolveYnabAccessToken(req: NextApiRequest): Promise<string | und
 async function callTool(name: string, args: Record<string, unknown>, accessToken?: string) {
   switch (name) {
     case "ynab_list_plans":
-      return toolText(await ynabGet("/plans", undefined, { accessToken }));
+      return toolText(await ynabGet<Record<string, unknown>>("/plans", undefined, { accessToken }));
 
     case "ynab_list_accounts": {
       const response = await ynabGet<{ data: { accounts: Array<{ closed?: boolean }> } }>(
@@ -308,7 +395,7 @@ async function callTool(name: string, args: Record<string, unknown>, accessToken
     case "ynab_get_month": {
       const month = typeof args.month === "string" && args.month ? args.month : currentMonth();
       return toolText(
-        await ynabGet(
+        await ynabGet<Record<string, unknown>>(
           `/plans/${encodeURIComponent(planId(args))}/months/${encodeURIComponent(month)}`,
           undefined,
           { accessToken }

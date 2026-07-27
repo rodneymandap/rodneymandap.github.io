@@ -7,6 +7,7 @@ This project includes a read-only MCP endpoint for YNAB at:
 ```
 
 It exposes tools for listing plans, accounts, categories, month summaries, transactions, and a compact plan overview.
+Each tool advertises an MCP `outputSchema` and returns matching `structuredContent` alongside a text rendering of the same payload.
 
 Users connect their own YNAB accounts through OAuth:
 
