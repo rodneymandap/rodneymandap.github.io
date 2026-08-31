@@ -34,7 +34,7 @@ function createMockRequest(
     },
     query,
     body: {},
-  } as NextApiRequest;
+  } as unknown as NextApiRequest;
 }
 
 describe("YNAB OAuth endpoints", () => {

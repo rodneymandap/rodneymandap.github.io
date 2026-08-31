@@ -6,6 +6,7 @@ import type {
   LevelUpActivityPage,
   LevelUpDashboard,
   LevelUpMissionInput,
+  LevelUpMissionPreset,
   LevelUpMutationResult,
   LevelUpProgressReport,
 } from "./types";
@@ -90,6 +91,27 @@ export async function createLevelUpMission(
   const { error } = await getLevelUpSupabaseClient()
     .from("levelup_missions")
     .insert({ user_id: userId, ...input });
+  if (error) throw new Error(error.message);
+}
+
+export async function createLevelUpPresetMissions(
+  userId: string,
+  presets: LevelUpMissionPreset[]
+): Promise<void> {
+  if (presets.length === 0) return;
+  const { error } = await getLevelUpSupabaseClient()
+    .from("levelup_missions")
+    .upsert(
+      presets.map((preset) => ({
+        user_id: userId,
+        preset_key: preset.key,
+        ...preset.input,
+      })),
+      {
+        onConflict: "user_id,preset_key",
+        ignoreDuplicates: true,
+      }
+    );
   if (error) throw new Error(error.message);
 }
 

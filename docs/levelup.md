@@ -8,11 +8,12 @@ It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Fu
 
 1. Open the existing Supabase project.
 2. Open **SQL Editor** and create a new query.
-3. Copy and run the complete contents of both migrations in order:
+3. Copy and run the complete contents of all migrations in order:
 
    ```text
    supabase/migrations/202608310001_levelup.sql
    supabase/migrations/202609010001_levelup_daily_focus.sql
+   supabase/migrations/202609010002_levelup_quest_presets.sql
    ```
 
 The migrations create only `levelup_*` public tables, a private Level Up allowlist, RLS policies, indexes, achievement definitions, and the transactional RPC functions used by the app. They do not change global Supabase Auth provider or signup settings.
@@ -53,11 +54,13 @@ Restart the local development server after changing environment variables.
 
 1. Visit `/levelup` without a session and confirm the redirect to `/levelup/login`.
 2. Sign in with the allowlisted email/password account.
-3. Create one Easy daily mission, complete it, verify the 10 XP award, then use Undo and verify that progress returns to zero.
-4. Choose one to three unfinished missions in the daily briefing, refresh, and confirm the ordered focus route remains for the current Manila date.
-5. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
-6. Sign out and confirm all four private routes redirect to login.
-7. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
+3. Open the Quest Log, choose two quests from **Add from presets**, and confirm both appear as editable active missions.
+4. Reopen the preset library and confirm those quests are marked **Already added**, including after archiving one of them.
+5. Complete one Easy daily mission, verify the 10 XP award, then use Undo and verify that progress returns to zero.
+6. Choose one to three unfinished missions in the daily briefing, refresh, and confirm the ordered focus route remains for the current Manila date.
+7. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
+8. Sign out and confirm all four private routes redirect to login.
+9. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
 
 `vercel.json` explicitly enables Fluid Compute and preserves the existing 10-second maximum for each portfolio API function. Level Up mission reads and writes go directly to Supabase; Vercel only serves static application files and runs the narrow authentication middleware.
 

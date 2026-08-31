@@ -1,6 +1,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
 import { LevelUpIcon } from "../../components/levelup/LevelUpIcon";
+import { PresetQuestSelector } from "../../components/levelup/PresetQuestSelector";
 import { useLevelUp } from "../../components/levelup/LevelUpProvider";
 import { LevelUpShell } from "../../components/levelup/LevelUpShell";
 import {
@@ -10,6 +11,7 @@ import {
 } from "../../components/levelup/LevelUpStates";
 import {
   createLevelUpMission,
+  createLevelUpPresetMissions,
   getLevelUpMissions,
   setLevelUpMissionArchived,
   updateLevelUpMission,
@@ -22,6 +24,7 @@ import {
   type LevelUpDifficulty,
   type LevelUpMission,
   type LevelUpMissionInput,
+  type LevelUpMissionPreset,
   type LevelUpStatKey,
 } from "../../lib/levelup/types";
 
@@ -141,6 +144,7 @@ function QuestsContent() {
   const [listError, setListError] = useState("");
   const [filter, setFilter] = useState<QuestFilter>("active");
   const [editorOpen, setEditorOpen] = useState(false);
+  const [presetSelectorOpen, setPresetSelectorOpen] = useState(false);
   const [editingMission, setEditingMission] = useState<LevelUpMission | null>(null);
   const [saving, setSaving] = useState(false);
   const [busyMissionId, setBusyMissionId] = useState<string | null>(null);
@@ -200,6 +204,13 @@ function QuestsContent() {
     }
   }
 
+  async function addPresetMissions(presets: LevelUpMissionPreset[]) {
+    if (!dashboard) return;
+    await createLevelUpPresetMissions(dashboard.profile.user_id, presets);
+    await refresh();
+    await loadMissions();
+  }
+
   async function toggleArchived(mission: LevelUpMission) {
     setBusyMissionId(mission.id);
     setListError("");
@@ -225,7 +236,10 @@ function QuestsContent() {
             <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-lg px-4 py-2 text-sm font-bold capitalize transition ${filter === value ? "bg-cyan-300/10 text-cyan-200 ring-1 ring-cyan-300/20" : "text-slate-500 hover:text-white"}`}>{value}</button>
           ))}
         </div>
-        <button type="button" onClick={openCreate} className="levelup-button-primary"><LevelUpIcon name="plus" />Create mission</button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button type="button" onClick={() => setPresetSelectorOpen(true)} className="levelup-button-secondary"><LevelUpIcon name="spark" />Add from presets</button>
+          <button type="button" onClick={openCreate} className="levelup-button-primary"><LevelUpIcon name="plus" />Create mission</button>
+        </div>
       </div>
 
       {listError && <div className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200" role="alert">{listError}</div>}
@@ -258,6 +272,13 @@ function QuestsContent() {
       )}
 
       {editorOpen && <MissionEditor mission={editingMission} saving={saving} onClose={() => { if (!saving) setEditorOpen(false); }} onSave={saveMission} />}
+      {presetSelectorOpen && (
+        <PresetQuestSelector
+          existingPresetKeys={new Set(missions.map((mission) => mission.preset_key).filter((key): key is string => Boolean(key)))}
+          onAdd={addPresetMissions}
+          onClose={() => setPresetSelectorOpen(false)}
+        />
+      )}
     </div>
   );
 }

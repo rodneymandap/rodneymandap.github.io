@@ -3,6 +3,7 @@ import { createBrowserClient } from "@supabase/ssr";
 import {
   completeLevelUpMission,
   createLevelUpMission,
+  createLevelUpPresetMissions,
   getLevelUpAchievements,
   getLevelUpActivity,
   getLevelUpDashboard,
@@ -16,15 +17,17 @@ import {
   undoLevelUpMission,
   updateLevelUpMission,
 } from "../lib/levelup/supabase";
+import { LEVELUP_QUEST_PRESETS } from "../lib/levelup/presets";
 
 jest.mock("@supabase/ssr", () => ({ createBrowserClient: jest.fn() }));
 
 const mockRpc = jest.fn();
 const mockInsert = jest.fn();
+const mockUpsert = jest.fn();
 const mockUpdateEq = jest.fn();
 const mockUpdate = jest.fn(() => ({ eq: mockUpdateEq }));
 const mockSelect = jest.fn();
-const mockFrom = jest.fn(() => ({ insert: mockInsert, update: mockUpdate, select: mockSelect }));
+const mockFrom = jest.fn(() => ({ insert: mockInsert, upsert: mockUpsert, update: mockUpdate, select: mockSelect }));
 const mockClient = { rpc: mockRpc, from: mockFrom };
 
 describe("Level Up Supabase interface", () => {
@@ -38,6 +41,7 @@ describe("Level Up Supabase interface", () => {
     resetLevelUpSupabaseClientForTests();
     (createBrowserClient as jest.Mock).mockReturnValue(mockClient);
     mockInsert.mockResolvedValue({ error: null });
+    mockUpsert.mockResolvedValue({ error: null });
     mockUpdateEq.mockResolvedValue({ error: null });
     mockRpc.mockImplementation((name: string) => Promise.resolve({ data: { name }, error: null }));
 
@@ -100,6 +104,17 @@ describe("Level Up Supabase interface", () => {
     expect(mockUpdate).toHaveBeenCalledWith(input);
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ active: false }));
     expect(missions).toEqual([{ id: "mission-1" }]);
+  });
+
+  it("bulk-adds presets with stable conflict-safe identities", async () => {
+    await createLevelUpPresetMissions("user-1", LEVELUP_QUEST_PRESETS.slice(0, 2));
+    expect(mockUpsert).toHaveBeenCalledWith(
+      [
+        expect.objectContaining({ user_id: "user-1", preset_key: "daily-top-three" }),
+        expect.objectContaining({ user_id: "user-1", preset_key: "daily-deep-work" }),
+      ],
+      { onConflict: "user_id,preset_key", ignoreDuplicates: true }
+    );
   });
 
   it("propagates database errors without inventing local progress", async () => {

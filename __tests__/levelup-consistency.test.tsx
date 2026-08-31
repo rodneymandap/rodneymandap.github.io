@@ -11,10 +11,10 @@ import {
 } from "../lib/levelup/types";
 
 const missions: LevelUpMission[] = [
-  { id: "m1", title: "Train", description: "", cadence: "daily", difficulty: "easy", stat_key: "strength", xp_reward: 10, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
-  { id: "m2", title: "Read", description: "", cadence: "daily", difficulty: "normal", stat_key: "intellect", xp_reward: 25, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
-  { id: "m3", title: "Plan", description: "", cadence: "weekly", difficulty: "normal", stat_key: "discipline", xp_reward: 25, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
-  { id: "m4", title: "Recover", description: "", cadence: "daily", difficulty: "easy", stat_key: "vitality", xp_reward: 10, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
+  { id: "m1", preset_key: null, title: "Train", description: "", cadence: "daily", difficulty: "easy", stat_key: "strength", xp_reward: 10, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
+  { id: "m2", preset_key: null, title: "Read", description: "", cadence: "daily", difficulty: "normal", stat_key: "intellect", xp_reward: 25, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
+  { id: "m3", preset_key: null, title: "Plan", description: "", cadence: "weekly", difficulty: "normal", stat_key: "discipline", xp_reward: 25, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
+  { id: "m4", preset_key: null, title: "Recover", description: "", cadence: "daily", difficulty: "easy", stat_key: "vitality", xp_reward: 10, active: true, archived_at: null, created_at: "2026-09-01T00:00:00Z", completed: false },
 ];
 
 describe("Level Up consistency loop", () => {

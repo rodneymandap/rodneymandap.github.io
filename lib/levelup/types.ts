@@ -8,6 +8,7 @@ export type LevelUpStatKey =
 
 export type LevelUpMission = {
   id: string;
+  preset_key: string | null;
   title: string;
   description: string;
   cadence: LevelUpCadence;
@@ -88,6 +89,19 @@ export type LevelUpMissionInput = {
   cadence: LevelUpCadence;
   difficulty: LevelUpDifficulty;
   stat_key: LevelUpStatKey;
+};
+
+export type LevelUpMissionPresetCategory =
+  | "Planning"
+  | "Wellbeing"
+  | "Learning"
+  | "Career"
+  | "Finance";
+
+export type LevelUpMissionPreset = {
+  key: string;
+  category: LevelUpMissionPresetCategory;
+  input: LevelUpMissionInput;
 };
 
 export type LevelUpDailyProgress = {
