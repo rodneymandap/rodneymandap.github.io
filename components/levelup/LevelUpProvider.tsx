@@ -12,27 +12,24 @@ import {
 import {
   completeLevelUpMission,
   getLevelUpDashboard,
+  setLevelUpDailyFocus,
   undoLevelUpMission,
 } from "../../lib/levelup/supabase";
 import type {
-  LevelUpAchievementEvent,
   LevelUpDashboard,
+  LevelUpFeedback,
 } from "../../lib/levelup/types";
-
-type LevelUpNotice = {
-  tone: "success" | "level" | "error";
-  title: string;
-  message: string;
-  achievements?: LevelUpAchievementEvent[];
-};
+import { isLevelUpComebackDay } from "../../lib/levelup/types";
 
 type LevelUpContextValue = {
   dashboard: LevelUpDashboard | null;
   loading: boolean;
   error: string;
   busyMissionId: string | null;
-  notice: LevelUpNotice | null;
+  focusSaving: boolean;
+  notice: LevelUpFeedback | null;
   refresh: () => Promise<void>;
+  saveDailyFocus: (missionIds: string[]) => Promise<boolean>;
   completeMission: (missionId: string) => Promise<void>;
   undoMission: (missionId: string) => Promise<void>;
   clearNotice: () => void;
@@ -46,7 +43,8 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [busyMissionId, setBusyMissionId] = useState<string | null>(null);
-  const [notice, setNotice] = useState<LevelUpNotice | null>(null);
+  const [focusSaving, setFocusSaving] = useState(false);
+  const [notice, setNotice] = useState<LevelUpFeedback | null>(null);
 
   const refresh = useCallback(async () => {
     setError("");
@@ -77,20 +75,41 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
       setBusyMissionId(missionId);
       setNotice(null);
       const previousLevel = dashboard?.progress.level ?? 1;
+      const previousFocus = dashboard?.daily_focus ?? [];
+      const wasDailyClear =
+        previousFocus.length > 0 && previousFocus.every((mission) => mission.completed);
+      const wasComeback = dashboard
+        ? isLevelUpComebackDay(
+            dashboard.progress.last_active_date,
+            dashboard.local_date
+          )
+        : false;
 
       try {
         const result = await completeLevelUpMission(missionId);
         setDashboard(result);
         const achievements = result.event.new_achievements ?? [];
         const leveledUp = result.progress.level > previousLevel;
+        const dailyClear =
+          !wasDailyClear &&
+          (result.daily_focus ?? []).length > 0 &&
+          (result.daily_focus ?? []).every((mission) => mission.completed);
         setNotice({
           tone: leveledUp ? "level" : "success",
           title: leveledUp
             ? `Level ${result.progress.level} reached`
+            : dailyClear
+            ? "Daily Clear"
+            : wasComeback
+            ? "Welcome back, hero"
             : "Mission complete",
           message: `+${result.event.xp_awarded ?? 0} XP awarded to ${
             result.event.stat_key ?? "your stats"
           }.`,
+          xp: result.event.xp_awarded ?? 0,
+          level: result.progress.level,
+          dailyClear,
+          comeback: wasComeback,
           achievements,
         });
       } catch (mutationError) {
@@ -106,8 +125,36 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
         setBusyMissionId(null);
       }
     },
-    [busyMissionId, dashboard?.progress.level]
+    [busyMissionId, dashboard]
   );
+
+  const saveDailyFocus = useCallback(async (missionIds: string[]) => {
+    if (focusSaving) return false;
+    setFocusSaving(true);
+    setNotice(null);
+    try {
+      const result = await setLevelUpDailyFocus(missionIds);
+      setDashboard(result);
+      setNotice({
+        tone: "success",
+        title: "Daily briefing locked in",
+        message: `${missionIds.length} focus ${missionIds.length === 1 ? "quest is" : "quests are"} ready.`,
+      });
+      return true;
+    } catch (mutationError) {
+      setNotice({
+        tone: "error",
+        title: "Briefing unchanged",
+        message:
+          mutationError instanceof Error
+            ? mutationError.message
+            : "Your focus quests could not be saved.",
+      });
+      return false;
+    } finally {
+      setFocusSaving(false);
+    }
+  }, [focusSaving]);
 
   const undoMission = useCallback(
     async (missionId: string) => {
@@ -144,8 +191,10 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       busyMissionId,
+      focusSaving,
       notice,
       refresh,
+      saveDailyFocus,
       completeMission,
       undoMission,
       clearNotice: () => setNotice(null),
@@ -155,8 +204,10 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
       loading,
       error,
       busyMissionId,
+      focusSaving,
       notice,
       refresh,
+      saveDailyFocus,
       completeMission,
       undoMission,
     ]
