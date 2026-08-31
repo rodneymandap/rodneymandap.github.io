@@ -10,6 +10,10 @@ const focusMigration = fs.readFileSync(
   path.join(root, "supabase/migrations/202609010001_levelup_daily_focus.sql"),
   "utf8"
 );
+const presetMigration = fs.readFileSync(
+  path.join(root, "supabase/migrations/202609010002_levelup_quest_presets.sql"),
+  "utf8"
+);
 const middleware = fs.readFileSync(path.join(root, "middleware.ts"), "utf8");
 const vercel = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
 
@@ -54,5 +58,13 @@ describe("Level Up architecture safeguards", () => {
     expect(focusMigration).toContain("mission.active");
     expect(focusMigration).toContain("enable row level security");
     expect(focusMigration).not.toMatch(/cron|service_role|background worker/i);
+  });
+
+  it("gives presets stable per-user identities without changing manual missions", () => {
+    expect(presetMigration).toContain("add column if not exists preset_key text");
+    expect(presetMigration).toContain("(user_id, preset_key)");
+    expect(presetMigration).toContain("grant insert (preset_key)");
+    expect(presetMigration).toContain("'preset_key', mission.preset_key");
+    expect(presetMigration).not.toMatch(/cron|service_role|background worker/i);
   });
 });

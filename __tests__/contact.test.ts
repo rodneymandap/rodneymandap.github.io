@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { createMocks } from "node-mocks-http";
+import { createMocks, type RequestMethod } from "node-mocks-http";
 import type { NextApiRequest, NextApiResponse } from "next";
 import handler, { __test__ } from "../pages/api/contact";
 
@@ -44,7 +44,7 @@ describe("/api/contact", () => {
     const body = { ...(defaultBody as Record<string, unknown>), ...(overrides || {}) };
 
     return createMocks<NextApiRequest, NextApiResponse>({
-      method,
+      method: method as RequestMethod,
       body,
     });
   };
