@@ -11,6 +11,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 - 🎨 **Modern UI** - Responsive design with Tailwind CSS
 - ✨ **Toast Notifications** - User-friendly success/error feedback
 - 🤖 **YNAB MCP Server** - Read-only MCP endpoint for AI-assisted personal budget queries
+- ⚔️ **Level Up** - Private RPG-inspired personal growth dashboard backed by Supabase
 
 ## Getting Started
 
@@ -161,6 +162,14 @@ Check out the [Next.js deployment documentation](https://nextjs.org/docs/deploym
 | `CONTACT_EMAIL` | Email address to receive contact form submissions | Yes |
 | `FROM_EMAIL` | Sender email address (must be verified in Resend) | No (defaults to onboarding@resend.dev) |
 | `SEND_AUTO_REPLY` | Set to `true` to send auto-reply to submitters | No (defaults to false) |
+| `NEXT_PUBLIC_SUPABASE_URL` | Existing Supabase project URL for `/levelup` | Yes for Level Up |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public Supabase key; access remains protected by RLS | Yes for Level Up |
+
+### Level Up
+
+The private application is available at `/levelup` and uses Supabase Auth, PostgreSQL, and Row Level Security. It intentionally has no public registration, cron jobs, polling, Realtime subscriptions, file storage, background workers, or AI dependency.
+
+Apply the migration and authorize the owner account by following [docs/levelup.md](docs/levelup.md).
 
 ### YNAB MCP Server
 

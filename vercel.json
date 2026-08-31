@@ -1,20 +1,18 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "fluid": true,
   "functions": {
     "pages/api/contact.ts": {
-      "maxDuration": 10,
-      "memory": 1024
+      "maxDuration": 10
     },
     "pages/api/ynab-mcp.ts": {
-      "maxDuration": 10,
-      "memory": 1024
+      "maxDuration": 10
     },
     "pages/api/ynab/oauth/connect.ts": {
-      "maxDuration": 10,
-      "memory": 1024
+      "maxDuration": 10
     },
     "pages/api/ynab/oauth/callback.ts": {
-      "maxDuration": 10,
-      "memory": 1024
+      "maxDuration": 10
     }
   },
   "regions": ["hkg1"]

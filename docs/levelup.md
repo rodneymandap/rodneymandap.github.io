@@ -1,0 +1,76 @@
+# Level Up setup
+
+`/levelup` is a private, single-user personal growth application. It runs on the existing Next.js/Vercel deployment and stores all persistent progress in the existing Supabase Free project.
+
+It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Functions, polling, queues, background workers, or AI APIs.
+
+## 1. Apply the database migration
+
+1. Open the existing Supabase project.
+2. Open **SQL Editor** and create a new query.
+3. Copy and run the complete contents of:
+
+   ```text
+   supabase/migrations/202608310001_levelup.sql
+   ```
+
+The migration creates only `levelup_*` public tables, a private Level Up allowlist, RLS policies, indexes, achievement definitions, and the transactional RPC functions used by the app. It does not change global Supabase Auth provider or signup settings.
+
+## 2. Authorize the owner account
+
+The authorized account must already exist under **Authentication → Users** and must have an email/password identity. Copy its user UUID and run this once in the SQL Editor:
+
+```sql
+insert into levelup_private.allowed_users (user_id)
+values ('YOUR-SUPABASE-AUTH-USER-UUID')
+on conflict (user_id) do nothing;
+```
+
+This allowlist is the Level Up authorization boundary. An authenticated Supabase user who is not in this table cannot initialize a Level Up profile, read Level Up records, create missions, or call progression functions.
+
+To revoke access without deleting history:
+
+```sql
+delete from levelup_private.allowed_users
+where user_id = 'YOUR-SUPABASE-AUTH-USER-UUID';
+```
+
+## 3. Configure application variables
+
+Copy the Supabase project URL and **publishable key** from the project Connect dialog. Add these variables to `.env.local` for local development and to all applicable Vercel environments:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+```
+
+These values are designed to be public. Do not add a Supabase secret key or legacy `service_role` key to this application; RLS and the allowlist enforce access.
+
+Restart the local development server after changing environment variables.
+
+## 4. Verify access and deployment
+
+1. Visit `/levelup` without a session and confirm the redirect to `/levelup/login`.
+2. Sign in with the allowlisted email/password account.
+3. Create one Easy daily mission, complete it, verify the 10 XP award, then use Undo and verify that progress returns to zero.
+4. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
+5. Sign out and confirm all four private routes redirect to login.
+6. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
+
+`vercel.json` explicitly enables Fluid Compute and preserves the existing 10-second maximum for each portfolio API function. Level Up mission reads and writes go directly to Supabase; Vercel only serves static application files and runs the narrow authentication middleware.
+
+## Free-tier behavior
+
+- Normal single-user use should remain far below the Vercel Hobby and Supabase Free quotas.
+- Daily and weekly recurrences are derived from the Asia/Manila date. No reset job exists.
+- Streaks and achievements are recalculated from confirmed completion history. No scheduled analytics job exists.
+- Activity history is requested 20 records at a time.
+- A Vercel outage cannot erase Level Up data because all state is stored in Supabase.
+- Supabase Free projects may pause after one week without activity and do not include automatic backups. Export important data manually when an additional backup is desired.
+
+## Troubleshooting
+
+- **“This account is not authorized for Level Up”**: add the signed-in user UUID to `levelup_private.allowed_users`.
+- **Login page shows a setup message**: configure both `NEXT_PUBLIC_SUPABASE_*` variables and restart/redeploy.
+- **A completion reports a duplicate**: the mission is already complete for the current daily, ISO-weekly, or one-time recurrence key.
+- **Database is read-only**: check Supabase database usage. Free projects enter read-only mode after exceeding the database-size quota.
