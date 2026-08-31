@@ -5,6 +5,7 @@ import { ReactNode } from "react";
 
 import { getLevelUpSupabaseClient } from "../../lib/levelup/supabase";
 import { LevelUpIcon, type LevelUpIconName } from "./LevelUpIcon";
+import { LevelUpFeedback } from "./LevelUpFeedback";
 import { LevelUpProvider, useLevelUp } from "./LevelUpProvider";
 
 const navigation: Array<{
@@ -125,21 +126,7 @@ function ShellContent({ title, subtitle, children }: LevelUpShellProps) {
         })}
       </nav>
 
-      {notice && (
-        <div className={`levelup-notice levelup-notice-${notice.tone}`} role={notice.tone === "error" ? "alert" : "status"}>
-          <div className="flex items-start gap-3">
-            <LevelUpIcon name={notice.tone === "error" ? "shield" : notice.tone === "level" ? "crown" : "spark"} className="mt-0.5 h-6 w-6 flex-none" />
-            <div className="min-w-0 flex-1">
-              <p className="font-black text-white">{notice.title}</p>
-              <p className="mt-1 text-sm text-slate-300">{notice.message}</p>
-              {notice.achievements?.map((achievement) => (
-                <p key={achievement.slug} className="mt-2 text-sm font-semibold text-amber-200">Achievement unlocked: {achievement.title}</p>
-              ))}
-            </div>
-            <button type="button" onClick={clearNotice} className="text-slate-500 hover:text-white" aria-label="Dismiss notification"><LevelUpIcon name="close" /></button>
-          </div>
-        </div>
-      )}
+      {notice && <LevelUpFeedback feedback={notice} onDismiss={clearNotice} />}
     </div>
   );
 }

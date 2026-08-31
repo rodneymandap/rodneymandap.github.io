@@ -6,6 +6,10 @@ const migration = fs.readFileSync(
   path.join(root, "supabase/migrations/202608310001_levelup.sql"),
   "utf8"
 );
+const focusMigration = fs.readFileSync(
+  path.join(root, "supabase/migrations/202609010001_levelup_daily_focus.sql"),
+  "utf8"
+);
 const middleware = fs.readFileSync(path.join(root, "middleware.ts"), "utf8");
 const vercel = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
 
@@ -38,5 +42,17 @@ describe("Level Up architecture safeguards", () => {
     expect(migration).toContain("get_levelup_activity");
     expect(migration).toContain("for update");
     expect(migration).not.toMatch(/create\s+(extension|table|function).*cron/i);
+  });
+
+  it("persists an ordered daily focus through a validated atomic RPC", () => {
+    expect(focusMigration).toContain("public.levelup_daily_focus");
+    expect(focusMigration).toContain("primary key (user_id, focus_date, position)");
+    expect(focusMigration).toContain("unique (user_id, focus_date, mission_id)");
+    expect(focusMigration).toContain("set_levelup_daily_focus");
+    expect(focusMigration).toContain("with ordinality");
+    expect(focusMigration).toContain("mission.user_id = v_user_id");
+    expect(focusMigration).toContain("mission.active");
+    expect(focusMigration).toContain("enable row level security");
+    expect(focusMigration).not.toMatch(/cron|service_role|background worker/i);
   });
 });

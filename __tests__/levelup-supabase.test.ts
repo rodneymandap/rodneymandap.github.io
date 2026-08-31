@@ -11,6 +11,7 @@ import {
   getLevelUpSupabaseClient,
   hasLevelUpSupabaseConfig,
   resetLevelUpSupabaseClientForTests,
+  setLevelUpDailyFocus,
   setLevelUpMissionArchived,
   undoLevelUpMission,
   updateLevelUpMission,
@@ -71,6 +72,7 @@ describe("Level Up Supabase interface", () => {
     await getLevelUpDashboard();
     await completeLevelUpMission("mission-1");
     await undoLevelUpMission("mission-1");
+    await setLevelUpDailyFocus(["mission-1", "mission-2"]);
     await getLevelUpProgress(30);
     await getLevelUpActivity({ at: "2026-08-31T00:00:00Z", id: "completion:1" });
     await getLevelUpAchievements();
@@ -78,10 +80,14 @@ describe("Level Up Supabase interface", () => {
       "get_levelup_dashboard",
       "complete_levelup_mission",
       "undo_levelup_mission",
+      "set_levelup_daily_focus",
       "get_levelup_progress",
       "get_levelup_activity",
       "get_levelup_achievements",
     ]);
+    expect(mockRpc).toHaveBeenCalledWith("set_levelup_daily_focus", {
+      p_mission_ids: ["mission-1", "mission-2"],
+    });
   });
 
   it("creates, edits, archives, and reads missions through RLS-protected tables", async () => {

@@ -73,6 +73,16 @@ export async function undoLevelUpMission(
   return unwrap(data as LevelUpMutationResult | null, error);
 }
 
+export async function setLevelUpDailyFocus(
+  missionIds: string[]
+): Promise<LevelUpDashboard> {
+  const { data, error } = await getLevelUpSupabaseClient().rpc(
+    "set_levelup_daily_focus",
+    { p_mission_ids: missionIds }
+  );
+  return unwrap(data as LevelUpDashboard | null, error);
+}
+
 export async function createLevelUpMission(
   userId: string,
   input: LevelUpMissionInput

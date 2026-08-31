@@ -20,6 +20,10 @@ export type LevelUpMission = {
   completed: boolean;
 };
 
+export type LevelUpFocusMission = LevelUpMission & {
+  position: number;
+};
+
 export type LevelUpStat = {
   key: LevelUpStatKey;
   xp: number;
@@ -44,6 +48,20 @@ export type LevelUpDashboard = {
   progress: LevelUpProgress;
   stats: LevelUpStat[];
   missions: LevelUpMission[];
+  daily_focus: LevelUpFocusMission[];
+};
+
+export type LevelUpHeroRank = "initiate" | "vanguard" | "ascendant";
+
+export type LevelUpFeedback = {
+  tone: "success" | "level" | "error";
+  title: string;
+  message: string;
+  xp?: number;
+  level?: number;
+  dailyClear?: boolean;
+  comeback?: boolean;
+  achievements?: LevelUpAchievementEvent[];
 };
 
 export type LevelUpAchievementEvent = {
@@ -143,3 +161,20 @@ export const LEVELUP_DIFFICULTY_XP: Record<LevelUpDifficulty, number> = {
   hard: 50,
   epic: 100,
 };
+
+export function getLevelUpHeroRank(level: number): LevelUpHeroRank {
+  if (level >= 10) return "ascendant";
+  if (level >= 5) return "vanguard";
+  return "initiate";
+}
+
+export function isLevelUpComebackDay(
+  lastActiveDate: string | null,
+  localDate: string
+): boolean {
+  if (!lastActiveDate) return false;
+  const today = Date.parse(`${localDate}T00:00:00Z`);
+  const lastActive = Date.parse(`${lastActiveDate}T00:00:00Z`);
+  if (!Number.isFinite(today) || !Number.isFinite(lastActive)) return false;
+  return today - lastActive > 24 * 60 * 60 * 1000;
+}

@@ -8,13 +8,14 @@ It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Fu
 
 1. Open the existing Supabase project.
 2. Open **SQL Editor** and create a new query.
-3. Copy and run the complete contents of:
+3. Copy and run the complete contents of both migrations in order:
 
    ```text
    supabase/migrations/202608310001_levelup.sql
+   supabase/migrations/202609010001_levelup_daily_focus.sql
    ```
 
-The migration creates only `levelup_*` public tables, a private Level Up allowlist, RLS policies, indexes, achievement definitions, and the transactional RPC functions used by the app. It does not change global Supabase Auth provider or signup settings.
+The migrations create only `levelup_*` public tables, a private Level Up allowlist, RLS policies, indexes, achievement definitions, and the transactional RPC functions used by the app. They do not change global Supabase Auth provider or signup settings.
 
 ## 2. Authorize the owner account
 
@@ -53,9 +54,10 @@ Restart the local development server after changing environment variables.
 1. Visit `/levelup` without a session and confirm the redirect to `/levelup/login`.
 2. Sign in with the allowlisted email/password account.
 3. Create one Easy daily mission, complete it, verify the 10 XP award, then use Undo and verify that progress returns to zero.
-4. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
-5. Sign out and confirm all four private routes redirect to login.
-6. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
+4. Choose one to three unfinished missions in the daily briefing, refresh, and confirm the ordered focus route remains for the current Manila date.
+5. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
+6. Sign out and confirm all four private routes redirect to login.
+7. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
 
 `vercel.json` explicitly enables Fluid Compute and preserves the existing 10-second maximum for each portfolio API function. Level Up mission reads and writes go directly to Supabase; Vercel only serves static application files and runs the narrow authentication middleware.
 
@@ -63,6 +65,9 @@ Restart the local development server after changing environment variables.
 
 - Normal single-user use should remain far below the Vercel Hobby and Supabase Free quotas.
 - Daily and weekly recurrences are derived from the Asia/Manila date. No reset job exists.
+- Daily focus rows use the same Manila date and are replaced atomically through `set_levelup_daily_focus`.
+- The comeback quest is derived from the last confirmed active date. It awards no bonus XP and never preserves or rewrites a streak.
+- The Aegis hero and its effects are static local assets plus CSS animation. No runtime image or AI service is called.
 - Streaks and achievements are recalculated from confirmed completion history. No scheduled analytics job exists.
 - Activity history is requested 20 records at a time.
 - A Vercel outage cannot erase Level Up data because all state is stored in Supabase.
