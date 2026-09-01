@@ -9,6 +9,8 @@ import {
   LevelUpLoading,
   LevelUpSection,
 } from "../../components/levelup/LevelUpStates";
+import { requestLevelUpAi } from "../../lib/levelup/ai/client";
+import type { LevelUpAiWeeklyReview } from "../../lib/levelup/ai/schemas";
 import {
   getLevelUpActivity,
   getLevelUpProgress,
@@ -44,6 +46,9 @@ function ProgressContent() {
   const [reportLoading, setReportLoading] = useState(true);
   const [reportError, setReportError] = useState("");
   const [loadingMore, setLoadingMore] = useState(false);
+  const [weeklyReview, setWeeklyReview] = useState<LevelUpAiWeeklyReview | null>(null);
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+  const [weeklyError, setWeeklyError] = useState("");
 
   useEffect(() => {
     if (!dashboard) return;
@@ -94,6 +99,24 @@ function ProgressContent() {
     }
   }
 
+  async function generateWeeklyReview() {
+    if (weeklyLoading) return;
+    setWeeklyLoading(true);
+    setWeeklyError("");
+    try {
+      const result = await requestLevelUpAi({ action: "weekly" });
+      if (result.action === "weekly") setWeeklyReview(result.report);
+    } catch (requestError) {
+      setWeeklyError(
+        requestError instanceof Error
+          ? requestError.message
+          : "The weekly System report is unavailable."
+      );
+    } finally {
+      setWeeklyLoading(false);
+    }
+  }
+
   if (loading) return <LevelUpLoading label="Calculating progress" />;
   if (error || !dashboard) return <LevelUpError message={error || "Profile unavailable."} onRetry={() => void refresh()} />;
   if (reportLoading) return <LevelUpLoading label="Calculating 30-day analytics" />;
@@ -103,6 +126,15 @@ function ProgressContent() {
   return (
     <div className="space-y-10">
       {reportError && <div className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200" role="alert">{reportError}</div>}
+
+      <section className="levelup-panel overflow-hidden" aria-labelledby="weekly-system-report-title">
+        <div className="flex flex-col gap-4 border-b border-violet-300/10 bg-violet-300/[0.03] p-6 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+          <div><p className="text-xs font-black uppercase tracking-[0.22em] text-violet-300">Progress analysis</p><h2 id="weekly-system-report-title" className="mt-1 text-xl font-black text-white">Weekly System Report</h2><p className="mt-1 text-sm text-slate-500">Generated only when requested from your bounded seven-day history.</p></div>
+          <button type="button" onClick={() => void generateWeeklyReview()} disabled={weeklyLoading} className="levelup-button-primary justify-center"><LevelUpIcon name="spark" className={weeklyLoading ? "h-5 w-5 animate-spin" : "h-5 w-5"} />{weeklyLoading ? "Analyzing progress…" : weeklyReview ? "Regenerate report" : "Analyze Progress"}</button>
+        </div>
+        {weeklyError && <div className="m-6 rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200" role="alert">{weeklyError}</div>}
+        {weeklyReview && <div className="p-6 sm:p-7"><div className="mb-6 flex flex-wrap gap-2"><span className="levelup-tag text-cyan-200">✦ AI Generated</span><span className="levelup-tag text-slate-400">{weeklyReview.questsCompleted} quests</span><span className="levelup-tag text-violet-200">{weeklyReview.xpEarned} XP</span><span className="levelup-tag text-orange-200">{weeklyReview.currentStreak} day streak</span></div><div className="grid gap-4 md:grid-cols-2"><article className="rounded-xl border border-emerald-300/10 bg-emerald-300/[0.03] p-5"><p className="levelup-label text-emerald-300">Strongest area</p><p className="mt-2 font-bold text-white">{weeklyReview.strongestArea}</p></article><article className="rounded-xl border border-amber-300/10 bg-amber-300/[0.03] p-5"><p className="levelup-label text-amber-300">Needs attention</p><p className="mt-2 font-bold text-white">{weeklyReview.needsAttention}</p></article><article className="rounded-xl border border-slate-700 p-5"><p className="levelup-label">Completion pattern</p><p className="mt-2 text-sm leading-6 text-slate-300">{weeklyReview.completionPattern}</p></article><article className="rounded-xl border border-cyan-300/10 bg-cyan-300/[0.03] p-5"><p className="levelup-label text-cyan-300">Recommended focus</p><p className="mt-2 font-bold text-white">{weeklyReview.nextFocus}</p><p className="mt-2 text-sm leading-6 text-slate-400">{weeklyReview.recommendation}</p></article></div></div>}
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article className="levelup-metric-card"><LevelUpIcon name="bolt" className="h-5 w-5 text-cyan-300" /><p className="mt-5 text-3xl font-black text-white">{report.period_xp}</p><p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">XP · last 30 days</p></article>

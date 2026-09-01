@@ -5,6 +5,7 @@ import { DailyBriefing } from "../../components/levelup/DailyBriefing";
 import { LevelUpHero, type LevelUpHeroState } from "../../components/levelup/LevelUpHero";
 import { LevelUpIcon } from "../../components/levelup/LevelUpIcon";
 import { MissionCard } from "../../components/levelup/MissionCard";
+import { SystemAssistant } from "../../components/levelup/SystemAssistant";
 import { useLevelUp } from "../../components/levelup/LevelUpProvider";
 import { LevelUpShell } from "../../components/levelup/LevelUpShell";
 import {
@@ -131,6 +132,11 @@ function DashboardContent() {
           </article>
         ))}
       </section>
+
+      <SystemAssistant
+        userId={dashboard.profile.user_id}
+        onMissionSaved={refresh}
+      />
 
       {comeback && (
         <section className="levelup-comeback-card" aria-label="Comeback quest">

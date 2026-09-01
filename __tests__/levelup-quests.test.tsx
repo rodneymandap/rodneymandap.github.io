@@ -15,6 +15,7 @@ const mockCreateMission = jest.fn();
 const mockCreatePresetMissions = jest.fn();
 const mockUpdateMission = jest.fn();
 const mockArchiveMission = jest.fn();
+const mockRequestLevelUpAi = jest.fn();
 
 const mission = {
   id: "mission-1", user_id: "user-1", preset_key: null, title: "Read deeply", description: "Read 20 focused pages.", cadence: "daily", difficulty: "normal", stat_key: "intellect", xp_reward: 25, active: true, archived_at: null, created_at: "2026-08-31T00:00:00Z",
@@ -36,6 +37,9 @@ jest.mock("../lib/levelup/supabase", () => ({
   updateLevelUpMission: (...args: unknown[]) => mockUpdateMission(...args),
   setLevelUpMissionArchived: (...args: unknown[]) => mockArchiveMission(...args),
 }));
+jest.mock("../lib/levelup/ai/client", () => ({
+  requestLevelUpAi: (...args: unknown[]) => mockRequestLevelUpAi(...args),
+}));
 
 describe("Level Up quest log", () => {
   beforeEach(() => {
@@ -46,6 +50,21 @@ describe("Level Up quest log", () => {
     mockUpdateMission.mockResolvedValue(undefined);
     mockArchiveMission.mockResolvedValue(undefined);
     mockRefresh.mockResolvedValue(undefined);
+    mockRequestLevelUpAi.mockResolvedValue({
+      action: "quest",
+      suggestions: [
+        {
+          title: "Speak Up",
+          description: "Practice concise communication.",
+          objectives: ["Prepare one point", "Speak once"],
+          cadence: "once",
+          difficulty: "normal",
+          xpReward: 25,
+          statKey: "discipline",
+          reasoningSummary: "A bounded mission is achievable.",
+        },
+      ],
+    });
   });
 
   it("loads, edits, and archives missions without deleting history", async () => {
@@ -125,5 +144,38 @@ describe("Level Up quest log", () => {
     fireEvent.click(screen.getByRole("button", { name: "Add 1 quest" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("Preset write failed");
     expect(screen.getByRole("button", { name: "Add 1 quest" })).toBeEnabled();
+  });
+
+  it("generates a quest and requires editable review before saving", async () => {
+    render(<LevelUpQuestsPage />);
+    await screen.findByText("Read deeply");
+    fireEvent.change(screen.getByLabelText("Goal for AI quest generation"), {
+      target: { value: "Improve meeting communication" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Generate Quest" }));
+    expect(await screen.findByText("Speak Up")).toBeInTheDocument();
+    expect(screen.getByText("✦ AI Generated")).toBeInTheDocument();
+    expect(mockCreateMission).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Review quest" }));
+    expect(screen.getByLabelText("Mission title")).toHaveValue("Speak Up");
+    expect(
+      (screen.getByLabelText(/Briefing/) as HTMLTextAreaElement).value
+    ).toContain("• Speak once");
+    fireEvent.click(
+      within(screen.getByRole("dialog")).getByRole("button", {
+        name: "Create mission",
+      })
+    );
+    await waitFor(() =>
+      expect(mockCreateMission).toHaveBeenCalledWith(
+        "user-1",
+        expect.objectContaining({
+          title: "Speak Up",
+          difficulty: "normal",
+          stat_key: "discipline",
+        })
+      )
+    );
   });
 });
