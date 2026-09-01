@@ -239,7 +239,13 @@ export default async function handler(
       error instanceof LevelUpAiProviderError
         ? error.code
         : "provider_unavailable";
-    logger.warn("LevelUp AI request failed", { code, action: request.data.action });
+    logger.warn("LevelUp AI request failed", {
+      code,
+      action: request.data.action,
+      ...(error instanceof LevelUpAiProviderError && error.providerStatus
+        ? { providerStatus: error.providerStatus }
+        : {}),
+    });
     return sendError(res, 503, code);
   }
 }

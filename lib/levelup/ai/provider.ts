@@ -54,13 +54,15 @@ export type LevelUpAiErrorCode =
   | "provider_unavailable";
 
 export class LevelUpAiProviderError extends Error {
+  public readonly providerStatus?: number;
+
   constructor(
     public readonly code: LevelUpAiErrorCode,
     message: string,
-    options?: { cause?: unknown }
+    options?: { cause?: unknown; providerStatus?: number }
   ) {
     super(message, options);
     this.name = "LevelUpAiProviderError";
+    this.providerStatus = options?.providerStatus;
   }
 }
-

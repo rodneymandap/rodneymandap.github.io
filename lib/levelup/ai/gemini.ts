@@ -24,32 +24,85 @@ import {
 const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const TIMEOUT_MS = 8_000;
 
+const GEMINI_JSON_SCHEMA_KEYS = new Set([
+  "$id",
+  "$defs",
+  "$ref",
+  "$anchor",
+  "type",
+  "format",
+  "title",
+  "description",
+  "enum",
+  "items",
+  "prefixItems",
+  "minItems",
+  "maxItems",
+  "minimum",
+  "maximum",
+  "anyOf",
+  "oneOf",
+  "properties",
+  "additionalProperties",
+  "required",
+]);
+
+/**
+ * Zod emits full JSON Schema 2020-12, while Gemini accepts only a subset.
+ * Keep application validation in Zod and remove unsupported provider keywords.
+ */
+export function toGeminiJsonSchema(schema: z.ZodType): Record<string, unknown> {
+  const clean = (value: unknown, preserveObjectKeys = false): unknown => {
+    if (Array.isArray(value)) return value.map((item) => clean(item));
+    if (!value || typeof value !== "object") return value;
+
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => preserveObjectKeys || GEMINI_JSON_SCHEMA_KEYS.has(key))
+        .map(([key, item]) => [
+          key,
+          clean(item, key === "properties" || key === "$defs"),
+        ])
+    );
+  };
+
+  return clean(z.toJSONSchema(schema)) as Record<string, unknown>;
+}
+
+function getProviderStatus(error: unknown): number | undefined {
+  if (!error || typeof error !== "object" || !("status" in error)) return undefined;
+  const status = (error as { status?: unknown }).status;
+  return typeof status === "number" ? status : undefined;
+}
+
 function providerError(error: unknown): LevelUpAiProviderError {
   if (error instanceof LevelUpAiProviderError) return error;
   const message = error instanceof Error ? error.message : String(error);
+  const providerStatus = getProviderStatus(error);
   if (/timeout|abort/i.test(message)) {
     return new LevelUpAiProviderError("timeout", "Gemini request timed out.", {
       cause: error,
+      providerStatus,
     });
   }
   if (/429|resource_exhausted|quota|rate.?limit/i.test(message)) {
     return new LevelUpAiProviderError(
       "quota_exceeded",
       "Gemini quota is temporarily unavailable.",
-      { cause: error }
+      { cause: error, providerStatus }
     );
   }
   if (/safety|blocked|finish.?reason/i.test(message)) {
     return new LevelUpAiProviderError(
       "safety_rejection",
       "Gemini declined this request.",
-      { cause: error }
+      { cause: error, providerStatus }
     );
   }
   return new LevelUpAiProviderError(
     "provider_unavailable",
     "Gemini is temporarily unavailable.",
-    { cause: error }
+    { cause: error, providerStatus }
   );
 }
 
@@ -82,7 +135,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
           response_format: {
             type: "text",
             mime_type: "application/json",
-            schema: z.toJSONSchema(schema),
+            schema: toGeminiJsonSchema(schema),
           },
         },
         { timeout_ms: TIMEOUT_MS, retries: { strategy: "none" } }
@@ -170,4 +223,3 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     };
   }
 }
-
