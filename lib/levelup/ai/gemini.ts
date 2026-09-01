@@ -60,27 +60,51 @@ export function toGeminiJsonSchema(schema: z.ZodType): Record<string, unknown> {
   return clean(z.toJSONSchema(schema)) as Record<string, unknown>;
 }
 
-function getProviderStatus(error: unknown): number | undefined {
-  if (!error || typeof error !== "object" || !("status" in error)) return undefined;
-  const status = (error as { status?: unknown }).status;
-  return typeof status === "number" ? status : undefined;
-}
+function getProviderDetails(error: unknown): {
+  providerStatus?: number;
+  providerCode?: string;
+} {
+  if (!error || typeof error !== "object") return {};
 
-function getProviderCode(error: unknown): string | undefined {
-  if (!error || typeof error !== "object" || !("error" in error)) return undefined;
-  const nested = (error as { error?: unknown }).error;
-  if (!nested || typeof nested !== "object" || !("code" in nested)) return undefined;
-  const code = (nested as { code?: unknown }).code;
-  return typeof code === "string" && /^[a-z][a-z0-9_]{0,63}$/.test(code)
-    ? code
-    : undefined;
+  const root = error as Record<string, unknown>;
+  const status = root.status ?? root.statusCode;
+  let payload: unknown = root.error;
+
+  if (!payload && typeof root.message === "string" && root.message.startsWith("{")) {
+    try {
+      payload = JSON.parse(root.message);
+    } catch {
+      // Some SDK errors are plain text. Status-only diagnostics remain useful.
+    }
+  }
+
+  // The Interactions bridge wraps Google's `{ error: { code } }` response in
+  // an SDK error whose own `error` property contains that full response.
+  for (let depth = 0; depth < 3 && payload && typeof payload === "object"; depth += 1) {
+    const record = payload as Record<string, unknown>;
+    const rawCode =
+      typeof record.code === "string"
+        ? record.code
+        : typeof record.status === "string"
+          ? record.status
+          : undefined;
+    const normalizedCode = rawCode?.toLowerCase();
+    if (normalizedCode && /^[a-z][a-z0-9_]{0,63}$/.test(normalizedCode)) {
+      return {
+        ...(typeof status === "number" ? { providerStatus: status } : {}),
+        providerCode: normalizedCode,
+      };
+    }
+    payload = record.error;
+  }
+
+  return typeof status === "number" ? { providerStatus: status } : {};
 }
 
 function providerError(error: unknown): LevelUpAiProviderError {
   if (error instanceof LevelUpAiProviderError) return error;
   const message = error instanceof Error ? error.message : String(error);
-  const providerStatus = getProviderStatus(error);
-  const providerCode = getProviderCode(error);
+  const { providerStatus, providerCode } = getProviderDetails(error);
   if (/timeout|abort/i.test(message)) {
     return new LevelUpAiProviderError("timeout", "Gemini request timed out.", {
       cause: error,
@@ -129,24 +153,60 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     schema: z.ZodType<T>
   ): Promise<T> {
     try {
-      const interaction = await this.client.interactions.create(
-        {
+      const responseSchema = toGeminiJsonSchema(schema);
+      const deadline = Date.now() + TIMEOUT_MS;
+      let outputText: string | undefined;
+
+      try {
+        const interaction = await this.client.interactions.create(
+          {
+            model: this.model,
+            input: prompt,
+            system_instruction: LEVELUP_SYSTEM_INSTRUCTION,
+            store: false,
+            generation_config: {
+              max_output_tokens: MAX_OUTPUT_TOKENS,
+            },
+            response_format: {
+              type: "text",
+              mime_type: "application/json",
+              schema: responseSchema,
+            },
+          },
+          { timeout_ms: TIMEOUT_MS, retries: { strategy: "none" } }
+        );
+        outputText = interaction.output_text;
+      } catch (interactionError) {
+        const { providerStatus, providerCode } = getProviderDetails(interactionError);
+        const canUseCompatibilityFallback =
+          providerStatus === 400 &&
+          (providerCode === "invalid_request" || providerCode === "parameter_unknown");
+        const remainingMs = deadline - Date.now();
+
+        if (!canUseCompatibilityFallback || remainingMs < 500) {
+          throw interactionError;
+        }
+
+        // GenerateContent is stateless unless callers provide history. Keep it
+        // as a narrow compatibility path for Interactions request-shape 400s.
+        const response = await this.client.models.generateContent({
           model: this.model,
-          input: prompt,
-          system_instruction: LEVELUP_SYSTEM_INSTRUCTION,
-          store: false,
-          generation_config: {
-            max_output_tokens: MAX_OUTPUT_TOKENS,
+          contents: prompt,
+          config: {
+            systemInstruction: LEVELUP_SYSTEM_INSTRUCTION,
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
+            responseMimeType: "application/json",
+            responseJsonSchema: responseSchema,
+            httpOptions: {
+              timeout: remainingMs,
+              retryOptions: { attempts: 1 },
+            },
           },
-          response_format: {
-            type: "text",
-            mime_type: "application/json",
-            schema: toGeminiJsonSchema(schema),
-          },
-        },
-        { timeout_ms: TIMEOUT_MS, retries: { strategy: "none" } }
-      );
-      if (!interaction.output_text) {
+        });
+        outputText = response.text;
+      }
+
+      if (!outputText) {
         throw new LevelUpAiProviderError(
           "invalid_response",
           "Gemini returned no structured text."
@@ -154,7 +214,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
       }
       let parsed: unknown;
       try {
-        parsed = JSON.parse(interaction.output_text);
+        parsed = JSON.parse(outputText);
       } catch (error) {
         throw new LevelUpAiProviderError(
           "invalid_response",
