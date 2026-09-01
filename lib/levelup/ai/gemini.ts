@@ -23,27 +23,18 @@ import {
 
 const DEFAULT_MODEL = "gemini-3.5-flash-lite";
 const TIMEOUT_MS = 8_000;
+const MAX_OUTPUT_TOKENS = 1_600;
 
+// Keep the provider schema deliberately aligned with the minimal JSON Schema
+// shape shown in Google's Interactions API JavaScript examples. Length, count,
+// and strict-object rules remain authoritative in the post-generation Zod parse.
 const GEMINI_JSON_SCHEMA_KEYS = new Set([
-  "$id",
-  "$defs",
-  "$ref",
-  "$anchor",
   "type",
-  "format",
   "title",
   "description",
   "enum",
   "items",
-  "prefixItems",
-  "minItems",
-  "maxItems",
-  "minimum",
-  "maximum",
-  "anyOf",
-  "oneOf",
   "properties",
-  "additionalProperties",
   "required",
 ]);
 
@@ -61,7 +52,7 @@ export function toGeminiJsonSchema(schema: z.ZodType): Record<string, unknown> {
         .filter(([key]) => preserveObjectKeys || GEMINI_JSON_SCHEMA_KEYS.has(key))
         .map(([key, item]) => [
           key,
-          clean(item, key === "properties" || key === "$defs"),
+          clean(item, key === "properties"),
         ])
     );
   };
@@ -75,34 +66,46 @@ function getProviderStatus(error: unknown): number | undefined {
   return typeof status === "number" ? status : undefined;
 }
 
+function getProviderCode(error: unknown): string | undefined {
+  if (!error || typeof error !== "object" || !("error" in error)) return undefined;
+  const nested = (error as { error?: unknown }).error;
+  if (!nested || typeof nested !== "object" || !("code" in nested)) return undefined;
+  const code = (nested as { code?: unknown }).code;
+  return typeof code === "string" && /^[a-z][a-z0-9_]{0,63}$/.test(code)
+    ? code
+    : undefined;
+}
+
 function providerError(error: unknown): LevelUpAiProviderError {
   if (error instanceof LevelUpAiProviderError) return error;
   const message = error instanceof Error ? error.message : String(error);
   const providerStatus = getProviderStatus(error);
+  const providerCode = getProviderCode(error);
   if (/timeout|abort/i.test(message)) {
     return new LevelUpAiProviderError("timeout", "Gemini request timed out.", {
       cause: error,
       providerStatus,
+      providerCode,
     });
   }
   if (/429|resource_exhausted|quota|rate.?limit/i.test(message)) {
     return new LevelUpAiProviderError(
       "quota_exceeded",
       "Gemini quota is temporarily unavailable.",
-      { cause: error, providerStatus }
+      { cause: error, providerStatus, providerCode }
     );
   }
   if (/safety|blocked|finish.?reason/i.test(message)) {
     return new LevelUpAiProviderError(
       "safety_rejection",
       "Gemini declined this request.",
-      { cause: error, providerStatus }
+      { cause: error, providerStatus, providerCode }
     );
   }
   return new LevelUpAiProviderError(
     "provider_unavailable",
     "Gemini is temporarily unavailable.",
-    { cause: error, providerStatus }
+    { cause: error, providerStatus, providerCode }
   );
 }
 
@@ -132,6 +135,9 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
           input: prompt,
           system_instruction: LEVELUP_SYSTEM_INSTRUCTION,
           store: false,
+          generation_config: {
+            max_output_tokens: MAX_OUTPUT_TOKENS,
+          },
           response_format: {
             type: "text",
             mime_type: "application/json",

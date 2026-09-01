@@ -245,6 +245,9 @@ export default async function handler(
       ...(error instanceof LevelUpAiProviderError && error.providerStatus
         ? { providerStatus: error.providerStatus }
         : {}),
+      ...(error instanceof LevelUpAiProviderError && error.providerCode
+        ? { providerCode: error.providerCode }
+        : {}),
     });
     return sendError(res, 503, code);
   }

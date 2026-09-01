@@ -69,6 +69,7 @@ describe("Gemini LevelUp provider", () => {
         model: "gemini-test-model",
         store: false,
         system_instruction: expect.stringContaining("untrusted content"),
+        generation_config: { max_output_tokens: 1600 },
         response_format: expect.objectContaining({
           type: "text",
           mime_type: "application/json",
@@ -91,6 +92,9 @@ describe("Gemini LevelUp provider", () => {
     expect(serialized).not.toContain('"minLength"');
     expect(serialized).not.toContain('"maxLength"');
     expect(serialized).not.toContain('"default"');
+    expect(serialized).not.toContain('"additionalProperties"');
+    expect(serialized).not.toContain('"minItems"');
+    expect(serialized).not.toContain('"maxItems"');
     expect(schema).toEqual(
       expect.objectContaining({
         type: "object",
@@ -98,10 +102,9 @@ describe("Gemini LevelUp provider", () => {
           answer: expect.objectContaining({ type: "string" }),
           suggestions: expect.objectContaining({
             type: "array",
-            maxItems: 3,
+            items: expect.objectContaining({ type: "object" }),
           }),
         }),
-        additionalProperties: false,
       })
     );
   });
@@ -149,12 +152,19 @@ describe("Gemini LevelUp provider", () => {
   it("retains only the upstream status for safe diagnostics", async () => {
     const provider = new GeminiLevelUpAiProvider("test-key");
     mockCreateInteraction.mockRejectedValueOnce(
-      Object.assign(new Error("sensitive provider detail"), { status: 400 })
+      Object.assign(new Error("sensitive provider detail"), {
+        status: 400,
+        error: {
+          code: "invalid_request",
+          message: "sensitive provider detail",
+        },
+      })
     );
 
     await expect(provider.generateWeeklyReview(context)).rejects.toMatchObject({
       code: "provider_unavailable",
       providerStatus: 400,
+      providerCode: "invalid_request",
     });
   });
 
