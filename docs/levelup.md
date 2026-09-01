@@ -2,7 +2,7 @@
 
 `/levelup` is a private, single-user personal growth application. It runs on the existing Next.js/Vercel deployment and stores all persistent progress in the existing Supabase Free project.
 
-It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Functions, polling, queues, background workers, or AI APIs.
+It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Functions, polling, queues, or background workers. Optional, user-triggered System recommendations use the Gemini API through an authenticated Vercel server function.
 
 ## 1. Apply the database migration
 
@@ -50,6 +50,22 @@ These values are designed to be public. Do not add a Supabase secret key or lega
 
 Restart the local development server after changing environment variables.
 
+### Optional System assistant
+
+1. Open [Google AI Studio](https://aistudio.google.com/apikey) and create a Gemini API key.
+2. Add these server-only values to `.env.local`:
+
+   ```env
+   GEMINI_API_KEY=your_google_ai_studio_key
+   GEMINI_MODEL=gemini-3.5-flash-lite
+   ```
+
+3. In Vercel, add `GEMINI_API_KEY` under **Project Settings → Environment Variables** for the environments where the assistant should work. Add `GEMINI_MODEL` only when overriding the default.
+
+Never prefix the Gemini key with `NEXT_PUBLIC_`. The browser calls `/api/levelup/ai`; only that authenticated server route calls Google. After changing an environment variable in Vercel, redeploy so the function receives it.
+
+The default model is the stable `gemini-3.5-flash-lite`, selected for low latency, structured JSON output, and free-tier availability for lightweight text tasks. To switch later, set `GEMINI_MODEL` to another currently supported model ID from the [official models page](https://ai.google.dev/gemini-api/docs/models), test its structured-output support, and redeploy. Do not rely on preview aliases in production.
+
 ## 4. Verify access and deployment
 
 1. Visit `/levelup` without a session and confirm the redirect to `/levelup/login`.
@@ -61,16 +77,36 @@ Restart the local development server after changing environment variables.
 7. Confirm `/levelup/quests`, `/levelup/progress`, and `/levelup/achievements` load while authenticated.
 8. Sign out and confirm all four private routes redirect to login.
 9. After deploying, open the Vercel project’s Resources/Functions view and confirm Fluid Compute is active.
+10. With `GEMINI_API_KEY` configured, generate a quest, edit its briefing, and confirm it before saving. Remove the key temporarily and verify that the friendly unavailable message appears while normal quest actions continue working.
 
-`vercel.json` explicitly enables Fluid Compute and preserves the existing 10-second maximum for each portfolio API function. Level Up mission reads and writes go directly to Supabase; Vercel only serves static application files and runs the narrow authentication middleware.
+`vercel.json` explicitly enables Fluid Compute and preserves the existing 10-second maximum for each portfolio API function. Level Up mission reads and writes continue to go directly to Supabase. The narrow AI function verifies the existing Supabase session and allowlist before sending a request to Gemini.
+
+## System assistant architecture and security
+
+```text
+Authenticated browser → /api/levelup/ai → RLS-protected LevelUp context → Gemini
+```
+
+- The route accepts only quest generation, daily missions, weekly review, and focused coaching.
+- Supabase session claims and the LevelUp allowlist are verified before an AI request. No service-role key is used.
+- Prompts contain only bounded level, XP, streak, stat, active-mission, and recent-completion context. Authentication data and secrets are never included.
+- Stored and user-entered text is explicitly treated as untrusted prompt content. The System prompt rejects embedded override instructions and secret-disclosure requests.
+- Requests are limited to 4 KB, checked for same-origin use, subject to a best-effort per-instance user cooldown, and given an eight-second provider timeout.
+- Gemini returns structured JSON which is validated with Zod. Invalid, blocked, timed-out, and quota-limited responses are discarded.
+- Gemini cannot save missions or award XP. The user must review generated content, and the existing database-generated mapping remains authoritative: Easy 10, Normal 25, Hard 50, Epic 100 XP.
+- Generated suggestions and coach replies are ephemeral. Only a mission explicitly confirmed by the user is persisted.
 
 ## Free-tier behavior
 
 - Normal single-user use should remain far below the Vercel Hobby and Supabase Free quotas.
+- Gemini is called only after an explicit user action; loading `/levelup` never consumes AI quota.
+- Google currently lists free-of-charge input and output for the default model on the Gemini Developer API free tier. Free-tier data may be used to improve Google products; review Google’s current terms before sending sensitive personal notes.
+- Gemini rate limits are applied per Google Cloud project across API keys and may use requests-per-minute, tokens-per-minute, and requests-per-day dimensions. Actual limits and capacity vary by model, project, and account status; view the current values in [Google AI Studio](https://aistudio.google.com/rate-limit) instead of relying on historical numbers. Daily request quotas reset according to Google’s documented Pacific-time schedule.
+- Quota exhaustion, timeout, network failure, missing configuration, safety rejection, and malformed responses leave all progression data and manual features unaffected.
 - Daily and weekly recurrences are derived from the Asia/Manila date. No reset job exists.
 - Daily focus rows use the same Manila date and are replaced atomically through `set_levelup_daily_focus`.
 - The comeback quest is derived from the last confirmed active date. It awards no bonus XP and never preserves or rewrites a streak.
-- The Aegis hero and its effects are static local assets plus CSS animation. No runtime image or AI service is called.
+- The Aegis hero and its effects are static local assets plus CSS animation. No runtime image service is called.
 - Streaks and achievements are recalculated from confirmed completion history. No scheduled analytics job exists.
 - Activity history is requested 20 records at a time.
 - A Vercel outage cannot erase Level Up data because all state is stored in Supabase.
@@ -82,3 +118,4 @@ Restart the local development server after changing environment variables.
 - **Login page shows a setup message**: configure both `NEXT_PUBLIC_SUPABASE_*` variables and restart/redeploy.
 - **A completion reports a duplicate**: the mission is already complete for the current daily, ISO-weekly, or one-time recurrence key.
 - **Database is read-only**: check Supabase database usage. Free projects enter read-only mode after exceeding the database-size quota.
+- **“AI assistance is temporarily unavailable”**: confirm `GEMINI_API_KEY` exists in the current local or Vercel environment, then check Gemini API status and the project’s active rate limits in Google AI Studio.

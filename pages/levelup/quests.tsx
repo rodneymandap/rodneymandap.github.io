@@ -1,5 +1,6 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 
+import { AiSuggestionCard } from "../../components/levelup/AiSuggestionCard";
 import { LevelUpIcon } from "../../components/levelup/LevelUpIcon";
 import { PresetQuestSelector } from "../../components/levelup/PresetQuestSelector";
 import { useLevelUp } from "../../components/levelup/LevelUpProvider";
@@ -9,6 +10,11 @@ import {
   LevelUpError,
   LevelUpLoading,
 } from "../../components/levelup/LevelUpStates";
+import { requestLevelUpAi } from "../../lib/levelup/ai/client";
+import {
+  suggestionToMissionInput,
+  type LevelUpAiQuestSuggestion,
+} from "../../lib/levelup/ai/schemas";
 import {
   createLevelUpMission,
   createLevelUpPresetMissions,
@@ -40,11 +46,13 @@ type QuestFilter = "active" | "archived" | "all";
 
 function MissionEditor({
   mission,
+  initialInput,
   saving,
   onClose,
   onSave,
 }: {
   mission: LevelUpMission | null;
+  initialInput: LevelUpMissionInput | null;
   saving: boolean;
   onClose: () => void;
   onSave: (input: LevelUpMissionInput) => Promise<void>;
@@ -58,7 +66,7 @@ function MissionEditor({
           difficulty: mission.difficulty,
           stat_key: mission.stat_key,
         }
-      : emptyForm
+      : initialInput ?? emptyForm
   );
   const [validationError, setValidationError] = useState("");
 
@@ -146,6 +154,11 @@ function QuestsContent() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [presetSelectorOpen, setPresetSelectorOpen] = useState(false);
   const [editingMission, setEditingMission] = useState<LevelUpMission | null>(null);
+  const [generatedInput, setGeneratedInput] = useState<LevelUpMissionInput | null>(null);
+  const [goalPrompt, setGoalPrompt] = useState("");
+  const [aiSuggestions, setAiSuggestions] = useState<LevelUpAiQuestSuggestion[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
   const [saving, setSaving] = useState(false);
   const [busyMissionId, setBusyMissionId] = useState<string | null>(null);
 
@@ -178,12 +191,40 @@ function QuestsContent() {
 
   function openCreate() {
     setEditingMission(null);
+    setGeneratedInput(null);
     setEditorOpen(true);
   }
 
   function openEdit(mission: LevelUpMission) {
     setEditingMission(mission);
+    setGeneratedInput(null);
     setEditorOpen(true);
+  }
+
+  function reviewSuggestion(suggestion: LevelUpAiQuestSuggestion) {
+    setEditingMission(null);
+    setGeneratedInput(suggestionToMissionInput(suggestion));
+    setEditorOpen(true);
+  }
+
+  async function generateQuest(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const prompt = goalPrompt.trim();
+    if (!prompt || aiLoading) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const result = await requestLevelUpAi({ action: "quest", prompt });
+      if (result.action === "quest") setAiSuggestions(result.suggestions);
+    } catch (requestError) {
+      setAiError(
+        requestError instanceof Error
+          ? requestError.message
+          : "The System could not generate a quest."
+      );
+    } finally {
+      setAiLoading(false);
+    }
   }
 
   async function saveMission(input: LevelUpMissionInput) {
@@ -195,6 +236,7 @@ function QuestsContent() {
       else await createLevelUpMission(dashboard.profile.user_id, input);
       setEditorOpen(false);
       setEditingMission(null);
+      setGeneratedInput(null);
       await refresh();
       await loadMissions();
     } catch (saveError) {
@@ -242,6 +284,20 @@ function QuestsContent() {
         </div>
       </div>
 
+      <section className="levelup-panel overflow-hidden" aria-labelledby="generate-quest-title">
+        <div className="border-b border-cyan-300/10 bg-cyan-300/[0.03] p-6 sm:p-7">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-300">System forge</p>
+          <h2 id="generate-quest-title" className="mt-1 text-xl font-black text-white">Generate Quest</h2>
+          <p className="mt-1 text-sm text-slate-500">Describe a goal. Review and edit every generated mission before it can enter your quest log.</p>
+          <form onSubmit={generateQuest} className="mt-5 flex flex-col gap-3 lg:flex-row">
+            <input aria-label="Goal for AI quest generation" className="levelup-input flex-1" maxLength={800} value={goalPrompt} onChange={(event) => setGoalPrompt(event.target.value)} placeholder="I want to become better at speaking during meetings." />
+            <button type="submit" disabled={aiLoading || !goalPrompt.trim()} className="levelup-button-primary justify-center"><LevelUpIcon name="spark" className={aiLoading ? "h-5 w-5 animate-spin" : "h-5 w-5"} />{aiLoading ? "Forging quest…" : "Generate Quest"}</button>
+          </form>
+        </div>
+        {aiError && <div className="m-6 rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200" role="alert">{aiError}</div>}
+        {aiSuggestions.length > 0 && <div className="grid gap-3 p-6 xl:grid-cols-2 sm:p-7">{aiSuggestions.map((suggestion, index) => <AiSuggestionCard key={`${suggestion.title}-${index}`} suggestion={suggestion} onReview={() => reviewSuggestion(suggestion)} />)}</div>}
+      </section>
+
       {listError && <div className="rounded-xl border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-200" role="alert">{listError}</div>}
 
       {listLoading ? <LevelUpLoading label="Reading mission records" /> : visibleMissions.length === 0 ? (
@@ -271,7 +327,7 @@ function QuestsContent() {
         </div>
       )}
 
-      {editorOpen && <MissionEditor mission={editingMission} saving={saving} onClose={() => { if (!saving) setEditorOpen(false); }} onSave={saveMission} />}
+      {editorOpen && <MissionEditor mission={editingMission} initialInput={generatedInput} saving={saving} onClose={() => { if (!saving) setEditorOpen(false); }} onSave={saveMission} />}
       {presetSelectorOpen && (
         <PresetQuestSelector
           existingPresetKeys={new Set(missions.map((mission) => mission.preset_key).filter((key): key is string => Boolean(key)))}

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 import LevelUpDashboardPage from "../pages/levelup";
@@ -7,6 +7,7 @@ const mockComplete = jest.fn();
 const mockUndo = jest.fn();
 const mockRefresh = jest.fn();
 const mockSaveDailyFocus = jest.fn().mockResolvedValue(true);
+const mockRequestLevelUpAi = jest.fn();
 
 const dashboard = {
   profile: { user_id: "user-1", timezone: "Asia/Manila" },
@@ -50,9 +51,32 @@ jest.mock("../components/levelup/LevelUpProvider", () => ({
     undoMission: mockUndo,
   }),
 }));
+jest.mock("../lib/levelup/ai/client", () => ({
+  requestLevelUpAi: (...args: unknown[]) => mockRequestLevelUpAi(...args),
+}));
+jest.mock("../lib/levelup/supabase", () => ({
+  createLevelUpMission: jest.fn(),
+}));
 
 describe("Level Up dashboard", () => {
-  beforeEach(() => jest.clearAllMocks());
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockRequestLevelUpAi.mockResolvedValue({
+      action: "daily",
+      suggestions: [
+        {
+          title: "Prepare One Point",
+          description: "Prepare a concise contribution for the next meeting.",
+          objectives: ["Write one sentence", "Say it during the meeting"],
+          cadence: "daily",
+          difficulty: "easy",
+          xpReward: 10,
+          statKey: "discipline",
+          reasoningSummary: "A small action builds consistency.",
+        },
+      ],
+    });
+  });
 
   it("renders progression, stats, and cadence groups", () => {
     render(<LevelUpDashboardPage />);
@@ -76,5 +100,39 @@ describe("Level Up dashboard", () => {
     expect(screen.getByRole("dialog", { name: "Choose your top three" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Not now" }));
     expect(screen.getByText("Your daily route is still open.")).toBeInTheDocument();
+  });
+
+  it("generates daily missions only after an explicit action", async () => {
+    render(<LevelUpDashboardPage />);
+    expect(mockRequestLevelUpAi).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Generate Daily Missions" })
+    );
+    expect(await screen.findByText("Prepare One Point")).toBeInTheDocument();
+    expect(mockRequestLevelUpAi).toHaveBeenCalledWith({ action: "daily" });
+    fireEvent.click(screen.getByRole("button", { name: "Review quest" }));
+    await waitFor(() =>
+      expect(screen.getByRole("dialog", { name: "Confirm mission" })).toBeInTheDocument()
+    );
+  });
+
+  it("keeps Ask System focused on a single ephemeral coaching response", async () => {
+    mockRequestLevelUpAi.mockResolvedValueOnce({
+      action: "coach",
+      answer: "Choose one short communication mission and complete it before noon.",
+      suggestions: [],
+    });
+    render(<LevelUpDashboardPage />);
+    fireEvent.change(screen.getByLabelText("Ask System"), {
+      target: { value: "What should I do today?" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Ask System" }));
+    expect(
+      await screen.findByText(/Choose one short communication mission/)
+    ).toBeInTheDocument();
+    expect(mockRequestLevelUpAi).toHaveBeenCalledWith({
+      action: "coach",
+      message: "What should I do today?",
+    });
   });
 });

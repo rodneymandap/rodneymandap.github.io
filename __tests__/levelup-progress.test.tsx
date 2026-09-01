@@ -6,6 +6,7 @@ import LevelUpProgressPage from "../pages/levelup/progress";
 const mockGetProgress = jest.fn();
 const mockGetActivity = jest.fn();
 const mockRefresh = jest.fn();
+const mockRequestLevelUpAi = jest.fn();
 const dashboard = { profile: { user_id: "user-1" } };
 
 jest.mock("../components/levelup/LevelUpShell", () => ({ LevelUpShell: ({ children }: { children: React.ReactNode }) => <>{children}</> }));
@@ -13,6 +14,9 @@ jest.mock("../components/levelup/LevelUpProvider", () => ({ useLevelUp: () => ({
 jest.mock("../lib/levelup/supabase", () => ({
   getLevelUpProgress: (...args: unknown[]) => mockGetProgress(...args),
   getLevelUpActivity: (...args: unknown[]) => mockGetActivity(...args),
+}));
+jest.mock("../lib/levelup/ai/client", () => ({
+  requestLevelUpAi: (...args: unknown[]) => mockRequestLevelUpAi(...args),
 }));
 
 const report = {
@@ -29,6 +33,19 @@ describe("Level Up progress", () => {
     mockGetActivity
       .mockResolvedValueOnce({ items: [{ id: "completion:1", occurred_at: "2026-08-31T10:00:00Z", type: "mission_completed", title: "Morning training", metadata: { xp_awarded: 25, stat_key: "strength" } }], next_cursor: { at: "2026-08-31T10:00:00Z", id: "completion:1" } })
       .mockResolvedValueOnce({ items: [{ id: "achievement:first", occurred_at: "2026-08-30T10:00:00Z", type: "achievement_unlocked", title: "First Step", metadata: { description: "Complete your first mission." } }], next_cursor: null });
+    mockRequestLevelUpAi.mockResolvedValue({
+      action: "weekly",
+      report: {
+        questsCompleted: 4,
+        xpEarned: 110,
+        currentStreak: 2,
+        strongestArea: "Communication",
+        needsAttention: "Vitality",
+        completionPattern: "Short missions were completed most consistently.",
+        recommendation: "Choose two short recovery missions.",
+        nextFocus: "Recovery",
+      },
+    });
   });
 
   it("renders derived 30-day analytics and paginates activity", async () => {
@@ -38,5 +55,15 @@ describe("Level Up progress", () => {
     fireEvent.click(screen.getByRole("button", { name: "Load next 20" }));
     await waitFor(() => expect(screen.getByText("First Step")).toBeInTheDocument());
     expect(mockGetActivity).toHaveBeenLastCalledWith({ at: "2026-08-31T10:00:00Z", id: "completion:1" });
+  });
+
+  it("generates an ephemeral weekly System report on demand", async () => {
+    render(<LevelUpProgressPage />);
+    await screen.findByText("Morning training");
+    expect(mockRequestLevelUpAi).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Analyze Progress" }));
+    expect(await screen.findByText("Communication")).toBeInTheDocument();
+    expect(screen.getByText("Recovery")).toBeInTheDocument();
+    expect(mockRequestLevelUpAi).toHaveBeenCalledWith({ action: "weekly" });
   });
 });

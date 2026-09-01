@@ -13,6 +13,9 @@
     },
     "pages/api/ynab/oauth/callback.ts": {
       "maxDuration": 10
+    },
+    "pages/api/levelup/ai.ts": {
+      "maxDuration": 10
     }
   },
   "regions": ["hkg1"]
