@@ -178,14 +178,14 @@ describe("Gemini LevelUp provider", () => {
     expect(mockGenerateContent).not.toHaveBeenCalled();
   });
 
-  it("falls back to stateless GenerateContent for Interactions request 400s", async () => {
+  it("falls back to stateless GenerateContent for Interactions invalid-argument 400s", async () => {
     const provider = new GeminiLevelUpAiProvider("test-key");
     mockCreateInteraction.mockRejectedValueOnce(
       Object.assign(new Error("request shape rejected"), {
         status: 400,
         error: {
           error: {
-            code: "invalid_request",
+            code: "invalid_argument",
             message: "request shape rejected",
           },
         },

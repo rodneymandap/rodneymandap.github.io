@@ -180,7 +180,9 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
         const { providerStatus, providerCode } = getProviderDetails(interactionError);
         const canUseCompatibilityFallback =
           providerStatus === 400 &&
-          (providerCode === "invalid_request" || providerCode === "parameter_unknown");
+          (providerCode === "invalid_argument" ||
+            providerCode === "invalid_request" ||
+            providerCode === "parameter_unknown");
         const remainingMs = deadline - Date.now();
 
         if (!canUseCompatibilityFallback || remainingMs < 500) {
