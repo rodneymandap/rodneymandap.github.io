@@ -21,6 +21,11 @@ const navigation: Array<{
     label: "Achievements",
     icon: "achievements",
   },
+  {
+    href: "/levelup/settings",
+    label: "Settings",
+    icon: "shield",
+  },
 ];
 
 type LevelUpShellProps = {

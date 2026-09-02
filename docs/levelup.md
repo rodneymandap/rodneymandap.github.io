@@ -65,9 +65,9 @@ Restart the local development server after changing environment variables.
 
 3. In Vercel, add `GEMINI_API_KEY` under **Project Settings → Environment Variables** for the environments where the assistant should work. Add `GEMINI_MODEL` only when overriding the default.
 
-Never prefix the Gemini key with `NEXT_PUBLIC_`. The browser calls `/api/levelup/ai`; only that authenticated server route calls Google. After changing an environment variable in Vercel, redeploy so the function receives it.
+Never prefix the Gemini key with `NEXT_PUBLIC_`. The browser calls `/api/levelup/ai`; only that authenticated server route calls Google.
 
-The default model is the stable `gemini-3.5-flash-lite`, selected for low latency, structured JSON output, and free-tier availability for lightweight text tasks. To switch later, set `GEMINI_MODEL` to another currently supported model ID from the [official models page](https://ai.google.dev/gemini-api/docs/models), test its structured-output support, and redeploy. Do not rely on preview aliases in production.
+The default model is the stable `gemini-3.5-flash-lite`, selected for low latency, structured JSON output, and free-tier availability for lightweight text tasks. You can override it in `/levelup/settings` without redeploying. The saved choice falls back to `GEMINI_MODEL` when no runtime override exists. If you do change the environment variable, it still acts as the initial fallback for the app. The settings are stored in the `public.levelup_settings` table created by the Level Up migration. The selector currently includes the commonly available Gemini 2.0, 2.5, 3.0, and 3.5 model families.
 
 ## 4. Verify access and deployment
 
