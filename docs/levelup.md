@@ -17,6 +17,8 @@ It does not use Vercel Cron, Vercel storage, Supabase Storage, Realtime, Edge Fu
    supabase/migrations/202609020001_levelup_missed_focus_penalties.sql
    ```
 
+   Do not skip these SQL files. The Level Up XP totals, streaks, achievements, and missed-focus deductions all depend on the migration functions running in Supabase.
+
 The migrations create only `levelup_*` public tables, a private Level Up allowlist, RLS policies, indexes, achievement definitions, and the transactional RPC functions used by the app. They do not change global Supabase Auth provider or signup settings.
 
 ## 2. Authorize the owner account
