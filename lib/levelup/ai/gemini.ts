@@ -102,6 +102,39 @@ function getProviderDetails(error: unknown): {
   return typeof status === "number" ? { providerStatus: status } : {};
 }
 
+function getProviderMessage(error: unknown): string | undefined {
+  if (!error || typeof error !== "object") return undefined;
+
+  const root = error as Record<string, unknown>;
+  let payload: unknown = root.error;
+
+  if (!payload && typeof root.message === "string" && root.message.startsWith("{")) {
+    try {
+      payload = JSON.parse(root.message);
+    } catch {
+      return undefined;
+    }
+  }
+
+  for (let depth = 0; depth < 3 && payload && typeof payload === "object"; depth += 1) {
+    const record = payload as Record<string, unknown>;
+    if (typeof record.message === "string") {
+      return record.message
+        .replace(/\bAIza[\w-]{20,}\b/g, "[REDACTED_API_KEY]")
+        .replace(
+          /\b(api[_ -]?key|authorization|token)\s*[:=]\s*\S+/gi,
+          "$1=[REDACTED]"
+        )
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 500);
+    }
+    payload = record.error;
+  }
+
+  return undefined;
+}
+
 function providerError(error: unknown): LevelUpAiProviderError {
   if (error instanceof LevelUpAiProviderError) return error;
   const message = error instanceof Error ? error.message : String(error);
@@ -139,12 +172,15 @@ type GeminiOperation = "quest" | "daily" | "weekly" | "coach";
 function providerLogDetails(error: unknown): {
   providerStatus?: number;
   providerCode?: string;
+  providerMessage?: string;
   errorType: "error" | "non_error";
 } {
   const { providerStatus, providerCode } = getProviderDetails(error);
+  const providerMessage = getProviderMessage(error);
   return {
     ...(providerStatus !== undefined ? { providerStatus } : {}),
     ...(providerCode ? { providerCode } : {}),
+    ...(providerMessage ? { providerMessage } : {}),
     errorType: error instanceof Error ? "error" : "non_error",
   };
 }
