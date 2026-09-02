@@ -183,7 +183,7 @@ describe("Gemini LevelUp provider", () => {
     });
   });
 
-  it("retains only the upstream status for safe diagnostics", async () => {
+  it("logs the bounded provider error message for request diagnostics", async () => {
     const provider = new GeminiLevelUpAiProvider("test-key");
     mockCreateInteraction.mockRejectedValueOnce(
       Object.assign(new Error("sensitive provider detail"), {
@@ -202,6 +202,12 @@ describe("Gemini LevelUp provider", () => {
       providerStatus: 400,
       providerCode: "failed_precondition",
     });
+    expect(logWarn).toHaveBeenCalledWith(
+      "LevelUp Gemini request failed",
+      expect.objectContaining({
+        providerMessage: "sensitive provider detail",
+      })
+    );
     expect(mockGenerateContent).not.toHaveBeenCalled();
   });
 
@@ -245,8 +251,35 @@ describe("Gemini LevelUp provider", () => {
         operation: "daily",
         providerStatus: 400,
         providerCode: "invalid_argument",
+        providerMessage: "request shape rejected",
       })
     );
+  });
+
+  it("redacts API keys from detailed provider diagnostics", async () => {
+    const provider = new GeminiLevelUpAiProvider("test-key");
+    mockCreateInteraction.mockRejectedValueOnce(
+      Object.assign(new Error("request rejected"), {
+        status: 400,
+        error: {
+          error: {
+            code: "failed_precondition",
+            message: "Invalid field. api_key=AIza0123456789abcdefghijklmnop",
+          },
+        },
+      })
+    );
+
+    await expect(provider.generateWeeklyReview(context)).rejects.toMatchObject({
+      code: "provider_unavailable",
+    });
+    expect(logWarn).toHaveBeenCalledWith(
+      "LevelUp Gemini request failed",
+      expect.objectContaining({
+        providerMessage: expect.stringContaining("[REDACTED]"),
+      })
+    );
+    expect(JSON.stringify(logWarn.mock.calls)).not.toContain("AIza0123456789");
   });
 
   it("preserves fallback precondition diagnostics without retrying again", async () => {
