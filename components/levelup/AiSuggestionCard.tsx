@@ -14,7 +14,7 @@ export function AiSuggestionCard({
   onReview: () => void;
 }) {
   return (
-    <article className="levelup-panel border-cyan-300/15 p-5">
+    <article className="levelup-panel border-cyan-300/15 bg-slate-950/95 p-5 shadow-[0_12px_40px_rgba(15,23,42,0.4)]">
       <div className="flex flex-wrap items-center gap-2">
         <span className="levelup-tag text-cyan-200">✦ AI Generated</span>
         <span className="levelup-tag text-slate-400">
@@ -49,4 +49,3 @@ export function AiSuggestionCard({
     </article>
   );
 }
-

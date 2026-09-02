@@ -155,6 +155,7 @@ describe("Level Up quest log", () => {
     fireEvent.click(screen.getByRole("button", { name: "Generate Quest" }));
     expect(await screen.findByText("Speak Up")).toBeInTheDocument();
     expect(screen.getByText("✦ AI Generated")).toBeInTheDocument();
+    expect(screen.getByText("Speak Up").closest("article")).toHaveClass("bg-slate-950/95");
     expect(mockCreateMission).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Review quest" }));
