@@ -13,6 +13,7 @@ jest.mock("@google/genai", () => ({
 }));
 
 import { GoogleGenAI } from "@google/genai";
+import logger from "../lib/logger";
 import {
   GeminiLevelUpAiProvider,
   toGeminiJsonSchema,
@@ -53,6 +54,9 @@ const rawQuestResponse = {
 };
 
 describe("Gemini LevelUp provider", () => {
+  const logInfo = jest.spyOn(logger, "info").mockImplementation(() => undefined);
+  const logWarn = jest.spyOn(logger, "warn").mockImplementation(() => undefined);
+
   beforeEach(() => {
     jest.clearAllMocks();
     mockCreateInteraction.mockResolvedValue({
@@ -126,6 +130,29 @@ describe("Gemini LevelUp provider", () => {
     expect(request.system_instruction).not.toContain(injected);
   });
 
+  it("logs safe request diagnostics without prompt or response content", async () => {
+    const provider = new GeminiLevelUpAiProvider("test-key", "gemini-test-model");
+    const sensitivePrompt = "My private goal is: do not log this text";
+    const sensitiveResponse = JSON.stringify(rawQuestResponse);
+    mockCreateInteraction.mockResolvedValueOnce({ output_text: sensitiveResponse });
+
+    await provider.generateQuestSuggestions(sensitivePrompt, context);
+
+    expect(logInfo).toHaveBeenCalledWith(
+      "LevelUp Gemini request completed",
+      expect.objectContaining({
+        integration: "gemini",
+        operation: "quest",
+        model: "gemini-test-model",
+        transport: "interactions",
+        durationMs: expect.any(Number),
+        outputLength: sensitiveResponse.length,
+      })
+    );
+    expect(JSON.stringify(logInfo.mock.calls)).not.toContain(sensitivePrompt);
+    expect(JSON.stringify(logInfo.mock.calls)).not.toContain(sensitiveResponse);
+  });
+
   it("rejects malformed or schema-invalid Gemini output", async () => {
     const provider = new GeminiLevelUpAiProvider("test-key");
     mockCreateInteraction.mockResolvedValueOnce({ output_text: "not-json" });
@@ -178,14 +205,14 @@ describe("Gemini LevelUp provider", () => {
     expect(mockGenerateContent).not.toHaveBeenCalled();
   });
 
-  it("falls back to stateless GenerateContent for Interactions request 400s", async () => {
+  it("falls back to stateless GenerateContent for Interactions invalid-argument 400s", async () => {
     const provider = new GeminiLevelUpAiProvider("test-key");
     mockCreateInteraction.mockRejectedValueOnce(
       Object.assign(new Error("request shape rejected"), {
         status: 400,
         error: {
           error: {
-            code: "invalid_request",
+            code: "invalid_argument",
             message: "request shape rejected",
           },
         },
@@ -209,6 +236,15 @@ describe("Gemini LevelUp provider", () => {
             retryOptions: { attempts: 1 },
           }),
         }),
+      })
+    );
+    expect(logWarn).toHaveBeenCalledWith(
+      "LevelUp Gemini Interactions request rejected; using compatibility fallback",
+      expect.objectContaining({
+        integration: "gemini",
+        operation: "daily",
+        providerStatus: 400,
+        providerCode: "invalid_argument",
       })
     );
   });
