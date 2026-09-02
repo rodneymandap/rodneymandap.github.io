@@ -1,9 +1,13 @@
 const mockCreateInteraction = jest.fn();
+const mockGenerateContent = jest.fn();
 
 jest.mock("@google/genai", () => ({
   GoogleGenAI: jest.fn().mockImplementation(() => ({
     interactions: {
       create: (...args: unknown[]) => mockCreateInteraction(...args),
+    },
+    models: {
+      generateContent: (...args: unknown[]) => mockGenerateContent(...args),
     },
   })),
 }));
@@ -53,6 +57,9 @@ describe("Gemini LevelUp provider", () => {
     jest.clearAllMocks();
     mockCreateInteraction.mockResolvedValue({
       output_text: JSON.stringify(rawQuestResponse),
+    });
+    mockGenerateContent.mockResolvedValue({
+      text: JSON.stringify(rawQuestResponse),
     });
   });
 
@@ -155,8 +162,10 @@ describe("Gemini LevelUp provider", () => {
       Object.assign(new Error("sensitive provider detail"), {
         status: 400,
         error: {
-          code: "invalid_request",
-          message: "sensitive provider detail",
+          error: {
+            code: "failed_precondition",
+            message: "sensitive provider detail",
+          },
         },
       })
     );
@@ -164,8 +173,77 @@ describe("Gemini LevelUp provider", () => {
     await expect(provider.generateWeeklyReview(context)).rejects.toMatchObject({
       code: "provider_unavailable",
       providerStatus: 400,
-      providerCode: "invalid_request",
+      providerCode: "failed_precondition",
     });
+    expect(mockGenerateContent).not.toHaveBeenCalled();
+  });
+
+  it("falls back to stateless GenerateContent for Interactions request 400s", async () => {
+    const provider = new GeminiLevelUpAiProvider("test-key");
+    mockCreateInteraction.mockRejectedValueOnce(
+      Object.assign(new Error("request shape rejected"), {
+        status: 400,
+        error: {
+          error: {
+            code: "invalid_request",
+            message: "request shape rejected",
+          },
+        },
+      })
+    );
+
+    const result = await provider.generateDailyMissions(undefined, context);
+
+    expect(result.suggestions[0].xpReward).toBe(10);
+    expect(mockGenerateContent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "gemini-3.5-flash-lite",
+        contents: expect.stringContaining("completed today"),
+        config: expect.objectContaining({
+          systemInstruction: expect.stringContaining("untrusted content"),
+          maxOutputTokens: 1600,
+          responseMimeType: "application/json",
+          responseJsonSchema: expect.objectContaining({ type: "object" }),
+          httpOptions: expect.objectContaining({
+            timeout: expect.any(Number),
+            retryOptions: { attempts: 1 },
+          }),
+        }),
+      })
+    );
+  });
+
+  it("preserves fallback precondition diagnostics without retrying again", async () => {
+    const provider = new GeminiLevelUpAiProvider("test-key");
+    mockCreateInteraction.mockRejectedValueOnce(
+      Object.assign(new Error("request shape rejected"), {
+        status: 400,
+        error: { error: { code: "invalid_request" } },
+      })
+    );
+    mockGenerateContent.mockRejectedValueOnce(
+      Object.assign(
+        new Error(
+          JSON.stringify({
+            error: {
+              code: 400,
+              status: "FAILED_PRECONDITION",
+              message: "sensitive provider detail",
+            },
+          })
+        ),
+        { status: 400 }
+      )
+    );
+
+    await expect(
+      provider.generateDailyMissions(undefined, context)
+    ).rejects.toMatchObject({
+      code: "provider_unavailable",
+      providerStatus: 400,
+      providerCode: "failed_precondition",
+    });
+    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
   });
 
   it("fails closed when the server-only API key is absent", () => {
