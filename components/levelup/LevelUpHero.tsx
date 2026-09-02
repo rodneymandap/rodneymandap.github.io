@@ -1,17 +1,12 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 
 import {
+  getLevelUpHeroAppearance,
   getLevelUpHeroRank,
-  type LevelUpHeroRank,
 } from "../../lib/levelup/types";
 
 export type LevelUpHeroState = "idle" | "focused" | "celebrate" | "comeback";
-
-const rankLabels: Record<LevelUpHeroRank, string> = {
-  initiate: "Initiate",
-  vanguard: "Vanguard",
-  ascendant: "Ascendant",
-};
 
 const stateCopy: Record<LevelUpHeroState, string> = {
   idle: "Choose the mission that moves your story forward.",
@@ -28,16 +23,26 @@ export function LevelUpHero({
   state: LevelUpHeroState;
 }): JSX.Element {
   const rank = getLevelUpHeroRank(level);
+  const appearance = getLevelUpHeroAppearance(level);
+  const style = {
+    "--levelup-evolution": appearance.evolution,
+    "--levelup-particles": appearance.particleCount,
+  } as CSSProperties;
 
   return (
-    <article className={`levelup-hero levelup-hero-${rank} levelup-hero-${state}`}>
+    <article
+      className={`levelup-hero levelup-hero-${rank} levelup-hero-motion-${appearance.motion} ${appearance.raw ? "levelup-hero-raw" : ""} levelup-hero-${state}`}
+      style={style}
+      data-appearance-level={appearance.baseLevel}
+      data-evolution={appearance.evolution}
+    >
       <div className="levelup-hero-aura" aria-hidden="true" />
       <div className="levelup-hero-particles" aria-hidden="true">
-        <i /><i /><i /><i /><i />
+        {Array.from({ length: appearance.particleCount }, (_, index) => <i key={index} />)}
       </div>
-      <div className="levelup-hero-art" aria-hidden="true">
+      <div className="levelup-hero-art" aria-hidden="true" data-testid="levelup-hero-art">
         <Image
-          src="/levelup/aegis-hero.png"
+          src={appearance.imageSrc}
           alt=""
           fill
           priority
@@ -46,7 +51,7 @@ export function LevelUpHero({
       </div>
       <div className="levelup-hero-copy">
         <div className="flex items-center gap-2">
-          <span className="levelup-hero-rank">{rankLabels[rank]}</span>
+          <span className="levelup-hero-rank">{appearance.title}</span>
           <span className="text-xs font-mono text-cyan-200/70">LV {level}</span>
         </div>
         <h2 className="mt-2 text-2xl font-black text-white">Aegis</h2>
@@ -57,4 +62,3 @@ export function LevelUpHero({
     </article>
   );
 }
-
