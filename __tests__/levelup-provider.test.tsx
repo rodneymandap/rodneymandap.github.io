@@ -33,7 +33,7 @@ function ProviderProbe() {
   return (
     <div>
       <p>{context.dashboard ? `Level ${context.dashboard.progress.level}` : context.error}</p>
-      {context.notice && <p>{context.notice.title}</p>}
+      {context.notice && <><p>{context.notice.title}</p><p>{context.notice.message}</p></>}
       <button onClick={() => void context.completeMission("mission-1")}>Complete probe</button>
       <button onClick={() => void context.undoMission("mission-1")}>Undo probe</button>
       <button onClick={() => void context.saveDailyFocus(["mission-1"])}>Save focus probe</button>
@@ -76,6 +76,18 @@ describe("LevelUpProvider", () => {
     render(<LevelUpProvider><ProviderProbe /></LevelUpProvider>);
     expect(await screen.findByText("Profile unavailable")).toBeInTheDocument();
     await waitFor(() => expect(mockReplace).not.toHaveBeenCalled());
+  });
+
+  it("warns about newly applied missed-route penalties and a level downgrade", async () => {
+    mockGetDashboard.mockResolvedValueOnce({
+      ...baseDashboard,
+      progress: { ...baseDashboard.progress, level: 1, total_xp: 75 },
+      new_penalties: [{ mission_id: "mission-1", title: "Focus", focus_date: "2026-08-30", xp_delta: -25, created_at: "2026-08-31T00:00:00Z" }],
+      penalty_summary: { count: 1, xp_lost: -25, previous_level: 2 },
+    });
+    render(<LevelUpProvider><ProviderProbe /></LevelUpProvider>);
+    expect(await screen.findByText("Rank reduced to Level 1")).toBeInTheDocument();
+    expect(screen.getByText(/1 unfinished quest cost 25 XP/)).toBeInTheDocument();
   });
 
   it("persists the daily briefing through confirmed state", async () => {

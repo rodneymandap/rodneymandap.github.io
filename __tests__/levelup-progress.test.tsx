@@ -66,4 +66,20 @@ describe("Level Up progress", () => {
     expect(screen.getByText("Recovery")).toBeInTheDocument();
     expect(mockRequestLevelUpAi).toHaveBeenCalledWith({ action: "weekly" });
   });
+
+  it("renders a missed-route deduction in the chart and activity log", async () => {
+    mockGetProgress.mockResolvedValueOnce({
+      ...report,
+      period_xp: 85,
+      daily: [...report.daily, { date: "2026-09-01", completions: 0, xp: -25 }],
+    });
+    mockGetActivity.mockReset();
+    mockGetActivity.mockResolvedValueOnce({
+      items: [{ id: "penalty:1", occurred_at: "2026-09-02T00:00:00Z", type: "daily_focus_missed", title: "Morning training", metadata: { xp_delta: -25, local_date: "2026-09-01" } }],
+      next_cursor: null,
+    });
+    render(<LevelUpProgressPage />);
+    expect(await screen.findByText("Missed daily quest · -25 XP")).toBeInTheDocument();
+    expect(screen.getByText(/Sep 1 · -25 XP · 0 missions/)).toBeInTheDocument();
+  });
 });

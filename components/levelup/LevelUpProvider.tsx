@@ -51,6 +51,20 @@ export function LevelUpProvider({ children }: { children: ReactNode }) {
     try {
       const nextDashboard = await getLevelUpDashboard();
       setDashboard(nextDashboard);
+      const penalty = nextDashboard.penalty_summary;
+      if (penalty && penalty.count > 0) {
+        const lostXp = Math.abs(penalty.xp_lost);
+        const levelDropped = nextDashboard.progress.level < penalty.previous_level;
+        setNotice({
+          tone: "penalty",
+          title: levelDropped
+            ? `Rank reduced to Level ${nextDashboard.progress.level}`
+            : "Daily route missed",
+          message: `${penalty.count} unfinished ${penalty.count === 1 ? "quest cost" : "quests cost"} ${lostXp} XP.${levelDropped ? ` You dropped from Level ${penalty.previous_level}.` : ""}`,
+          xp: -lostXp,
+          level: nextDashboard.progress.level,
+        });
+      }
     } catch (loadError) {
       const message =
         loadError instanceof Error

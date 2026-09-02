@@ -731,6 +731,18 @@
 
 .levelup-feedback-error { border-color: rgba(251, 113, 133, 0.34); }
 
+.levelup-feedback-penalty {
+  border-color: rgba(251, 146, 60, 0.42);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.65), 0 0 44px rgba(251, 146, 60, 0.12);
+}
+
+.levelup-feedback-penalty .levelup-feedback-icon,
+.levelup-feedback-penalty .levelup-xp-orb {
+  border-color: rgba(251, 146, 60, 0.3);
+  color: #fed7aa;
+  background: rgba(251, 146, 60, 0.1);
+}
+
 .levelup-feedback-icon {
   display: inline-grid;
   width: 3.25rem;

@@ -19,18 +19,18 @@ export function LevelUpFeedback({
   }, [ceremonial, feedback, onDismiss]);
 
   return (
-    <div className={ceremonial ? "levelup-feedback-stage" : "levelup-feedback-toast"} role={feedback.tone === "error" ? "alert" : "status"} aria-live="polite">
+    <div className={ceremonial ? "levelup-feedback-stage" : "levelup-feedback-toast"} role={feedback.tone === "error" || feedback.tone === "penalty" ? "alert" : "status"} aria-live="polite">
       {ceremonial && <div className="levelup-feedback-burst" aria-hidden="true" />}
       <div className={`levelup-feedback-card levelup-feedback-${feedback.tone}`}>
         <div className="levelup-feedback-icon">
-          <LevelUpIcon name={feedback.tone === "error" ? "shield" : feedback.tone === "level" ? "crown" : feedback.dailyClear ? "check" : "spark"} />
+          <LevelUpIcon name={feedback.tone === "error" || feedback.tone === "penalty" ? "shield" : feedback.tone === "level" ? "crown" : feedback.dailyClear ? "check" : "spark"} />
         </div>
         <p className="text-xs font-black uppercase tracking-[0.24em] text-cyan-200">
-          {feedback.tone === "level" ? "Rank advanced" : feedback.dailyClear ? "Route complete" : "System update"}
+          {feedback.tone === "level" ? "Rank advanced" : feedback.tone === "penalty" ? "Route consequence" : feedback.dailyClear ? "Route complete" : "System update"}
         </p>
         <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">{feedback.title}</h2>
         <p className="mt-2 text-sm text-slate-300">{feedback.message}</p>
-        {feedback.xp !== undefined && <div className="levelup-xp-orb" aria-label={`${feedback.xp} experience points earned`}>+{feedback.xp} XP</div>}
+        {feedback.xp !== undefined && <div className="levelup-xp-orb" aria-label={`${Math.abs(feedback.xp)} experience points ${feedback.xp < 0 ? "lost" : "earned"}`}>{feedback.xp > 0 ? "+" : ""}{feedback.xp} XP</div>}
         {feedback.achievements?.map((achievement) => (
           <p key={achievement.slug} className="mt-3 rounded-lg border border-amber-300/20 bg-amber-300/10 px-3 py-2 text-sm font-bold text-amber-200">Achievement unlocked · {achievement.title}</p>
         ))}
@@ -39,4 +39,3 @@ export function LevelUpFeedback({
     </div>
   );
 }
-

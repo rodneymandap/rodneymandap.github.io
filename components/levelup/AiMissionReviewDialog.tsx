@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 import type { LevelUpAiQuestSuggestion } from "../../lib/levelup/ai/schemas";
 import { suggestionToMissionInput } from "../../lib/levelup/ai/schemas";
@@ -65,7 +66,7 @@ export function AiMissionReviewDialog({
     }
   }
 
-  return (
+  const dialog = (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/80 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby="ai-mission-review-title">
       <div className="levelup-panel max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-b-none p-6 sm:rounded-[1.25rem] sm:p-8">
         <div className="mb-7 flex items-start justify-between gap-4">
@@ -90,5 +91,6 @@ export function AiMissionReviewDialog({
       </div>
     </div>
   );
-}
 
+  return createPortal(dialog, document.body);
+}
