@@ -7,6 +7,11 @@ jest.mock('@vercel/analytics/react', () => ({
   Analytics: () => <div data-testid="analytics">Analytics</div>,
 }));
 
+// Mock Vercel Speed Insights
+jest.mock('@vercel/speed-insights/next', () => ({
+  SpeedInsights: () => <div data-testid="speed-insights">Speed Insights</div>,
+}));
+
 describe('_app', () => {
   it('renders without crashing', () => {
     const Component = () => <div>Test Component</div>;
