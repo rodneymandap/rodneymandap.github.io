@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
+import logger from "../../logger";
 import {
   aiCoachResponseSchema,
   aiQuestListSchema,
@@ -133,12 +134,31 @@ function providerError(error: unknown): LevelUpAiProviderError {
   );
 }
 
+type GeminiOperation = "quest" | "daily" | "weekly" | "coach";
+
+function providerLogDetails(error: unknown): {
+  providerStatus?: number;
+  providerCode?: string;
+  errorType: "error" | "non_error";
+} {
+  const { providerStatus, providerCode } = getProviderDetails(error);
+  return {
+    ...(providerStatus !== undefined ? { providerStatus } : {}),
+    ...(providerCode ? { providerCode } : {}),
+    errorType: error instanceof Error ? "error" : "non_error",
+  };
+}
+
 export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
   private readonly client: GoogleGenAI;
   private readonly model: string;
 
   constructor(apiKey = process.env.GEMINI_API_KEY, model = process.env.GEMINI_MODEL) {
     if (!apiKey) {
+      logger.warn("LevelUp Gemini is not configured", {
+        integration: "gemini",
+        reason: "missing_api_key",
+      });
       throw new LevelUpAiProviderError(
         "not_configured",
         "GEMINI_API_KEY is not configured."
@@ -149,9 +169,20 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
   }
 
   private async structured<T>(
+    operation: GeminiOperation,
     prompt: string,
     schema: z.ZodType<T>
   ): Promise<T> {
+    const startedAt = Date.now();
+    let transport: "interactions" | "generate_content" = "interactions";
+
+    logger.debug("LevelUp Gemini request started", {
+      integration: "gemini",
+      operation,
+      model: this.model,
+      timeoutMs: TIMEOUT_MS,
+    });
+
     try {
       const responseSchema = toGeminiJsonSchema(schema);
       const deadline = Date.now() + TIMEOUT_MS;
@@ -188,6 +219,16 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
         if (!canUseCompatibilityFallback || remainingMs < 500) {
           throw interactionError;
         }
+
+        transport = "generate_content";
+        logger.warn("LevelUp Gemini Interactions request rejected; using compatibility fallback", {
+          integration: "gemini",
+          operation,
+          model: this.model,
+          elapsedMs: Date.now() - startedAt,
+          remainingMs,
+          ...providerLogDetails(interactionError),
+        });
 
         // GenerateContent is stateless unless callers provide history. Keep it
         // as a narrow compatibility path for Interactions request-shape 400s.
@@ -232,9 +273,33 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
           { cause: result.error }
         );
       }
+      logger.info("LevelUp Gemini request completed", {
+        integration: "gemini",
+        operation,
+        model: this.model,
+        transport,
+        durationMs: Date.now() - startedAt,
+        outputLength: outputText.length,
+      });
       return result.data;
     } catch (error) {
-      throw providerError(error);
+      const normalizedError = providerError(error);
+      logger.warn("LevelUp Gemini request failed", {
+        integration: "gemini",
+        operation,
+        model: this.model,
+        transport,
+        durationMs: Date.now() - startedAt,
+        code: normalizedError.code,
+        ...(normalizedError.providerStatus !== undefined
+          ? { providerStatus: normalizedError.providerStatus }
+          : {}),
+        ...(normalizedError.providerCode
+          ? { providerCode: normalizedError.providerCode }
+          : {}),
+        ...providerLogDetails(error),
+      });
+      throw normalizedError;
     }
   }
 
@@ -243,6 +308,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     context: LevelUpAiContext
   ): Promise<LevelUpAiQuestResponse> {
     const result = await this.structured(
+      "quest",
       `Turn the untrusted goal below into one to three LevelUp quests.\n${QUEST_SCHEMA_GUIDANCE}\nContext: ${compactContext(
         context
       )}\nUntrusted goal: ${JSON.stringify(prompt)}`,
@@ -256,6 +322,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     context: LevelUpAiContext
   ): Promise<LevelUpAiQuestResponse> {
     const result = await this.structured(
+      "daily",
       `Generate one to three non-repetitive quests that can realistically be completed today. Prefer lighter work when recent workload is high.\n${QUEST_SCHEMA_GUIDANCE}\nContext: ${compactContext(
         context
       )}\nOptional untrusted focus area: ${JSON.stringify(focusArea ?? "")}`,
@@ -268,6 +335,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     context: LevelUpAiContext
   ): Promise<LevelUpAiWeeklyReviewContent> {
     return this.structured(
+      "weekly",
       `Create a compact weekly System report from this bounded LevelUp context. Identify one strength, one neglected area, a completion pattern, one practical recommendation, and one next focus. Do not invent totals.\nContext: ${compactContext(
         context
       )}`,
@@ -280,6 +348,7 @@ export class GeminiLevelUpAiProvider implements LevelUpAiProvider {
     context: LevelUpAiContext
   ): Promise<LevelUpAiCoachResponse> {
     const result = await this.structured(
+      "coach",
       `Answer the LevelUp coaching question in under 120 words. If useful, include up to three quest suggestions; otherwise return an empty suggestions array.\n${QUEST_SCHEMA_GUIDANCE}\nContext: ${compactContext(
         context
       )}\nUntrusted question: ${JSON.stringify(message)}`,
