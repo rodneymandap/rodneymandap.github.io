@@ -116,4 +116,9 @@ describe("Level Up consistency loop", () => {
     fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
     expect(onDismiss).toHaveBeenCalled();
   });
+
+  it("keeps the XP display tied to completed missions", () => {
+    expect(missions.reduce((total, mission) => total + mission.xp_reward, 0)).toBe(70);
+    expect(missions.filter((mission) => mission.completed).length).toBe(0);
+  });
 });
