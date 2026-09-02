@@ -23,7 +23,11 @@ import {
 } from "../../lib/levelup/types";
 
 function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("en-PH", { month: "short", day: "numeric" }).format(
+  return new Intl.DateTimeFormat("en-PH", {
+    month: "short",
+    day: "numeric",
+    timeZone: "Asia/Manila",
+  }).format(
     new Date(`${value}T00:00:00+08:00`)
   );
 }
