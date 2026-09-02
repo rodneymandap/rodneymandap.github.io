@@ -24,7 +24,7 @@ import type {
   LevelUpProgressReport,
 } from "../../../lib/levelup/types";
 
-const FALLBACK_MESSAGE =
+export const FALLBACK_MESSAGE =
   "AI assistance is temporarily unavailable. Your LevelUp progress and quests are unaffected.";
 
 let providerOverride: LevelUpAiProvider | null = null;
@@ -59,7 +59,7 @@ function isSameOrigin(req: NextApiRequest): boolean {
   }
 }
 
-function createLevelUpServerClient(
+export function createLevelUpServerClient(
   req: NextApiRequest,
   res: NextApiResponse
 ): SupabaseClient | null {
