@@ -476,6 +476,9 @@
 }
 
 .levelup-hero {
+  --levelup-evolution: 1;
+  --levelup-particles: 1;
+  --levelup-motion-duration: calc(5.5s - (var(--levelup-evolution) * 0.025s));
   position: relative;
   min-height: 31rem;
   overflow: hidden;
@@ -489,14 +492,14 @@
 .levelup-hero-art {
   position: absolute;
   inset: 0 0 5.75rem;
-  animation: levelupHeroIdle 4.8s ease-in-out infinite;
+  animation: levelupHeroIdle var(--levelup-motion-duration) ease-in-out infinite;
   mask-image: linear-gradient(to bottom, transparent 0, black 5%, black 82%, transparent 100%);
 }
 
 .levelup-hero-art img {
   object-fit: contain;
   object-position: center top;
-  filter: saturate(0.94) contrast(1.03);
+  filter: saturate(calc(0.88 + (var(--levelup-evolution) * 0.004))) contrast(calc(1.01 + (var(--levelup-evolution) * 0.0005))) hue-rotate(calc(var(--levelup-evolution) * 0.16deg));
 }
 
 .levelup-hero-aura {
@@ -509,7 +512,8 @@
   border-radius: 9999px;
   background: radial-gradient(circle, rgba(34, 211, 238, 0.17), rgba(124, 58, 237, 0.08) 45%, transparent 70%);
   filter: blur(8px);
-  animation: levelupAura 3.2s ease-in-out infinite;
+  opacity: calc(0.38 + (var(--levelup-evolution) * 0.0045));
+  animation: levelupAura calc(3.9s - (var(--levelup-evolution) * 0.012s)) ease-in-out infinite;
 }
 
 .levelup-hero-vanguard .levelup-hero-aura {
@@ -523,6 +527,26 @@
 .levelup-hero-ascendant .levelup-hero-aura {
   background: radial-gradient(circle, rgba(251, 191, 36, 0.25), rgba(167, 139, 250, 0.15) 48%, transparent 72%);
 }
+
+.levelup-hero-motion-stride .levelup-hero-art {
+  animation-name: levelupHeroStride;
+}
+
+.levelup-hero-motion-hover .levelup-hero-art {
+  animation-name: levelupHeroHover;
+}
+
+.levelup-hero-motion-ascend .levelup-hero-art {
+  animation-name: levelupHeroAscend;
+}
+
+.levelup-hero-motion-hover .levelup-hero-aura,
+.levelup-hero-motion-ascend .levelup-hero-aura {
+  box-shadow: 0 0 calc(var(--levelup-evolution) * 0.42px) rgba(167, 139, 250, 0.55);
+}
+
+.levelup-hero-raw .levelup-hero-aura { opacity: 0.16; }
+.levelup-hero-raw .levelup-hero-particles { opacity: 0.3; }
 
 .levelup-hero-comeback .levelup-hero-art {
   filter: saturate(0.72);
@@ -567,7 +591,7 @@
   border-radius: 9999px;
   background: #67e8f9;
   box-shadow: 0 0 12px #22d3ee;
-  animation: levelupParticle 3.8s linear infinite;
+  animation: levelupParticle calc(4.4s - (var(--levelup-evolution) * 0.018s)) linear infinite;
 }
 
 .levelup-hero-particles i:nth-child(1) { left: 18%; top: 48%; animation-delay: -0.8s; }
@@ -777,6 +801,21 @@
   100% { transform: translateY(0) scale(1); }
 }
 
+@keyframes levelupHeroHover {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-0.8rem) scale(1.014); }
+}
+
+@keyframes levelupHeroStride {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+  50% { transform: translateY(-0.38rem) translateX(0.16rem) scale(1.008); }
+}
+
+@keyframes levelupHeroAscend {
+  0%, 100% { transform: translateY(-0.15rem) scale(1.01); }
+  50% { transform: translateY(-1.1rem) scale(1.025); }
+}
+
 @keyframes levelupAura {
   0%, 100% { opacity: 0.65; transform: translateX(-50%) scale(0.94); }
   50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
@@ -839,6 +878,14 @@
   .levelup-comeback-card,
   .levelup-briefing-banner { align-items: flex-start; flex-direction: column; }
   .levelup-briefing-banner .levelup-button-secondary { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .levelup-hero-art,
+  .levelup-hero-aura,
+  .levelup-hero-particles i {
+    animation: none !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

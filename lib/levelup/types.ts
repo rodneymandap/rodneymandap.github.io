@@ -54,6 +54,20 @@ export type LevelUpDashboard = {
 
 export type LevelUpHeroRank = "initiate" | "vanguard" | "ascendant";
 
+export const LEVELUP_HERO_APPEARANCE_LEVELS = [0, 51, 101, 201, 301, 401, 501, 601, 701, 801, 901] as const;
+
+export type LevelUpHeroAppearanceLevel = (typeof LEVELUP_HERO_APPEARANCE_LEVELS)[number];
+
+export type LevelUpHeroAppearance = {
+  baseLevel: LevelUpHeroAppearanceLevel;
+  imageSrc: string;
+  title: string;
+  evolution: number;
+  particleCount: number;
+  motion: "grounded" | "stride" | "hover" | "ascend";
+  raw: boolean;
+};
+
 export type LevelUpFeedback = {
   tone: "success" | "level" | "error";
   title: string;
@@ -177,9 +191,71 @@ export const LEVELUP_DIFFICULTY_XP: Record<LevelUpDifficulty, number> = {
 };
 
 export function getLevelUpHeroRank(level: number): LevelUpHeroRank {
-  if (level >= 10) return "ascendant";
-  if (level >= 5) return "vanguard";
+  if (level >= 901) return "ascendant";
+  if (level >= 301) return "vanguard";
   return "initiate";
+}
+
+const LEVELUP_HERO_APPEARANCE_TITLES: Record<LevelUpHeroAppearanceLevel, string> = {
+  0: "Rookie",
+  51: "Apprentice",
+  101: "Pathfinder",
+  201: "Sentinel",
+  301: "Vanguard",
+  401: "Commander",
+  501: "Champion",
+  601: "Warden",
+  701: "Sovereign",
+  801: "Paragon",
+  901: "Ascendant",
+};
+
+const LEVELUP_HERO_APPEARANCE_ASSETS: Record<LevelUpHeroAppearanceLevel, string> = {
+  0: "00",
+  51: "01",
+  101: "10",
+  201: "20",
+  301: "30",
+  401: "40",
+  501: "50",
+  601: "60",
+  701: "70",
+  801: "80",
+  901: "100",
+};
+
+const LEVELUP_HERO_APPEARANCE_MOTION: Record<LevelUpHeroAppearanceLevel, LevelUpHeroAppearance["motion"]> = {
+  0: "grounded",
+  51: "grounded",
+  101: "stride",
+  201: "stride",
+  301: "hover",
+  401: "hover",
+  501: "hover",
+  601: "hover",
+  701: "hover",
+  801: "ascend",
+  901: "ascend",
+};
+
+/** Resolves an unbounded player level to a capped visual progression. */
+export function getLevelUpHeroAppearance(level: number): LevelUpHeroAppearance {
+  const normalizedLevel = Math.max(0, Math.floor(level) || 0);
+  const baseLevel = [...LEVELUP_HERO_APPEARANCE_LEVELS]
+    .reverse()
+    .find((appearanceLevel) => normalizedLevel >= appearanceLevel) ?? 0;
+
+  const raw = baseLevel === 0 || baseLevel === 51;
+
+  return {
+    baseLevel,
+    imageSrc: `/levelup/aegis-level-${LEVELUP_HERO_APPEARANCE_ASSETS[baseLevel]}.png`,
+    title: LEVELUP_HERO_APPEARANCE_TITLES[baseLevel],
+    evolution: Math.min(100, Math.max(1, normalizedLevel - baseLevel + 1)),
+    particleCount: raw ? 1 : Math.min(10, Math.max(2, Math.ceil((normalizedLevel - baseLevel + 1) / 10) + 1)),
+    motion: LEVELUP_HERO_APPEARANCE_MOTION[baseLevel],
+    raw,
+  };
 }
 
 export function isLevelUpComebackDay(

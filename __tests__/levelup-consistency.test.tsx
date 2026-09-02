@@ -6,6 +6,7 @@ import { LevelUpHero } from "../components/levelup/LevelUpHero";
 import { LevelUpFeedback } from "../components/levelup/LevelUpFeedback";
 import {
   getLevelUpHeroRank,
+  getLevelUpHeroAppearance,
   isLevelUpComebackDay,
   type LevelUpMission,
 } from "../lib/levelup/types";
@@ -20,13 +21,45 @@ const missions: LevelUpMission[] = [
 describe("Level Up consistency loop", () => {
   it("maps hero ranks at the defined milestones", () => {
     expect(getLevelUpHeroRank(1)).toBe("initiate");
-    expect(getLevelUpHeroRank(5)).toBe("vanguard");
-    expect(getLevelUpHeroRank(10)).toBe("ascendant");
+    expect(getLevelUpHeroRank(301)).toBe("vanguard");
+    expect(getLevelUpHeroRank(901)).toBe("ascendant");
     const { rerender } = render(<LevelUpHero level={1} state="idle" />);
-    expect(screen.getByText("Initiate")).toBeInTheDocument();
-    rerender(<LevelUpHero level={10} state="celebrate" />);
+    expect(screen.getByText("Rookie")).toBeInTheDocument();
+    rerender(<LevelUpHero level={901} state="celebrate" />);
     expect(screen.getByText("Ascendant")).toBeInTheDocument();
     expect(screen.getByText(/Daily Clear/)).toBeInTheDocument();
+  });
+
+  it("resolves every level into a capped visual form with unique progression effects", () => {
+    expect(getLevelUpHeroAppearance(0)).toMatchObject({ baseLevel: 0, imageSrc: "/levelup/aegis-level-00.png", title: "Rookie", particleCount: 1 });
+    expect(getLevelUpHeroAppearance(50)).toMatchObject({ baseLevel: 0, raw: true });
+    expect(getLevelUpHeroAppearance(51)).toMatchObject({ baseLevel: 51, imageSrc: "/levelup/aegis-level-01.png", title: "Apprentice", raw: true });
+    expect(getLevelUpHeroAppearance(100)).toMatchObject({ baseLevel: 51, raw: true });
+    expect([101, 201, 301, 401, 501, 601, 701, 801, 901].map((level) => getLevelUpHeroAppearance(level).imageSrc)).toEqual([
+      "/levelup/aegis-level-10.png",
+      "/levelup/aegis-level-20.png",
+      "/levelup/aegis-level-30.png",
+      "/levelup/aegis-level-40.png",
+      "/levelup/aegis-level-50.png",
+      "/levelup/aegis-level-60.png",
+      "/levelup/aegis-level-70.png",
+      "/levelup/aegis-level-80.png",
+      "/levelup/aegis-level-100.png",
+    ]);
+    expect(getLevelUpHeroAppearance(555)).toMatchObject({ baseLevel: 501, title: "Champion", motion: "hover" });
+    expect(getLevelUpHeroAppearance(901)).toMatchObject({ baseLevel: 901, title: "Ascendant", motion: "ascend" });
+    expect(getLevelUpHeroAppearance(1800)).toMatchObject({ baseLevel: 901, evolution: 100 });
+  });
+
+  it("renders the resolved artwork and evolution hooks", () => {
+    const { rerender } = render(<LevelUpHero level={1} state="idle" />);
+    expect(screen.getByTestId("levelup-hero-art").querySelector("img")).toHaveAttribute("src", expect.stringContaining("aegis-level-00.png"));
+    expect(document.querySelector(".levelup-hero")).toHaveAttribute("data-evolution", "2");
+
+    rerender(<LevelUpHero level={901} state="idle" />);
+    expect(screen.getByTestId("levelup-hero-art").querySelector("img")).toHaveAttribute("src", expect.stringContaining("aegis-level-100.png"));
+    expect(document.querySelector(".levelup-hero")).toHaveClass("levelup-hero-motion-ascend");
+    expect(screen.getByText("Ascendant")).toBeInTheDocument();
   });
 
   it("derives comeback days without changing streak data", () => {
