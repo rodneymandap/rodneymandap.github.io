@@ -111,9 +111,11 @@ describe("Level Up dashboard", () => {
     expect(await screen.findByText("Prepare One Point")).toBeInTheDocument();
     expect(mockRequestLevelUpAi).toHaveBeenCalledWith({ action: "daily" });
     fireEvent.click(screen.getByRole("button", { name: "Review quest" }));
-    await waitFor(() =>
-      expect(screen.getByRole("dialog", { name: "Confirm mission" })).toBeInTheDocument()
-    );
+    await waitFor(() => {
+      const dialog = screen.getByRole("dialog", { name: "Confirm mission" });
+      expect(dialog).toBeInTheDocument();
+      expect(dialog.parentElement).toBe(document.body);
+    });
   });
 
   it("keeps Ask System focused on a single ephemeral coaching response", async () => {

@@ -23,7 +23,11 @@ import {
 } from "../../lib/levelup/types";
 
 function formatShortDate(value: string) {
-  return new Intl.DateTimeFormat("en-PH", { month: "short", day: "numeric" }).format(
+  return new Intl.DateTimeFormat("en-PH", {
+    month: "short",
+    day: "numeric",
+    timeZone: "Asia/Manila",
+  }).format(
     new Date(`${value}T00:00:00+08:00`)
   );
 }
@@ -76,7 +80,7 @@ function ProgressContent() {
   }, [dashboard]);
 
   const maxDailyXp = useMemo(
-    () => Math.max(1, ...(report?.daily.map((day) => day.xp) ?? [1])),
+    () => Math.max(1, ...(report?.daily.map((day) => Math.abs(day.xp)) ?? [1])),
     [report?.daily]
   );
   const maxStatXp = useMemo(
@@ -143,17 +147,17 @@ function ProgressContent() {
         <article className="levelup-metric-card"><LevelUpIcon name="crown" className="h-5 w-5 text-amber-300" /><p className="mt-5 text-3xl font-black text-white">{report.progress.best_streak}</p><p className="mt-1 text-xs font-bold uppercase tracking-[0.16em] text-slate-500">Best streak</p></article>
       </section>
 
-      <LevelUpSection title="30-day activity" detail={`${formatShortDate(report.from_date)} – ${formatShortDate(report.to_date)} · derived from confirmed completions`}>
+      <LevelUpSection title="30-day activity" detail={`${formatShortDate(report.from_date)} – ${formatShortDate(report.to_date)} · completed XP and missed-route deductions`}>
         <div className="levelup-panel p-5 sm:p-7">
           <div className="flex h-64 items-end gap-1 sm:gap-2" aria-label="Daily XP bar chart">
             {report.daily.map((day, index) => {
-              const height = day.xp === 0 ? 2 : Math.max(8, (day.xp / maxDailyXp) * 100);
+              const height = day.xp === 0 ? 2 : Math.max(8, (Math.abs(day.xp) / maxDailyXp) * 100);
               const showLabel = index === 0 || index === report.daily.length - 1 || index % 7 === 0;
               return (
                 <div key={day.date} className="group flex h-full min-w-0 flex-1 flex-col justify-end">
                   <div className="relative flex flex-1 items-end">
                     <span className="levelup-chart-tooltip">{formatShortDate(day.date)} · {day.xp} XP · {day.completions} missions</span>
-                    <span className={`w-full rounded-t-sm transition-colors ${day.xp ? "bg-gradient-to-t from-violet-600/70 to-cyan-300/90 group-hover:to-white" : "bg-slate-800"}`} style={{ height: `${height}%` }} />
+                    <span className={`w-full rounded-t-sm transition-colors ${day.xp > 0 ? "bg-gradient-to-t from-violet-600/70 to-cyan-300/90 group-hover:to-white" : day.xp < 0 ? "bg-gradient-to-t from-orange-950/80 to-orange-400/90" : "bg-slate-800"}`} style={{ height: `${height}%` }} />
                   </div>
                   <span className="mt-2 h-4 truncate text-center text-[9px] text-slate-600">{showLabel ? formatShortDate(day.date) : ""}</span>
                 </div>
@@ -180,7 +184,7 @@ function ProgressContent() {
             {activity.map((item) => (
               <article key={item.id} className="flex gap-4 p-5 sm:p-6">
                 <span className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl border ${item.type === "achievement_unlocked" ? "border-amber-400/20 bg-amber-400/10 text-amber-200" : "border-cyan-300/20 bg-cyan-300/[0.06] text-cyan-200"}`}><LevelUpIcon name={item.type === "achievement_unlocked" ? item.metadata.icon_key ?? "achievements" : "check"} /></span>
-                <div className="min-w-0 flex-1"><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"><h3 className="font-bold text-white">{item.title}</h3><time className="text-xs text-slate-600">{formatTimestamp(item.occurred_at)}</time></div><p className="mt-1 text-sm text-slate-500">{item.type === "achievement_unlocked" ? item.metadata.description : `Mission completed · +${item.metadata.xp_awarded ?? 0} ${item.metadata.stat_key ?? ""} XP`}</p></div>
+                <div className="min-w-0 flex-1"><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"><h3 className="font-bold text-white">{item.title}</h3><time className="text-xs text-slate-600">{formatTimestamp(item.occurred_at)}</time></div><p className="mt-1 text-sm text-slate-500">{item.type === "achievement_unlocked" ? item.metadata.description : item.type === "daily_focus_missed" ? `Missed daily quest · ${item.metadata.xp_delta ?? -25} XP` : `Mission completed · +${item.metadata.xp_awarded ?? 0} ${item.metadata.stat_key ?? ""} XP`}</p></div>
               </article>
             ))}
             {cursor && <div className="p-4 text-center"><button type="button" onClick={() => void loadMore()} disabled={loadingMore} className="levelup-button-secondary">{loadingMore ? "Loading history…" : "Load next 20"}</button></div>}

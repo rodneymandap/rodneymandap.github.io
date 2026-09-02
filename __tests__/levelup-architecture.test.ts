@@ -14,6 +14,10 @@ const presetMigration = fs.readFileSync(
   path.join(root, "supabase/migrations/202609010002_levelup_quest_presets.sql"),
   "utf8"
 );
+const penaltyMigration = fs.readFileSync(
+  path.join(root, "supabase/migrations/202609020001_levelup_missed_focus_penalties.sql"),
+  "utf8"
+);
 const middleware = fs.readFileSync(path.join(root, "middleware.ts"), "utf8");
 const vercel = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
 
@@ -66,5 +70,15 @@ describe("Level Up architecture safeguards", () => {
     expect(presetMigration).toContain("grant insert (preset_key)");
     expect(presetMigration).toContain("'preset_key', mission.preset_key");
     expect(presetMigration).not.toMatch(/cron|service_role|background worker/i);
+  });
+
+  it("records missed daily-focus penalties lazily and without scheduled infrastructure", () => {
+    expect(penaltyMigration).toContain("public.levelup_xp_adjustments");
+    expect(penaltyMigration).toContain("unique (user_id, focus_date, mission_id, adjustment_type)");
+    expect(penaltyMigration).toContain("reconcile_missed_daily_focus");
+    expect(penaltyMigration).toContain("focus.focus_date < v_today");
+    expect(penaltyMigration).toContain("greatest(0::bigint");
+    expect(penaltyMigration).toContain("'daily_focus_missed'");
+    expect(penaltyMigration).not.toMatch(/cron|service_role|background worker/i);
   });
 });

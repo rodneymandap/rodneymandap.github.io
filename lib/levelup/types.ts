@@ -50,6 +50,22 @@ export type LevelUpDashboard = {
   stats: LevelUpStat[];
   missions: LevelUpMission[];
   daily_focus: LevelUpFocusMission[];
+  new_penalties?: LevelUpPenalty[];
+  penalty_summary?: LevelUpPenaltySummary | null;
+};
+
+export type LevelUpPenalty = {
+  mission_id: string;
+  title: string;
+  focus_date: string;
+  xp_delta: number;
+  created_at: string;
+};
+
+export type LevelUpPenaltySummary = {
+  count: number;
+  xp_lost: number;
+  previous_level: number;
 };
 
 export type LevelUpHeroRank = "initiate" | "vanguard" | "ascendant";
@@ -69,7 +85,7 @@ export type LevelUpHeroAppearance = {
 };
 
 export type LevelUpFeedback = {
-  tone: "success" | "level" | "error";
+  tone: "success" | "level" | "error" | "penalty";
   title: string;
   message: string;
   xp?: number;
@@ -141,10 +157,11 @@ export type LevelUpProgressReport = {
 export type LevelUpActivityItem = {
   id: string;
   occurred_at: string;
-  type: "mission_completed" | "achievement_unlocked";
+  type: "mission_completed" | "achievement_unlocked" | "daily_focus_missed";
   title: string;
   metadata: {
     xp_awarded?: number;
+    xp_delta?: number;
     stat_key?: LevelUpStatKey;
     local_date?: string;
     achievement_slug?: string;
