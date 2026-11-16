@@ -6,7 +6,7 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://rodneymandap.github.io";
 const siteTitle = "Rodney Jan Mandap | Freelance Software Engineer";
 const siteDescription =
-  "Rodney Jan Mandap is a freelance software engineer building web applications and REST APIs and automating manual processes into end-to-end workflows.";
+  "Rodney Jan Mandap is a freelance software engineer building web applications and REST APIs, with network automation and broader end-to-end workflow automation experience.";
 const socialImageUrl = `${siteUrl}/myPic.jpeg`;
 const structuredData = {
   "@context": "https://schema.org",
@@ -26,6 +26,8 @@ const structuredData = {
     "Django REST Framework",
     "REST APIs",
     "Automation",
+    "Network automation",
+    "Workflow automation",
     "Internal tools",
     "Azure",
     "Docker",
@@ -51,7 +53,7 @@ const skillCategories: SkillCategory[] = [
   {
     id: "automation-scripting",
     category: "Automation & Scripting",
-    description: "process automation, scripting, end-to-end workflows",
+    description: "network automation, process automation, end-to-end workflows",
     skills: ["Python"],
   },
   {
@@ -129,7 +131,7 @@ const focusAreas: Array<NavLink & { description: string }> = [
   },
   {
     name: "Automation",
-    description: "End-to-end automated workflows",
+    description: "Network automation & other workflows",
     href: "#automation-scripting",
   },
   {
@@ -444,8 +446,8 @@ export default function Home(): JSX.Element {
               </h1>
               <p className="mt-6 max-w-xl text-base leading-[1.8] text-portfolio-muted sm:mt-8 sm:text-lg">
                 Hello, I&apos;m <strong className="font-bold text-portfolio-ink">Rodney Jan Mandap</strong>,
-                a software engineer building web applications and turning manual
-                processes into end-to-end automated workflows.
+                a software engineer building web applications and automating network
+                operations and other manual processes into end-to-end workflows.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-2 sm:mt-8 sm:gap-y-4">
                 <a
@@ -543,8 +545,9 @@ export default function Home(): JSX.Element {
                     products.
                   </p>
                   <p>
-                    I turn manual processes into end-to-end automated workflows
-                    that connect applications, infrastructure, and existing tools. My
+                    I automate network operations and other manual processes into
+                    end-to-end workflows that connect applications, infrastructure,
+                    and existing tools. My
                     background in automation and backend engineering allows me to
                     design systems that are reliable, maintainable, and safe to
                     operate in production.

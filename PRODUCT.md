@@ -18,7 +18,7 @@ Present Rodney Jan Mandap's professional experience, capabilities, and credentia
 
 The portfolio presents Rodney as a freelance software engineer building applications and software for internal and customer-facing products, with experience in Python, Django, automation, and APIs.
 
-Automation means turning manual processes into end-to-end automated workflows using existing tools and systems, not building an automation platform from scratch.
+Automation includes network automation and extends to other manual processes, connecting existing tools and systems into end-to-end workflows. Do not imply that Rodney builds automation platforms from scratch.
 
 ## Capabilities and Constraints
 

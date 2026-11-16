@@ -62,7 +62,7 @@ describe("Portfolio home", () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        /a software engineer building web applications and turning manual processes into end-to-end automated workflows/i
+        /a software engineer building web applications and automating network operations and other manual processes into end-to-end workflows/i
       )
     ).toBeInTheDocument();
     expect(screen.queryByText(/automation platforms/i)).not.toBeInTheDocument();
@@ -89,7 +89,7 @@ describe("Portfolio home", () => {
       screen.getByRole("link", { name: /Web applications.*Workflow tools/i })
     ).toHaveAttribute("href", "#about");
     expect(
-      screen.getByRole("link", { name: /Automation.*End-to-end automated workflows/i })
+      screen.getByRole("link", { name: /Automation.*Network automation & other workflows/i })
     ).toHaveAttribute("href", "#automation-scripting");
     expect(
       screen.getByRole("link", { name: /Backend systems.*APIs/i })
@@ -168,7 +168,7 @@ describe("Portfolio home", () => {
     );
     expect(document.querySelector('meta[name="description"]')).toHaveAttribute(
       "content",
-      expect.stringContaining("automating manual processes into end-to-end workflows")
+      expect.stringContaining("network automation and broader end-to-end workflow automation")
     );
     expect(document.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
   });
