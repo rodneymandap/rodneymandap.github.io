@@ -1,401 +1,253 @@
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
-import Home from '../pages/index';
-import '@testing-library/jest-dom';
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import Home from "../pages/index";
 
-// Mock Next.js modules
-jest.mock('next/head', () => {
-  return {
-    __esModule: true,
-    default: ({ children }: { children: Array<React.ReactElement> }) => {
-      return <>{children}</>;
-    },
-  };
-});
-
-jest.mock('next/image', () => ({
+jest.mock("next/head", () => ({
   __esModule: true,
-  default: (props: any) => {
+  default: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}));
+
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: ({
+    priority,
+    ...props
+  }: React.ImgHTMLAttributes<HTMLImageElement> & { priority?: boolean }) => {
+    void priority;
     // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text
     return <img {...props} />;
   },
 }));
 
-describe('Home Page', () => {
+const originalFetch = global.fetch;
+const fetchMock = jest.fn<Promise<Response>, Parameters<typeof fetch>>();
+
+function response(ok: boolean, data: object): Response {
+  return { ok, json: async () => data } as Response;
+}
+
+function fillContactForm(message = "I have a project to discuss."): void {
+  fireEvent.change(screen.getByLabelText(/^Name/), {
+    target: { value: "Alex Client" },
+  });
+  fireEvent.change(screen.getByLabelText(/^Email/), {
+    target: { value: "alex@example.com" },
+  });
+  fireEvent.change(screen.getByLabelText(/What would you like to discuss/), {
+    target: { value: "Automation" },
+  });
+  fireEvent.change(screen.getByLabelText(/^Message/), {
+    target: { value: message },
+  });
+}
+
+describe("Portfolio home", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    fetchMock.mockReset();
+    global.fetch = fetchMock;
   });
 
-  describe('Hero Section', () => {
-    it('renders hero section with name and title', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Rodney Jan Mandap')).toBeInTheDocument();
-      expect(screen.getAllByText('Software Engineer').length).toBeGreaterThan(0);
-    });
-
-    it('displays availability badge', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Available for Projects')).toBeInTheDocument();
-      expect(screen.getByLabelText('Current availability status')).toBeInTheDocument();
-    });
-
-    it('calculates and displays years of experience correctly', () => {
-      render(<Home />);
-
-      const currentYear = new Date().getFullYear();
-      const expectedYears = currentYear - 2017;
-
-      expect(screen.getByText(`${expectedYears}+`)).toBeInTheDocument();
-      expect(screen.getByText('Years Experience')).toBeInTheDocument();
-    });
-
-    it('displays call-to-action buttons', () => {
-      render(<Home />);
-
-      const hireButtons = screen.getAllByText('Talk to Me');
-      expect(hireButtons.length).toBeGreaterThan(0);
-    });
-
-    it('shows greeting text', () => {
-      render(<Home />);
-
-      expect(screen.getByText("Hello, I'm")).toBeInTheDocument();
-    });
+  afterAll(() => {
+    global.fetch = originalFetch;
   });
 
-  describe('Navigation', () => {
-    it('renders navigation links', () => {
-      render(<Home />);
+  it("introduces the work and keeps the existing experience and portrait", () => {
+    render(<Home />);
 
-      expect(screen.getByText('About')).toBeInTheDocument();
-      expect(screen.getByText('Skills')).toBeInTheDocument();
-      expect(screen.getAllByText('Certifications').length).toBeGreaterThan(0);
-      expect(screen.getByText('Contact')).toBeInTheDocument();
-    });
-
-    it('toggles mobile menu when hamburger is clicked', () => {
-      render(<Home />);
-
-      const hamburgerButton = screen.getByRole('button', { name: 'Open navigation menu' });
-      expect(hamburgerButton).toHaveAttribute('aria-expanded', 'false');
-
-      // Mobile menu should not be visible initially
-      const mobileLinks = screen.queryAllByText('About');
-      const initialCount = mobileLinks.length;
-
-      // Click to open
-      fireEvent.click(hamburgerButton);
-      expect(screen.getByRole('button', { name: 'Close navigation menu' })).toHaveAttribute('aria-expanded', 'true');
-
-      // Check that menu items are present
-      const openLinks = screen.queryAllByText('About');
-      expect(openLinks.length).toBeGreaterThanOrEqual(initialCount);
-    });
-
-    it('closes mobile menu when a link is clicked', () => {
-      render(<Home />);
-
-      const hamburgerButton = screen.getByRole('button', { name: 'Open navigation menu' });
-
-      // Open mobile menu
-      fireEvent.click(hamburgerButton);
-
-      // Click a navigation link
-      const aboutLinks = screen.getAllByText('About');
-      if (aboutLinks.length > 1) {
-        fireEvent.click(aboutLinks[aboutLinks.length - 1]);
-      }
-
-      // Menu should still be clickable (component handles this internally)
-      expect(hamburgerButton).toBeInTheDocument();
-    });
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Software & automation, built to work.",
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /a software engineer building web applications and automating network operations and other manual processes into end-to-end workflows/i
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/automation platforms/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Software Engineer Building Applications" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/a Python and Django engineer/i)
+    ).not.toBeInTheDocument();
+    expect(screen.getByAltText("Rodney Jan Mandap")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "View Rodney Jan Mandap's GitHub profile" })
+    ).toHaveAttribute("href", "https://github.com/rodneymandap");
+    expect(screen.getByText(`${new Date().getFullYear() - 2017}+`)).toBeInTheDocument();
+    expect(screen.getByText("Years Experience")).toBeInTheDocument();
+    expect(screen.queryByText("Available for Projects")).not.toBeInTheDocument();
+    expect(screen.queryByText("Primary Framework")).not.toBeInTheDocument();
   });
 
-  describe('About Section', () => {
-    it('renders about section content', () => {
-      render(<Home />);
+  it("links the work index and navigation to the relevant sections", () => {
+    render(<Home />);
 
-      expect(screen.getByText('About Me')).toBeInTheDocument();
-      expect(screen.getAllByText(/Software Engineer/).length).toBeGreaterThan(0);
-      expect(screen.getByText(/Building Internal Tools/)).toBeInTheDocument();
-    });
-
-    it('displays core technologies', () => {
-      render(<Home />);
-
-      expect(screen.getAllByText('Python').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Django').length).toBeGreaterThan(0);
-      expect(screen.getByText('Core Language')).toBeInTheDocument();
-      expect(screen.getByText('Primary Framework')).toBeInTheDocument();
-    });
-
-    it('shows feature cards with emojis', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Freelance Flexibility')).toBeInTheDocument();
-      expect(screen.getByText('Django Specialist')).toBeInTheDocument();
-      expect(screen.getByText('End-to-End Delivery')).toBeInTheDocument();
-    });
+    expect(
+      screen.getByRole("link", { name: /Web applications.*Workflow tools/i })
+    ).toHaveAttribute("href", "#about");
+    expect(
+      screen.getByRole("link", { name: /Automation.*Network automation & other workflows/i })
+    ).toHaveAttribute("href", "#automation-scripting");
+    expect(
+      screen.getByRole("link", { name: /Backend systems.*APIs/i })
+    ).toHaveAttribute("href", "#backend-development");
+    const navigation = screen.getByRole("navigation", { name: "Main navigation" });
+    expect(within(navigation).getByRole("link", { name: "Skills" })).toHaveAttribute(
+      "href",
+      "#skills"
+    );
+    expect(within(navigation).getByRole("link", { name: "Contact" })).toHaveAttribute(
+      "href",
+      "#contact"
+    );
   });
 
-  describe('Skills Section', () => {
-    it('renders skills section heading', () => {
-      render(<Home />);
+  it("opens the mobile menu and closes it after following a link", () => {
+    render(<Home />);
 
-      expect(screen.getByText('My Expertise')).toBeInTheDocument();
-      expect(screen.getByText('Skills & Technologies')).toBeInTheDocument();
-    });
+    const toggle = screen.getByRole("button", { name: "Open navigation menu" });
+    const menu = document.getElementById("mobile-navigation");
+    expect(menu).toHaveAttribute("hidden");
 
-    it('displays all primary skills with levels', () => {
-      render(<Home />);
+    fireEvent.click(toggle);
+    expect(screen.getByRole("button", { name: "Close navigation menu" })).toHaveAttribute(
+      "aria-expanded",
+      "true"
+    );
+    expect(menu).not.toHaveAttribute("hidden");
 
-      // Check for main skills (using getAllByText for skills that appear multiple times)
-      expect(screen.getAllByText('Python').length).toBeGreaterThan(0);
-      expect(screen.getAllByText('Django').length).toBeGreaterThan(0);
-      expect(screen.getByText('Docker')).toBeInTheDocument();
-      expect(screen.getAllByText('Azure').length).toBeGreaterThan(0);
-      expect(screen.getByText('PostgreSQL')).toBeInTheDocument();
-      expect(screen.getByText('REST APIs')).toBeInTheDocument();
-      expect(screen.getByText('Linux')).toBeInTheDocument();
-      expect(screen.getByText('CI/CD')).toBeInTheDocument();
-    });
-
-    it('displays skill percentages', () => {
-      render(<Home />);
-
-      // Check for percentage values
-      expect(screen.getByText('94%')).toBeInTheDocument(); // Python
-      expect(screen.getAllByText('88%').length).toBeGreaterThan(0); // Django and Linux
-    });
-
-    it('shows additional technologies', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Django REST Framework')).toBeInTheDocument();
-      expect(screen.getByText('Celery')).toBeInTheDocument();
-      expect(screen.getByText('Redis')).toBeInTheDocument();
-      expect(screen.getByText('Git')).toBeInTheDocument();
-    });
+    fireEvent.click(within(menu as HTMLElement).getByRole("link", { name: "About" }));
+    expect(menu).toHaveAttribute("hidden");
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
   });
 
-  describe('Certifications Section', () => {
-    it('renders certifications section', () => {
-      render(<Home />);
+  it("retains skills, credentials, and their real external links", () => {
+    render(<Home />);
 
-      expect(screen.getByText('Credentials')).toBeInTheDocument();
-      // Use getAllByText since "Certifications" appears in navigation and section heading
-      expect(screen.getAllByText('Certifications').length).toBeGreaterThan(0);
+    expect(screen.getByRole("heading", { name: "Skills & Technologies" })).toBeInTheDocument();
+    expect(screen.getAllByText("Python").length).toBeGreaterThan(0);
+    expect(screen.getByText("Django")).toBeInTheDocument();
+    expect(screen.queryByText("94%")).not.toBeInTheDocument();
+    expect(screen.getByText("Django REST Framework")).toBeInTheDocument();
+    expect(screen.getByText("ID: AZ-900")).toBeInTheDocument();
+    expect(screen.getByText("ID: AZ-104")).toBeInTheDocument();
+
+    const certificate = screen.getByRole("link", {
+      name: "View Azure Fundamentals certificate (opens in a new tab)",
     });
-
-    it('displays Azure certifications', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Azure Fundamentals')).toBeInTheDocument();
-      expect(screen.getByText('Azure Administrator Associate')).toBeInTheDocument();
-    });
-
-    it('renders certification icons', () => {
-      render(<Home />);
-
-      // Check for SVG icons (Azure icons)
-      const azureIcons = screen.getAllByAltText('Microsoft');
-      expect(azureIcons.length).toBe(2);
-    });
-
-    it('shows certification details', () => {
-      render(<Home />);
-
-      expect(screen.getAllByText('Microsoft').length).toBe(2);
-      expect(screen.getByText('2021')).toBeInTheDocument();
-      expect(screen.getByText('2023')).toBeInTheDocument();
-    });
-
-    it('displays credential IDs', () => {
-      render(<Home />);
-
-      expect(screen.getByText('ID: AZ-900')).toBeInTheDocument();
-      expect(screen.getByText('ID: AZ-104')).toBeInTheDocument();
-    });
-
-    it('has links to view certificates', () => {
-      render(<Home />);
-
-      const certLinks = screen.getAllByText('View Certificate');
-      expect(certLinks.length).toBe(2);
-
-      certLinks.forEach(link => {
-        expect(link.closest('a')).toHaveAttribute('target', '_blank');
-        expect(link.closest('a')).toHaveAttribute('rel', 'noopener noreferrer');
-      });
-    });
+    expect(certificate).toHaveAttribute(
+      "href",
+      "https://www.credly.com/badges/0173669e-f050-424d-999a-f661555905a2/public_url"
+    );
+    expect(certificate).toHaveAttribute("target", "_blank");
+    expect(certificate).toHaveAttribute("rel", "noopener noreferrer");
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveAttribute(
+      "href",
+      "https://github.com/rodneymandap"
+    );
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/rjmandap/"
+    );
   });
 
-  describe('Contact Section', () => {
-    it('renders contact section', () => {
-      render(<Home />);
+  it("keeps the existing search and social metadata", () => {
+    render(<Home />);
 
-      expect(screen.getByText('Get In Touch')).toBeInTheDocument();
-      expect(screen.getByText("Let's Build Something Great")).toBeInTheDocument();
-    });
-
-    it('displays contact form fields', () => {
-      render(<Home />);
-
-      expect(screen.getByPlaceholderText('Your Name')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText('your@email.com')).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/e.g., Web Application/)).toBeInTheDocument();
-      expect(screen.getByPlaceholderText(/Tell me about your project/)).toBeInTheDocument();
-    });
-
-    it('has a submit button', () => {
-      render(<Home />);
-
-      const submitButton = screen.getByText('Send Message');
-      expect(submitButton).toBeInTheDocument();
-      expect(submitButton.closest('button')).toHaveAttribute('type', 'submit');
-    });
-
-
-
-    it('displays social media links', () => {
-      render(<Home />);
-
-      const githubLink = screen.getByText('GitHub').closest('a');
-      const linkedinLink = screen.getByText('LinkedIn').closest('a');
-
-      expect(githubLink).toHaveAttribute('href', 'https://github.com/rodneymandap');
-      expect(linkedinLink).toHaveAttribute('href', 'https://www.linkedin.com/in/rjmandap/');
-    });
+    expect(screen.getByText("Rodney Jan Mandap | Freelance Software Engineer")).toBeInTheDocument();
+    expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
+      "href",
+      "https://rodneymandap.github.io"
+    );
+    expect(document.querySelector('meta[property="og:title"]')).toHaveAttribute(
+      "content",
+      "Rodney Jan Mandap | Freelance Software Engineer"
+    );
+    expect(document.querySelector('meta[name="description"]')).toHaveAttribute(
+      "content",
+      expect.stringContaining("network automation and broader end-to-end workflow automation")
+    );
+    expect(document.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
   });
 
-  describe('Footer', () => {
-    it('renders footer with copyright', () => {
-      render(<Home />);
+  it("submits the contact form, disables it while sending, and clears it on success", async () => {
+    let resolveRequest: (value: Response) => void = () => {
+      throw new Error("Request was not started");
+    };
+    fetchMock.mockReturnValue(
+      new Promise((resolve) => {
+        resolveRequest = resolve;
+      })
+    );
+    render(<Home />);
+    fillContactForm();
 
-      const currentYear = new Date().getFullYear();
-      expect(screen.getByText(new RegExp(`${currentYear}.*Rodney Jan Mandap`))).toBeInTheDocument();
+    fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Alex Client",
+        email: "alex@example.com",
+        projectType: "Automation",
+        message: "I have a project to discuss.",
+        honeypot: "",
+      }),
+    });
+    expect(screen.getByRole("button", { name: "Sending..." })).toBeDisabled();
+    expect(screen.getByLabelText(/^Name/)).toBeDisabled();
+
+    await act(async () => {
+      resolveRequest(response(true, { success: true }));
     });
 
-    it('displays role in footer', () => {
-      render(<Home />);
-
-      expect(screen.getByText('Freelance Software Engineer')).toBeInTheDocument();
-    });
+    expect(screen.getByRole("status")).toHaveTextContent("Message sent successfully");
+    expect(screen.getByLabelText(/^Name/)).toHaveValue("");
+    expect(screen.getByLabelText(/^Message/)).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Send Message" })).toBeEnabled();
   });
 
-  describe('SEO and Meta', () => {
-    it('sets page title', () => {
-      render(<Home />);
+  it("keeps the message and announces a server error", async () => {
+    fetchMock.mockResolvedValue(
+      response(false, { error: "Too many requests", details: "Please try again later." })
+    );
+    render(<Home />);
+    fillContactForm();
 
-      // The title is set in the Head component
-      expect(screen.getByText('Rodney Jan Mandap | Freelance Software Engineer')).toBeInTheDocument();
-    });
+    fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
-    it('sets social sharing and structured metadata', () => {
-      render(<Home />);
-
-      expect(document.querySelector('link[rel="canonical"]')).toHaveAttribute(
-        'href',
-        'https://rodneymandap.github.io'
-      );
-      expect(document.querySelector('meta[property="og:title"]')).toHaveAttribute(
-        'content',
-        'Rodney Jan Mandap | Freelance Software Engineer'
-      );
-      expect(document.querySelector('meta[name="twitter:card"]')).toHaveAttribute(
-        'content',
-        'summary_large_image'
-      );
-      expect(document.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("alert")).toHaveTextContent("Please try again later.");
+    expect(screen.getByLabelText(/^Message/)).toHaveValue("I have a project to discuss.");
+    expect(screen.getByRole("button", { name: "Send Message" })).toBeEnabled();
   });
 
-  describe('Responsive Design', () => {
-    it('renders logo images with error handling', () => {
-      render(<Home />);
+  it("reports network failures without losing the message", async () => {
+    const logError = jest.spyOn(console, "error").mockImplementation(() => {});
+    fetchMock.mockRejectedValue(new Error("Network unavailable"));
+    render(<Home />);
+    fillContactForm();
 
-      const images = screen.getAllByAltText('RJM Logo');
-      expect(images.length).toBeGreaterThan(0);
-    });
+    fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
-    it('handles logo image load errors in navigation', () => {
-      render(<Home />);
-
-      const images = screen.getAllByAltText('RJM Logo');
-      const navLogo = images[0];
-
-      // Simulate image load error
-      fireEvent.error(navLogo);
-
-      // The image should be hidden and replaced with text
-      expect(navLogo.style.display).toBe('none');
-    });
-
-    it('handles logo image load errors in footer', () => {
-      render(<Home />);
-
-      const images = screen.getAllByAltText('RJM Logo');
-      const footerLogo = images[images.length - 1];
-
-      // Simulate image load error
-      fireEvent.error(footerLogo);
-
-      // The image should be hidden
-      expect(footerLogo.style.display).toBe('none');
-    });
-
-    it('displays profile image', () => {
-      render(<Home />);
-
-      const profileImage = screen.getByAltText('Rodney Jan Mandap');
-      expect(profileImage).toBeInTheDocument();
-    });
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "An error occurred. Please try again later."
+    );
+    expect(screen.getByLabelText(/^Message/)).toHaveValue("I have a project to discuss.");
+    expect(logError).toHaveBeenCalled();
+    logError.mockRestore();
   });
 
-  describe('Interactive Elements', () => {
-    it('labels icon-only buttons for assistive technology', () => {
-      render(<Home />);
+  it("rejects a message shorter than ten characters before submitting", () => {
+    render(<Home />);
+    fillContactForm("Too short");
 
-      expect(screen.getByRole('button', { name: 'Open navigation menu' })).toBeInTheDocument();
-    });
+    fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
-    it('has working navigation anchors', () => {
-      render(<Home />);
-
-      const aboutLink = screen.getAllByText('About')[0];
-      expect(aboutLink.closest('a')).toHaveAttribute('href', '#about');
-
-      const skillsLink = screen.getAllByText('Skills')[0];
-      expect(skillsLink.closest('a')).toHaveAttribute('href', '#skills');
-
-      const contactLink = screen.getAllByText('Contact')[0];
-      expect(contactLink.closest('a')).toHaveAttribute('href', '#contact');
-    });
-
-    it('has external links that open in new tab', () => {
-      render(<Home />);
-
-      const certLinks = screen.getAllByText('View Certificate');
-      certLinks.forEach(link => {
-        expect(link.closest('a')).toHaveAttribute('target', '_blank');
-      });
-    });
-  });
-
-  describe('Animation and Styling', () => {
-    it('applies gradient text to specific elements', () => {
-      render(<Home />);
-
-      const gradientElements = document.querySelectorAll('.gradient-text');
-      expect(gradientElements.length).toBeGreaterThan(0);
-    });
-
-    it('has floating animation elements', () => {
-      render(<Home />);
-
-      const floatingElements = document.querySelectorAll('.animate-float');
-      expect(floatingElements.length).toBeGreaterThan(0);
-    });
+    expect(screen.getByRole("alert")).toHaveTextContent("at least 10 characters");
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
