@@ -10,8 +10,6 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 - ✅ **Validation** - Client-side and server-side validation
 - 🎨 **Modern UI** - Responsive design with Tailwind CSS
 - ✨ **Toast Notifications** - User-friendly success/error feedback
-- 🤖 **YNAB MCP Server** - Read-only MCP endpoint for AI-assisted personal budget queries
-- ⚔️ **Level Up** - Private RPG-inspired personal growth dashboard backed by Supabase
 
 ## Getting Started
 
@@ -162,33 +160,6 @@ Check out the [Next.js deployment documentation](https://nextjs.org/docs/deploym
 | `CONTACT_EMAIL` | Email address to receive contact form submissions | Yes |
 | `FROM_EMAIL` | Sender email address (must be verified in Resend) | No (defaults to onboarding@resend.dev) |
 | `SEND_AUTO_REPLY` | Set to `true` to send auto-reply to submitters | No (defaults to false) |
-| `NEXT_PUBLIC_SUPABASE_URL` | Existing Supabase project URL for `/levelup` | Yes for Level Up |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public Supabase key; access remains protected by RLS | Yes for Level Up |
-
-### Level Up
-
-The private application is available at `/levelup` and uses Supabase Auth, PostgreSQL, and Row Level Security. It intentionally has no public registration, cron jobs, polling, Realtime subscriptions, file storage, background workers, or AI dependency.
-
-Apply the migration and authorize the owner account by following [docs/levelup.md](docs/levelup.md).
-
-### YNAB MCP Server
-
-The YNAB MCP endpoint is available at `/api/ynab-mcp`. It is designed for personal AI clients and keeps the YNAB token server-side.
-
-Required Vercel environment variable:
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `YNAB_CLIENT_ID` | OAuth application client ID from YNAB Developer Settings | Yes for multi-user OAuth |
-| `YNAB_CLIENT_SECRET` | OAuth application client secret from YNAB Developer Settings | Yes for multi-user OAuth |
-| `YNAB_REDIRECT_URI` | OAuth callback URL | Recommended |
-| `UPSTASH_REDIS_REST_URL` | Persistent OAuth token store URL | Yes for production OAuth |
-| `UPSTASH_REDIS_REST_TOKEN` | Persistent OAuth token store token | Yes for production OAuth |
-| `YNAB_ACCESS_TOKEN` | Owner-only fallback personal access token from YNAB Developer Settings | Optional |
-| `MCP_API_KEY` | Owner-only fallback shared secret | Optional |
-| `YNAB_API_BASE` | YNAB API base URL | No (defaults to https://api.ynab.com/v1) |
-
-See [docs/ynab-mcp.md](docs/ynab-mcp.md) for setup and provisioning steps.
 
 ## Security Features
 
