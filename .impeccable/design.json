@@ -1,0 +1,336 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-16T23:10:34.054+08:00",
+  "title": "Design System: Rodney Jan Mandap Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Soft light ink",
+        "description": "Primary text and subtle rules.",
+        "tonalRamp": [
+          "oklch(from #e4edf4 15% c h)",
+          "oklch(from #e4edf4 27% c h)",
+          "oklch(from #e4edf4 38% c h)",
+          "oklch(from #e4edf4 50% c h)",
+          "oklch(from #e4edf4 61% c h)",
+          "oklch(from #e4edf4 72% c h)",
+          "oklch(from #e4edf4 84% c h)",
+          "oklch(from #e4edf4 95% c h)"
+        ]
+      },
+      "blue": {
+        "role": "primary",
+        "displayName": "Soft blue",
+        "description": "Headline emphasis, link accents, hover, and focus.",
+        "tonalRamp": [
+          "oklch(from #9ac8ef 15% c h)",
+          "oklch(from #9ac8ef 27% c h)",
+          "oklch(from #9ac8ef 38% c h)",
+          "oklch(from #9ac8ef 50% c h)",
+          "oklch(from #9ac8ef 61% c h)",
+          "oklch(from #9ac8ef 72% c h)",
+          "oklch(from #9ac8ef 84% c h)",
+          "oklch(from #9ac8ef 95% c h)"
+        ]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Deep blue",
+        "description": "Flat feature fields and contact background.",
+        "tonalRamp": [
+          "oklch(from #1d3142 15% c h)",
+          "oklch(from #1d3142 27% c h)",
+          "oklch(from #1d3142 38% c h)",
+          "oklch(from #1d3142 50% c h)",
+          "oklch(from #1d3142 61% c h)",
+          "oklch(from #1d3142 72% c h)",
+          "oklch(from #1d3142 84% c h)",
+          "oklch(from #1d3142 95% c h)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Dark canvas",
+        "description": "Main page background.",
+        "tonalRamp": [
+          "oklch(from #101923 15% c h)",
+          "oklch(from #101923 27% c h)",
+          "oklch(from #101923 38% c h)",
+          "oklch(from #101923 50% c h)",
+          "oklch(from #101923 61% c h)",
+          "oklch(from #101923 72% c h)",
+          "oklch(from #101923 84% c h)",
+          "oklch(from #101923 95% c h)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted blue-gray",
+        "description": "Supporting text on dark fields.",
+        "tonalRamp": [
+          "oklch(from #adc1ce 15% c h)",
+          "oklch(from #adc1ce 27% c h)",
+          "oklch(from #adc1ce 38% c h)",
+          "oklch(from #adc1ce 50% c h)",
+          "oklch(from #adc1ce 61% c h)",
+          "oklch(from #adc1ce 72% c h)",
+          "oklch(from #adc1ce 84% c h)",
+          "oklch(from #adc1ce 95% c h)"
+        ]
+      },
+      "light": {
+        "role": "neutral",
+        "displayName": "Light blue-gray",
+        "description": "Supporting text on deep fields.",
+        "tonalRamp": [
+          "oklch(from #adc1ce 15% c h)",
+          "oklch(from #adc1ce 27% c h)",
+          "oklch(from #adc1ce 38% c h)",
+          "oklch(from #adc1ce 50% c h)",
+          "oklch(from #adc1ce 61% c h)",
+          "oklch(from #adc1ce 72% c h)",
+          "oklch(from #adc1ce 84% c h)",
+          "oklch(from #adc1ce 95% c h)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "description": "High-contrast text and rules on deep fields.",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(38% 0 0)",
+          "oklch(50% 0 0)",
+          "oklch(61% 0 0)",
+          "oklch(72% 0 0)",
+          "oklch(84% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "deep": {
+        "role": "neutral",
+        "displayName": "Deep ink",
+        "description": "Skills section, identity panel, and footer.",
+        "tonalRamp": [
+          "oklch(from #0a121b 15% c h)",
+          "oklch(from #0a121b 27% c h)",
+          "oklch(from #0a121b 38% c h)",
+          "oklch(from #0a121b 50% c h)",
+          "oklch(from #0a121b 61% c h)",
+          "oklch(from #0a121b 72% c h)",
+          "oklch(from #0a121b 84% c h)",
+          "oklch(from #0a121b 95% c h)"
+        ]
+      },
+      "field": {
+        "role": "neutral",
+        "displayName": "Field",
+        "description": "Contact field and notification backgrounds.",
+        "tonalRamp": [
+          "oklch(from #142536 15% c h)",
+          "oklch(from #142536 27% c h)",
+          "oklch(from #142536 38% c h)",
+          "oklch(from #142536 50% c h)",
+          "oklch(from #142536 61% c h)",
+          "oklch(from #142536 72% c h)",
+          "oklch(from #142536 84% c h)",
+          "oklch(from #142536 95% c h)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "description": "Visible field borders.",
+        "tonalRamp": [
+          "oklch(from #7898b0 15% c h)",
+          "oklch(from #7898b0 27% c h)",
+          "oklch(from #7898b0 38% c h)",
+          "oklch(from #7898b0 50% c h)",
+          "oklch(from #7898b0 61% c h)",
+          "oklch(from #7898b0 72% c h)",
+          "oklch(from #7898b0 84% c h)",
+          "oklch(from #7898b0 95% c h)"
+        ]
+      },
+      "button": {
+        "role": "secondary",
+        "displayName": "Button",
+        "description": "Primary action fill.",
+        "tonalRamp": [
+          "oklch(from #b4d5ef 15% c h)",
+          "oklch(from #b4d5ef 27% c h)",
+          "oklch(from #b4d5ef 38% c h)",
+          "oklch(from #b4d5ef 50% c h)",
+          "oklch(from #b4d5ef 61% c h)",
+          "oklch(from #b4d5ef 72% c h)",
+          "oklch(from #b4d5ef 84% c h)",
+          "oklch(from #b4d5ef 95% c h)"
+        ]
+      },
+      "button-hover": {
+        "role": "secondary",
+        "displayName": "Button hover",
+        "description": "Primary action hover fill.",
+        "tonalRamp": [
+          "oklch(from #d2e8fa 15% c h)",
+          "oklch(from #d2e8fa 27% c h)",
+          "oklch(from #d2e8fa 38% c h)",
+          "oklch(from #d2e8fa 50% c h)",
+          "oklch(from #d2e8fa 61% c h)",
+          "oklch(from #d2e8fa 72% c h)",
+          "oklch(from #d2e8fa 84% c h)",
+          "oklch(from #d2e8fa 95% c h)"
+        ]
+      },
+      "button-text": {
+        "role": "neutral",
+        "displayName": "Button text",
+        "description": "Text on primary actions.",
+        "tonalRamp": [
+          "oklch(from #101f2b 15% c h)",
+          "oklch(from #101f2b 27% c h)",
+          "oklch(from #101f2b 38% c h)",
+          "oklch(from #101f2b 50% c h)",
+          "oklch(from #101f2b 61% c h)",
+          "oklch(from #101f2b 72% c h)",
+          "oklch(from #101f2b 84% c h)",
+          "oklch(from #101f2b 95% c h)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Condensed display",
+        "purpose": "Repeated section headings; the opening statement uses a larger fluid expression."
+      },
+      "title": {
+        "displayName": "Index title",
+        "purpose": "Specialty names, categories, and short highlights."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Longer paragraphs with open leading."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Form labels and bold action text."
+      }
+    },
+    "motion": [
+      {
+        "name": "interaction-transition",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Color changes and the index-arrow transform; the arrow transition is removed for reduced motion."
+      },
+      {
+        "name": "anchor-scroll",
+        "value": "smooth",
+        "purpose": "In-page scrolling; reduced-motion preferences restore auto scrolling."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A square filled action with a right-pointing arrow.",
+      "html": "<button class=\"ds-primary\" type=\"button\">Send Message <svg class=\"ds-primary-arrow\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-primary { box-sizing: border-box; display: inline-flex; min-height: 3rem; align-items: center; justify-content: center; gap: 2rem; border: 0; border-radius: 0; background: #b4d5ef; color: #101f2b; padding: 0.75rem 1.5rem; font-family: Manrope, Arial, sans-serif; font-size: 0.875rem; line-height: 1.25rem; font-weight: 700; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-primary:hover { background: #d2e8fa; } .ds-primary:focus-visible { outline: 2px solid #9ac8ef; outline-offset: 4px; } .ds-primary:disabled { cursor: not-allowed; opacity: 0.6; } .ds-primary-arrow { width: 1.25rem; height: 1.25rem; }"
+    },
+    {
+      "name": "Inline Link",
+      "kind": "custom",
+      "refersTo": "link-inline",
+      "description": "A bold underlined secondary action on a dark field.",
+      "html": "<a class=\"ds-inline-link\" href=\"#about\">More about me <svg class=\"ds-inline-arrow\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></a>",
+      "css": ".ds-inline-link { box-sizing: border-box; display: inline-flex; min-height: 3rem; align-items: center; gap: 0.5rem; color: #e4edf4; font-family: Manrope, Arial, sans-serif; font-size: 0.875rem; line-height: 1.25rem; font-weight: 700; text-decoration: underline; text-decoration-color: #9ac8ef; text-underline-offset: 4px; } .ds-inline-link:hover { color: #9ac8ef; } .ds-inline-link:focus-visible { outline: 2px solid #9ac8ef; outline-offset: 4px; } .ds-inline-arrow { width: 1rem; height: 1rem; }"
+    },
+    {
+      "name": "Contact Field",
+      "kind": "input",
+      "refersTo": "field",
+      "description": "A labeled dark field with a blue focus ring.",
+      "html": "<label class=\"ds-field-label\" for=\"ds-name\">Name <span aria-hidden=\"true\">*</span></label><input class=\"ds-field\" id=\"ds-name\" name=\"name\" type=\"text\" placeholder=\"Your Name\" autocomplete=\"name\" required>",
+      "css": ".ds-field-label { display: block; margin-bottom: 0.5rem; color: #e4edf4; font-family: Manrope, Arial, sans-serif; font-size: 0.875rem; line-height: 1.25rem; font-weight: 700; } .ds-field { box-sizing: border-box; width: 100%; min-height: 3.25rem; border: 1px solid #7898b0; border-radius: 0; background: #142536; padding: 0.75rem 1rem; color: #e4edf4; font-family: Manrope, Arial, sans-serif; font-size: 1rem; line-height: 1.5rem; font-weight: 400; } .ds-field::placeholder { color: #adc1ce; opacity: 1; } .ds-field:hover { border-color: #7898b0; } .ds-field:focus, .ds-field:focus-visible { border-color: #9ac8ef; outline: 2px solid transparent; outline-offset: 2px; box-shadow: 0 0 0 2px #9ac8ef; } .ds-field:disabled { cursor: not-allowed; opacity: 0.6; }"
+    },
+    {
+      "name": "Main Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Responsive dark navigation. The mobile preview uses native details; unlike the React menu, it does not close when a link is selected.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Main navigation\"><div class=\"ds-nav-inner\"><div class=\"ds-desktop-nav\"><a class=\"ds-nav-brand\" href=\"#hero\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">RM</span><span class=\"ds-nav-name\">Rodney Jan Mandap<span class=\"ds-nav-role\">Software Engineer</span></span></a><div class=\"ds-nav-links\"><a class=\"ds-nav-link\" href=\"#about\">About</a><a class=\"ds-nav-link\" href=\"#skills\">Skills</a><a class=\"ds-nav-link\" href=\"#certifications\">Certifications</a><a class=\"ds-nav-link\" href=\"#contact\">Contact</a></div></div><div class=\"ds-mobile-layout\"><a class=\"ds-nav-brand ds-mobile-brand\" href=\"#hero\"><span class=\"ds-nav-mark\" aria-hidden=\"true\">RM</span><span class=\"ds-nav-name\">Rodney Jan Mandap<span class=\"ds-nav-role\">Software Engineer</span></span></a><details class=\"ds-mobile-nav\"><summary class=\"ds-mobile-header\"><span class=\"ds-menu-word\">Menu</span><span class=\"ds-close-word\">Close</span><svg class=\"ds-menu-open-icon\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" d=\"M4 8h16M4 16h16\"/></svg><svg class=\"ds-menu-close-icon\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" d=\"M5 5l14 14M19 5 5 19\"/></svg></summary><div class=\"ds-mobile-links\"><a href=\"#about\">About</a><a href=\"#skills\">Skills</a><a href=\"#certifications\">Certifications</a><a href=\"#contact\">Contact</a></div></details></div></div></nav>",
+      "css": ".ds-nav { border-bottom: 1px solid rgba(228, 237, 244, 0.15); background: #101923; color: #e4edf4; font-family: Manrope, Arial, sans-serif; } .ds-nav-inner { box-sizing: border-box; max-width: 1440px; margin: 0 auto; padding: 0 1.5rem; } .ds-desktop-nav { display: none; min-height: 5rem; align-items: center; justify-content: space-between; gap: 1.5rem; } .ds-nav-brand { display: inline-flex; align-items: center; gap: 0.75rem; color: inherit; text-decoration: none; } .ds-nav-mark { display: flex; width: 2.5rem; height: 2.5rem; align-items: center; justify-content: center; background: #b4d5ef; color: #101f2b; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 1.25rem; line-height: 1.75rem; font-weight: 700; letter-spacing: 0.025em; } .ds-nav-name { white-space: nowrap; font-size: 0.75rem; line-height: 1.25; font-weight: 700; } .ds-nav-role { display: block; margin-top: 0.125rem; color: #adc1ce; font-size: 0.75rem; line-height: 1rem; font-weight: 500; } .ds-nav-links { display: flex; align-items: center; gap: 2rem; } .ds-nav-link { color: #e4edf4; font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; text-decoration: none; transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-nav-link:hover { color: #9ac8ef; } .ds-nav-brand:focus-visible, .ds-nav-link:focus-visible, .ds-mobile-header:focus-visible { outline: 2px solid #9ac8ef; outline-offset: 4px; } .ds-mobile-layout { display: grid; grid-template-columns: minmax(0, 1fr) auto; } .ds-mobile-brand { grid-column: 1; grid-row: 1; align-self: start; justify-self: start; position: relative; z-index: 1; margin: 1.25rem 0; } .ds-mobile-nav { grid-column: 1 / -1; grid-row: 1; min-width: 0; } .ds-mobile-header { display: flex; width: max-content; min-height: 2.75rem; align-items: center; gap: 0.75rem; margin: 1.125rem 0 1.125rem auto; list-style: none; cursor: pointer; font-size: 0.875rem; line-height: 1.25rem; font-weight: 700; } .ds-mobile-header::-webkit-details-marker { display: none; } .ds-menu-open-icon, .ds-menu-close-icon { width: 1.5rem; height: 1.5rem; } .ds-close-word, .ds-menu-close-icon { display: none; } .ds-mobile-nav[open] .ds-menu-word, .ds-mobile-nav[open] .ds-menu-open-icon { display: none; } .ds-mobile-nav[open] .ds-close-word, .ds-mobile-nav[open] .ds-menu-close-icon { display: block; } .ds-mobile-links { display: grid; border-top: 1px solid rgba(228, 237, 244, 0.15); padding: 0.75rem 0; } .ds-mobile-links a { padding: 0.75rem 0; color: #e4edf4; font-size: 0.875rem; line-height: 1.25rem; font-weight: 600; text-decoration: none; } .ds-mobile-links a:focus-visible { outline: 2px solid #9ac8ef; outline-offset: 2px; } @media (min-width: 640px) { .ds-nav-inner { padding: 0 2.5rem; } .ds-nav-name { font-size: 0.875rem; } } @media (min-width: 768px) { .ds-mobile-layout { display: none; } .ds-desktop-nav { display: flex; } } @media (min-width: 1024px) { .ds-nav-inner { padding: 0 4rem; } }"
+    },
+    {
+      "name": "Ruled Work Index",
+      "kind": "custom",
+      "refersTo": "work-index",
+      "description": "A blue field with ruled, linked specialties and a moving arrow.",
+      "html": "<aside class=\"ds-index\"><h2 class=\"ds-index-heading\">Areas of work</h2><ul class=\"ds-index-list\"><li class=\"ds-index-item\"><a class=\"ds-index-link\" href=\"#automation-scripting\"><span><span class=\"ds-index-title\">Automation</span><span class=\"ds-index-description\">Python services &amp; scripting</span></span><svg class=\"ds-index-arrow\" aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" d=\"M4 12h16m-6-6 6 6-6 6\"/></svg></a></li></ul></aside>",
+      "css": ".ds-index { background: #1d3142; padding: 1.5rem; color: #e4edf4; font-family: Manrope, Arial, sans-serif; } .ds-index-heading { margin: 0; font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 1.875rem; line-height: 2.25rem; font-weight: 600; } .ds-index-list { margin: 1.25rem 0 0; padding: 0; border-top: 1px solid rgba(228, 237, 244, 0.25); list-style: none; } .ds-index-item { border-bottom: 1px solid rgba(228, 237, 244, 0.25); } .ds-index-link { box-sizing: border-box; display: flex; min-height: 5.5rem; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 0; color: #e4edf4; text-decoration: none; } .ds-index-link:focus-visible { outline: 2px solid #9ac8ef; outline-offset: 2px; } .ds-index-title { display: block; font-size: 1.125rem; line-height: 1.75rem; font-weight: 700; } .ds-index-description { display: block; margin-top: 0.25rem; color: #adc1ce; font-size: 0.875rem; line-height: 1.25rem; } .ds-index-arrow { width: 1.25rem; height: 1.25rem; flex-shrink: 0; transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1); } .ds-index-link:hover .ds-index-arrow { transform: translateX(0.25rem); } @media (min-width: 640px) { .ds-index { padding: 2rem; } } @media (min-width: 1024px) { .ds-index { padding: 2.5rem; } } @media (prefers-reduced-motion: reduce) { .ds-index-arrow { transition: none; } }"
+    },
+    {
+      "name": "Ruled Highlight",
+      "kind": "custom",
+      "refersTo": "highlight",
+      "description": "A flat text highlight separated by a light rule.",
+      "html": "<article class=\"ds-highlight\"><h3 class=\"ds-highlight-title\">Django Specialist</h3><p class=\"ds-highlight-copy\">Deep expertise in Django, DRF, and the Python ecosystem for robust web development.</p></article>",
+      "css": ".ds-highlight { border-top: 1px solid rgba(228, 237, 244, 0.25); padding-top: 1.25rem; color: #e4edf4; font-family: Manrope, Arial, sans-serif; } .ds-highlight-title { margin: 0; font-size: 1.125rem; line-height: 1.75rem; font-weight: 700; } .ds-highlight-copy { max-width: 24rem; margin: 0.75rem 0 0; color: #adc1ce; font-size: 0.875rem; line-height: 1.8; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Working Index",
+    "overview": "The Working Index is a calm, useful field guide. Dark navy surfaces, soft light text, condensed headings, and clear rules make information easy to scan without relying on conventional cards.\n\nSolid deep and elevated fields create contrast without decorative layering. Restrained blue accents, generous space, direct labels, and crisp controls keep the presentation practical and legible.",
+    "keyCharacteristics": [
+      "Dark navy surfaces, soft light text, and restrained blue accents.",
+      "Condensed headings paired with clear sans-serif text.",
+      "Square edges, ruled rows, and generous margins.",
+      "Direct controls with visible keyboard focus."
+    ],
+    "rules": [
+      {
+        "name": "The Dark Field Rule",
+        "body": "Pair soft light text with dark navy fields. Reserve pale blue for primary actions and use dark text on those fills.",
+        "section": "colors"
+      },
+      {
+        "name": "The Condensed Headlines Rule",
+        "body": "Use the condensed face for section headings, the large statement, the monogram, and display numerals; keep body copy, labels, and controls in Manrope.",
+        "section": "typography"
+      },
+      {
+        "name": "The Ruled Separation Rule",
+        "body": "Separate repeated items with thin translucent rules and flat fields rather than individual raised cards. Transient feedback may lift above the page.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** pair light text with dark fields, and dark text with pale-blue actions.",
+      "**Do** group repeated information with rules and generous spacing.",
+      "**Do** preserve visible keyboard focus and the reduced-motion treatment.",
+      "**Do** let multi-column content stack at narrow widths."
+    ],
+    "donts": [
+      "**Don't** turn index or evidence rows into rounded, shadowed cards.",
+      "**Don't** remove the underline from inline links and rely on color alone.",
+      "**Don't** make the notification's shadow the default elevation for ordinary surfaces."
+    ]
+  }
+}

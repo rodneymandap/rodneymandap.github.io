@@ -7,6 +7,20 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        portfolio: {
+          paper: '#101923',
+          ink: '#e4edf4',
+          muted: '#adc1ce',
+          blue: '#9ac8ef',
+          accent: '#1d3142',
+          light: '#adc1ce',
+          deep: '#0a121b',
+          field: '#142536',
+          line: '#7898b0',
+          button: '#b4d5ef',
+          'button-hover': '#d2e8fa',
+          'button-text': '#101f2b',
+        },
         primary: {
           50: '#eef2ff',
           100: '#e0e7ff',
@@ -43,6 +57,8 @@ module.exports = {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
         mono: ['Fira Code', 'Consolas', 'monospace'],
+        portfolio: ['Manrope', 'Arial', 'sans-serif'],
+        'portfolio-display': ['Barlow Condensed', 'Arial Narrow', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
