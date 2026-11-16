@@ -61,8 +61,11 @@ describe("Portfolio home", () => {
       })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/a software engineer building automation platforms, web applications/i)
+      screen.getByText(
+        /a software engineer building web applications and turning manual processes into end-to-end automated workflows/i
+      )
     ).toBeInTheDocument();
+    expect(screen.queryByText(/automation platforms/i)).not.toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Software Engineer Building Applications" })
     ).toBeInTheDocument();
@@ -86,7 +89,7 @@ describe("Portfolio home", () => {
       screen.getByRole("link", { name: /Web applications.*Workflow tools/i })
     ).toHaveAttribute("href", "#about");
     expect(
-      screen.getByRole("link", { name: /Automation.*Python services/i })
+      screen.getByRole("link", { name: /Automation.*End-to-end automated workflows/i })
     ).toHaveAttribute("href", "#automation-scripting");
     expect(
       screen.getByRole("link", { name: /Backend systems.*APIs/i })
@@ -162,6 +165,10 @@ describe("Portfolio home", () => {
     expect(document.querySelector('meta[property="og:title"]')).toHaveAttribute(
       "content",
       "Rodney Jan Mandap | Freelance Software Engineer"
+    );
+    expect(document.querySelector('meta[name="description"]')).toHaveAttribute(
+      "content",
+      expect.stringContaining("automating manual processes into end-to-end workflows")
     );
     expect(document.querySelector('script[type="application/ld+json"]')).toBeInTheDocument();
   });

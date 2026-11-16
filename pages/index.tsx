@@ -6,7 +6,7 @@ const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://rodneymandap.github.io";
 const siteTitle = "Rodney Jan Mandap | Freelance Software Engineer";
 const siteDescription =
-  "Rodney Jan Mandap is a freelance software engineer building automation platforms, web applications, REST APIs, and software for internal and customer-facing products.";
+  "Rodney Jan Mandap is a freelance software engineer building web applications and REST APIs and automating manual processes into end-to-end workflows.";
 const socialImageUrl = `${siteUrl}/myPic.jpeg`;
 const structuredData = {
   "@context": "https://schema.org",
@@ -51,7 +51,7 @@ const skillCategories: SkillCategory[] = [
   {
     id: "automation-scripting",
     category: "Automation & Scripting",
-    description: "async, scripting, automation frameworks",
+    description: "process automation, scripting, end-to-end workflows",
     skills: ["Python"],
   },
   {
@@ -129,7 +129,7 @@ const focusAreas: Array<NavLink & { description: string }> = [
   },
   {
     name: "Automation",
-    description: "Python services & scripting",
+    description: "End-to-end automated workflows",
     href: "#automation-scripting",
   },
   {
@@ -444,8 +444,8 @@ export default function Home(): JSX.Element {
               </h1>
               <p className="mt-6 max-w-xl text-base leading-[1.8] text-portfolio-muted sm:mt-8 sm:text-lg">
                 Hello, I&apos;m <strong className="font-bold text-portfolio-ink">Rodney Jan Mandap</strong>,
-                a software engineer building automation platforms, web applications,
-                and backend systems.
+                a software engineer building web applications and turning manual
+                processes into end-to-end automated workflows.
               </p>
               <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-2 sm:mt-8 sm:gap-y-4">
                 <a
@@ -538,14 +538,13 @@ export default function Home(): JSX.Element {
                 </h3>
                 <div className="mt-6 space-y-5 text-base leading-[1.8] text-portfolio-muted">
                   <p>
-                    I&apos;m Rodney, a software engineer specializing in automation
-                    platforms and workflow-driven tools for both internal teams and
-                    customer-facing applications.
+                    I&apos;m Rodney, a software engineer building web applications
+                    and backend systems for internal teams and customer-facing
+                    products.
                   </p>
                   <p>
-                    I build backend-heavy systems that support complex operations,
-                    from internal automation portals to customer dashboards that
-                    integrate with infrastructure and automated processes. My
+                    I turn manual processes into end-to-end automated workflows
+                    that connect applications, infrastructure, and existing tools. My
                     background in automation and backend engineering allows me to
                     design systems that are reliable, maintainable, and safe to
                     operate in production.
