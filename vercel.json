@@ -4,18 +4,6 @@
   "functions": {
     "pages/api/contact.ts": {
       "maxDuration": 10
-    },
-    "pages/api/ynab-mcp.ts": {
-      "maxDuration": 10
-    },
-    "pages/api/ynab/oauth/connect.ts": {
-      "maxDuration": 10
-    },
-    "pages/api/ynab/oauth/callback.ts": {
-      "maxDuration": 10
-    },
-    "pages/api/levelup/ai.ts": {
-      "maxDuration": 10
     }
   },
   "regions": ["sin1"]
