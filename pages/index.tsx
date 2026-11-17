@@ -117,9 +117,9 @@ type NavLink = {
 };
 
 const navLinks: NavLink[] = [
+  { name: "Certifications", href: "#certifications" },
   { name: "About", href: "#about" },
   { name: "Skills", href: "#skills" },
-  { name: "Certifications", href: "#certifications" },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -141,24 +141,6 @@ const focusAreas: Array<NavLink & { description: string }> = [
   },
 ];
 
-const approachHighlights: Array<{ title: string; description: string }> = [
-  {
-    title: "Freelance Flexibility",
-    description:
-      "Direct collaboration with clients, flexible schedules, and personalized attention to every project.",
-  },
-  {
-    title: "Django Specialist",
-    description:
-      "Deep expertise in Django, DRF, and the Python ecosystem for robust web development.",
-  },
-  {
-    title: "End-to-End Delivery",
-    description:
-      "From concept to deployment, I handle the full development lifecycle for your project.",
-  },
-];
-
 type Toast = {
   type: "success" | "error";
   message: string;
@@ -171,12 +153,58 @@ type FormData = {
   message: string;
 };
 
+type ContactField = keyof FormData;
+type ContactFieldErrors = Partial<Record<ContactField, string>>;
+
 const emptyForm: FormData = {
   name: "",
   email: "",
   projectType: "",
   message: "",
 };
+
+const contactFields: ContactField[] = ["name", "email", "projectType", "message"];
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function getContactFieldError(
+  field: ContactField,
+  value: string
+): string | undefined {
+  const trimmedValue = value.trim();
+
+  switch (field) {
+    case "name":
+      if (!trimmedValue) return "Enter your name.";
+      if (trimmedValue.length < 2) return "Use at least 2 characters.";
+      if (trimmedValue.length > 100) return "Use 100 characters or fewer.";
+      return undefined;
+    case "email":
+      if (!trimmedValue) return "Enter your email address.";
+      if (!emailPattern.test(trimmedValue)) {
+        return "Enter an email address like name@example.com.";
+      }
+      return undefined;
+    case "projectType":
+      if (trimmedValue.length > 200) return "Use 200 characters or fewer.";
+      return undefined;
+    case "message":
+      if (!trimmedValue) return "Enter a message.";
+      if (trimmedValue.length < 10) return "Use at least 10 characters.";
+      if (trimmedValue.length > 5000) return "Use 5,000 characters or fewer.";
+      return undefined;
+  }
+}
+
+function validateContactForm(formData: FormData): ContactFieldErrors {
+  const errors: ContactFieldErrors = {};
+
+  for (const field of contactFields) {
+    const error = getContactFieldError(field, formData[field]);
+    if (error) errors[field] = error;
+  }
+
+  return errors;
+}
 
 function ArrowIcon({
   diagonal = false,
@@ -204,15 +232,15 @@ function ArrowIcon({
 }
 
 export default function Home(): JSX.Element {
-  const yearsOfExperience = new Date().getFullYear() - 2017;
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [fieldErrors, setFieldErrors] = useState<ContactFieldErrors>({});
   const [honeypot, setHoneypot] = useState<string>("");
 
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toast.type === "error") return;
 
     const timeout = window.setTimeout(() => setToast(null), 5000);
     return () => window.clearTimeout(timeout);
@@ -222,28 +250,37 @@ export default function Home(): JSX.Element {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = event.target;
+    if (
+      name !== "name" &&
+      name !== "email" &&
+      name !== "projectType" &&
+      name !== "message"
+    ) {
+      return;
+    }
+
     setFormData((previous) => ({ ...previous, [name]: value }));
+    setFieldErrors((previous) => {
+      if (!previous[name]) return previous;
+
+      const error = getContactFieldError(name, value);
+      const next = { ...previous };
+      if (error) next[name] = error;
+      else delete next[name];
+      return next;
+    });
   };
 
   const handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isSubmitting) return;
 
-    if (!formData.name.trim()) {
-      setToast({ type: "error", message: "Please enter your name." });
-      return;
-    }
-
-    if (!formData.email.trim()) {
-      setToast({ type: "error", message: "Please enter your email." });
-      return;
-    }
-
-    if (!formData.message.trim() || formData.message.trim().length < 10) {
-      setToast({
-        type: "error",
-        message: "Please enter a message (at least 10 characters).",
-      });
+    setToast(null);
+    const errors = validateContactForm(formData);
+    setFieldErrors(errors);
+    const firstInvalidField = contactFields.find((field) => errors[field]);
+    if (firstInvalidField) {
+      document.getElementById(firstInvalidField)?.focus();
       return;
     }
 
@@ -253,7 +290,13 @@ export default function Home(): JSX.Element {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, honeypot }),
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          projectType: formData.projectType.trim(),
+          message: formData.message.trim(),
+          honeypot,
+        }),
       });
       const data: { details?: string; error?: string } = await response.json();
 
@@ -275,7 +318,7 @@ export default function Home(): JSX.Element {
       console.error("Form submission error:", error);
       setToast({
         type: "error",
-        message: "An error occurred. Please try again later.",
+        message: "We couldn't send your message. Please try again.",
       });
     } finally {
       setIsSubmitting(false);
@@ -435,21 +478,21 @@ export default function Home(): JSX.Element {
       <main id="main">
         <section
           id="hero"
-          className="mx-auto max-w-[1440px] px-6 pb-20 pt-12 sm:px-10 sm:pb-24 sm:pt-20 lg:px-16 lg:pb-32 lg:pt-24"
+          className="mx-auto max-w-[1440px] px-6 pb-12 pt-8 sm:px-10 sm:pb-24 sm:pt-20 lg:px-16 lg:pb-32 lg:pt-24"
         >
-          <div className="grid items-stretch gap-10 sm:gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-16">
+          <div className="grid items-stretch gap-6 sm:gap-14 lg:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)] lg:gap-16">
             <div className="flex flex-col items-start justify-center">
-              <h1 className="font-portfolio-display text-[clamp(3.25rem,15vw,6rem)] font-semibold leading-[0.94] tracking-[-0.025em]">
+              <h1 className="font-portfolio-display text-[clamp(2.75rem,12vw,4.25rem)] font-semibold leading-[0.94] tracking-[-0.025em] sm:text-[clamp(3.25rem,8vw,6rem)]">
                 <span className="block">Software &amp;</span>{" "}
                 <span className="block">automation,</span>{" "}
                 <span className="block text-portfolio-blue">built to work.</span>
               </h1>
-              <p className="mt-6 max-w-xl text-base leading-[1.8] text-portfolio-muted sm:mt-8 sm:text-lg">
+              <p className="mt-4 max-w-xl text-base leading-[1.8] text-portfolio-muted sm:mt-8 sm:text-lg">
                 Hello, I&apos;m <strong className="font-bold text-portfolio-ink">Rodney Jan Mandap</strong>,
                 a software engineer building web applications and automating network
                 operations and other manual processes into end-to-end workflows.
               </p>
-              <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-2 sm:mt-8 sm:gap-y-4">
+              <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-2 sm:mt-8 sm:gap-y-4">
                 <a
                   href="#contact"
                   className="inline-flex min-h-12 items-center gap-8 bg-portfolio-button px-6 py-3 text-sm font-bold text-portfolio-button-text transition-colors hover:bg-portfolio-button-hover focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portfolio-blue"
@@ -465,17 +508,15 @@ export default function Home(): JSX.Element {
                   <ArrowIcon className="h-4 w-4" />
                 </a>
               </div>
-              <div className="mt-8 flex items-baseline gap-3 border-t border-portfolio-ink/20 pt-5 sm:mt-12">
-                <span className="font-portfolio-display text-4xl font-semibold">
-                  {yearsOfExperience}+
-                </span>
+              <div className="mt-6 flex items-baseline gap-3 border-t border-portfolio-ink/20 pt-5 sm:mt-12">
                 <span className="text-sm font-semibold text-portfolio-muted">
-                  Years Experience
+                  Experience since
                 </span>
+                <span className="font-portfolio-display text-4xl font-semibold">2017</span>
               </div>
             </div>
 
-            <aside className="flex flex-col bg-portfolio-accent p-6 sm:p-8 lg:p-10">
+            <aside className="flex flex-col bg-portfolio-accent p-5 sm:p-8 lg:p-10">
               <h2 className="font-portfolio-display text-3xl font-semibold">
                 Areas of work
               </h2>
@@ -499,7 +540,7 @@ export default function Home(): JSX.Element {
                   </li>
                 ))}
               </ul>
-              <div className="mt-8 grid grid-cols-[7.5rem_minmax(0,1fr)] items-stretch sm:grid-cols-[9rem_minmax(0,1fr)]">
+              <div className="mt-6 grid grid-cols-[7.5rem_minmax(0,1fr)] items-stretch sm:mt-8 sm:grid-cols-[9rem_minmax(0,1fr)]">
                 <Image
                   src="/myPic.jpeg"
                   alt="Rodney Jan Mandap"
@@ -525,6 +566,47 @@ export default function Home(): JSX.Element {
           </div>
         </section>
 
+        <section id="certifications" className="scroll-mt-6">
+          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-20 sm:px-10 sm:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20 lg:px-16 lg:py-32">
+            <div>
+              <h2 className="font-portfolio-display text-5xl font-semibold leading-none sm:text-6xl">
+                Certifications
+              </h2>
+              <p className="mt-5 max-w-sm text-base leading-relaxed text-portfolio-muted">
+                Each certification links to its Credly verification page.
+              </p>
+            </div>
+            <div className="border-b border-portfolio-ink/25">
+              {certifications.map((certification) => (
+                <article
+                  key={certification.credentialId}
+                  className="grid gap-4 border-t border-portfolio-ink/25 py-7 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-8"
+                >
+                  <div>
+                    <h3 className="text-xl font-bold">{certification.title}</h3>
+                    <p className="mt-2 text-sm text-portfolio-muted">
+                      {certification.issuer} &middot; {certification.date}
+                    </p>
+                    <p className="mt-1 text-sm text-portfolio-muted">
+                      ID: {certification.credentialId}
+                    </p>
+                  </div>
+                  <a
+                    href={certification.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View ${certification.title} on Credly (opens in a new tab)`}
+                    className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold underline decoration-portfolio-blue underline-offset-4 hover:text-portfolio-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portfolio-blue"
+                  >
+                    View {certification.title}
+                    <ArrowIcon diagonal className="h-4 w-4" />
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section
           id="about"
           className="scroll-mt-6 border-t border-portfolio-ink/[0.15]"
@@ -534,47 +616,14 @@ export default function Home(): JSX.Element {
               <h2 className="font-portfolio-display text-5xl font-semibold leading-none sm:text-6xl">
                 About Me
               </h2>
-              <div className="max-w-3xl">
-                <h3 className="max-w-xl text-2xl font-bold leading-snug sm:text-3xl">
-                  Software Engineer Building Applications
-                </h3>
-                <div className="mt-6 space-y-5 text-base leading-[1.8] text-portfolio-muted">
-                  <p>
-                    I&apos;m Rodney, a software engineer building web applications
-                    and backend systems for internal teams and customer-facing
-                    products.
-                  </p>
-                  <p>
-                    I automate network operations and other manual processes into
-                    end-to-end workflows that connect applications, infrastructure,
-                    and existing tools. My
-                    background in automation and backend engineering allows me to
-                    design systems that are reliable, maintainable, and safe to
-                    operate in production.
-                  </p>
-                  <p>
-                    I focus on clarity in code and communication, and I design tools
-                    with validation, visibility, and long-term ownership in mind.
-                  </p>
-                </div>
-                <dl className="mt-9 flex flex-wrap gap-x-12 gap-y-5">
-                  <div>
-                    <dt className="text-sm text-portfolio-muted">Core Language</dt>
-                    <dd className="mt-1 text-lg font-bold">Python</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
-
-            <div className="mt-16 grid gap-8 md:grid-cols-3 lg:mt-24">
-              {approachHighlights.map((item) => (
-                <article key={item.title} className="border-t border-portfolio-ink/25 pt-5">
-                  <h3 className="text-lg font-bold">{item.title}</h3>
-                  <p className="mt-3 max-w-sm text-sm leading-[1.8] text-portfolio-muted">
-                    {item.description}
-                  </p>
-                </article>
-              ))}
+              <p className="max-w-3xl text-base leading-[1.8] text-portfolio-muted">
+                I build web applications and backend systems, and automate network
+                operations and other manual processes through end-to-end workflows
+                that connect applications, infrastructure, and existing tools. My
+                background in automation and backend engineering helps me design
+                reliable, maintainable systems that are safe to operate in
+                production.
+              </p>
             </div>
           </div>
         </section>
@@ -588,9 +637,6 @@ export default function Home(): JSX.Element {
               <h2 className="max-w-sm font-portfolio-display text-5xl font-semibold leading-none sm:text-6xl">
                 Skills &amp; Technologies
               </h2>
-              <p className="mt-5 max-w-sm text-base leading-relaxed text-portfolio-light">
-                A focused toolkit for building modern Django web applications.
-              </p>
             </div>
             <div>
               <div className="space-y-10">
@@ -623,48 +669,6 @@ export default function Home(): JSX.Element {
           </div>
         </section>
 
-        <section id="certifications" className="scroll-mt-6">
-          <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-20 sm:px-10 sm:py-24 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-20 lg:px-16 lg:py-32">
-            <div>
-              <h2 className="font-portfolio-display text-5xl font-semibold leading-none sm:text-6xl">
-                Certifications
-              </h2>
-              <p className="mt-5 max-w-sm text-base leading-relaxed text-portfolio-muted">
-                Professional certifications demonstrating expertise and commitment
-                to continuous learning.
-              </p>
-            </div>
-            <div className="border-b border-portfolio-ink/25">
-              {certifications.map((certification) => (
-                <article
-                  key={certification.credentialId}
-                  className="grid gap-4 border-t border-portfolio-ink/25 py-7 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-8"
-                >
-                  <div>
-                    <h3 className="text-xl font-bold">{certification.title}</h3>
-                    <p className="mt-2 text-sm text-portfolio-muted">
-                      {certification.issuer} &middot; {certification.date}
-                    </p>
-                    <p className="mt-1 text-sm text-portfolio-muted">
-                      ID: {certification.credentialId}
-                    </p>
-                  </div>
-                  <a
-                    href={certification.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`View ${certification.title} certificate (opens in a new tab)`}
-                    className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold underline decoration-portfolio-blue underline-offset-4 hover:text-portfolio-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portfolio-blue"
-                  >
-                    View Certificate
-                    <ArrowIcon diagonal className="h-4 w-4" />
-                  </a>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <section
           id="contact"
           className="scroll-mt-6 bg-portfolio-accent"
@@ -675,8 +679,8 @@ export default function Home(): JSX.Element {
                 Let&apos;s Build Something Great
               </h2>
               <p className="mt-6 max-w-md text-base leading-[1.8] text-portfolio-muted">
-                Have a project or an opportunity in mind? I&apos;d love to hear
-                about it. Tell me a little about what you&apos;re looking for.
+                Have a project or an opportunity in mind? Tell me what you&apos;re
+                looking for.
               </p>
               <div className="mt-8 flex flex-wrap gap-x-7 gap-y-4">
                 <a
@@ -696,7 +700,12 @@ export default function Home(): JSX.Element {
               </div>
             </div>
 
-            <form aria-label="Contact form" className="space-y-6" onSubmit={handleFormSubmit}>
+            <form
+              aria-label="Contact form"
+              className="space-y-6"
+              noValidate
+              onSubmit={handleFormSubmit}
+            >
               <div className="absolute -left-[9999px]" aria-hidden="true">
                 <label htmlFor="website">Website</label>
                 <input
@@ -723,9 +732,22 @@ export default function Home(): JSX.Element {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
+                    minLength={2}
+                    maxLength={100}
                     disabled={isSubmitting}
                     autoComplete="name"
+                    aria-invalid={fieldErrors.name ? "true" : undefined}
+                    aria-describedby={fieldErrors.name ? "name-error" : undefined}
                   />
+                  {fieldErrors.name && (
+                    <p
+                      id="name-error"
+                      role="alert"
+                      className="mt-2 text-sm font-semibold text-portfolio-ink"
+                    >
+                      {fieldErrors.name}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label htmlFor="email" className="mb-2 block text-sm font-bold">
@@ -742,7 +764,18 @@ export default function Home(): JSX.Element {
                     required
                     disabled={isSubmitting}
                     autoComplete="email"
+                    aria-invalid={fieldErrors.email ? "true" : undefined}
+                    aria-describedby={fieldErrors.email ? "email-error" : undefined}
                   />
+                  {fieldErrors.email && (
+                    <p
+                      id="email-error"
+                      role="alert"
+                      className="mt-2 text-sm font-semibold text-portfolio-ink"
+                    >
+                      {fieldErrors.email}
+                    </p>
+                  )}
                 </div>
               </div>
               <div>
@@ -757,8 +790,22 @@ export default function Home(): JSX.Element {
                   className={inputClassName}
                   value={formData.projectType}
                   onChange={handleInputChange}
+                  maxLength={200}
                   disabled={isSubmitting}
+                  aria-invalid={fieldErrors.projectType ? "true" : undefined}
+                  aria-describedby={
+                    fieldErrors.projectType ? "project-type-error" : undefined
+                  }
                 />
+                {fieldErrors.projectType && (
+                  <p
+                    id="project-type-error"
+                    role="alert"
+                    className="mt-2 text-sm font-semibold text-portfolio-ink"
+                  >
+                    {fieldErrors.projectType}
+                  </p>
+                )}
               </div>
               <div>
                 <label htmlFor="message" className="mb-2 block text-sm font-bold">
@@ -773,8 +820,21 @@ export default function Home(): JSX.Element {
                   value={formData.message}
                   onChange={handleInputChange}
                   required
+                  minLength={10}
+                  maxLength={5000}
                   disabled={isSubmitting}
+                  aria-invalid={fieldErrors.message ? "true" : undefined}
+                  aria-describedby={fieldErrors.message ? "message-error" : undefined}
                 />
+                {fieldErrors.message && (
+                  <p
+                    id="message-error"
+                    role="alert"
+                    className="mt-2 text-sm font-semibold text-portfolio-ink"
+                  >
+                    {fieldErrors.message}
+                  </p>
+                )}
               </div>
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <button

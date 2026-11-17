@@ -66,8 +66,11 @@ describe("Portfolio home", () => {
       )
     ).toBeInTheDocument();
     expect(screen.queryByText(/automation platforms/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "About Me" })).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Software Engineer Building Applications" })
+      screen.getByText(
+        /I build web applications and backend systems, and automate network operations/i
+      )
     ).toBeInTheDocument();
     expect(
       screen.queryByText(/a Python and Django engineer/i)
@@ -76,8 +79,8 @@ describe("Portfolio home", () => {
     expect(
       screen.getByRole("link", { name: "View Rodney Jan Mandap's GitHub profile" })
     ).toHaveAttribute("href", "https://github.com/rodneymandap");
-    expect(screen.getByText(`${new Date().getFullYear() - 2017}+`)).toBeInTheDocument();
-    expect(screen.getByText("Years Experience")).toBeInTheDocument();
+    expect(screen.getByText("2017")).toBeInTheDocument();
+    expect(screen.getByText("Experience since")).toBeInTheDocument();
     expect(screen.queryByText("Available for Projects")).not.toBeInTheDocument();
     expect(screen.queryByText("Primary Framework")).not.toBeInTheDocument();
   });
@@ -136,7 +139,7 @@ describe("Portfolio home", () => {
     expect(screen.getByText("ID: AZ-104")).toBeInTheDocument();
 
     const certificate = screen.getByRole("link", {
-      name: "View Azure Fundamentals certificate (opens in a new tab)",
+      name: "View Azure Fundamentals on Credly (opens in a new tab)",
     });
     expect(certificate).toHaveAttribute(
       "href",
@@ -220,9 +223,22 @@ describe("Portfolio home", () => {
 
     fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
-    expect(await screen.findByRole("alert")).toHaveTextContent("Please try again later.");
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Please try again later.");
     expect(screen.getByLabelText(/^Message/)).toHaveValue("I have a project to discuss.");
     expect(screen.getByRole("button", { name: "Send Message" })).toBeEnabled();
+
+    jest.useFakeTimers();
+    try {
+      act(() => {
+        jest.advanceTimersByTime(6000);
+      });
+      expect(alert).toBeInTheDocument();
+      fireEvent.click(screen.getByRole("button", { name: "Dismiss notification" }));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("reports network failures without losing the message", async () => {
@@ -234,7 +250,7 @@ describe("Portfolio home", () => {
     fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "An error occurred. Please try again later."
+      "We couldn't send your message. Please try again."
     );
     expect(screen.getByLabelText(/^Message/)).toHaveValue("I have a project to discuss.");
     expect(logError).toHaveBeenCalled();
@@ -247,7 +263,28 @@ describe("Portfolio home", () => {
 
     fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
 
-    expect(screen.getByRole("alert")).toHaveTextContent("at least 10 characters");
+    expect(screen.getByRole("alert")).toHaveTextContent("Use at least 10 characters.");
+    expect(screen.getByLabelText(/^Message/)).toHaveAttribute("aria-invalid", "true");
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("associates validation errors with fields and focuses the first invalid field", () => {
+    render(<Home />);
+
+    fireEvent.submit(screen.getByRole("form", { name: "Contact form" }));
+
+    const nameField = screen.getByLabelText(/^Name/);
+    const emailField = screen.getByLabelText(/^Email/);
+    expect(nameField).toHaveFocus();
+    expect(nameField).toHaveAttribute("aria-invalid", "true");
+    expect(nameField).toHaveAttribute("aria-describedby", "name-error");
+    expect(emailField).toHaveAttribute("aria-describedby", "email-error");
+
+    fireEvent.change(nameField, { target: { value: "Alex Client" } });
+
+    expect(nameField).not.toHaveAttribute("aria-invalid");
+    expect(screen.queryByText("Enter your name.")).not.toBeInTheDocument();
+    expect(emailField).toHaveAttribute("aria-invalid", "true");
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
